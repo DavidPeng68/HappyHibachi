@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "./static/css/main.9120b6d6.css",
+    "main.js": "./static/js/main.f86aa41c.js",
+    "static/js/453.214dfa36.chunk.js": "./static/js/453.214dfa36.chunk.js",
+    "static/media/gallery-1.jpg": "./static/media/gallery-1.e12b2dcaa0eebdf37365.jpg",
+    "static/media/chef-cooking.jpg": "./static/media/chef-cooking.84b9db25c3c60fe2d54a.jpg",
+    "static/media/food-1.jpg": "./static/media/food-1.0cfdeb9e8ca865159e43.jpg",
+    "static/media/logo.png": "./static/media/logo.e899eaeefb184dd53ceb.png",
+    "static/media/food-2.jpg": "./static/media/food-2.8819ba79236d88a62fef.jpg",
+    "static/media/gallery-2.jpg": "./static/media/gallery-2.f9d5589b6de9dc53b51c.jpg",
+    "static/media/gallery-3.jpg": "./static/media/gallery-3.adc4bbc6744cc4619140.jpg",
+    "static/media/hero-bg.jpg": "./static/media/hero-bg.efd9b5efe500b250f277.jpg",
+    "index.html": "./index.html",
+    "main.9120b6d6.css.map": "./static/css/main.9120b6d6.css.map",
+    "main.f86aa41c.js.map": "./static/js/main.f86aa41c.js.map",
+    "453.214dfa36.chunk.js.map": "./static/js/453.214dfa36.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9120b6d6.css",
+    "static/js/main.f86aa41c.js"
+  ]
+}
