@@ -1,0 +1,122 @@
+.hero {
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  padding-top: 80px;
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.3), rgba(0,0,0,0.6));
+  z-index: 1;
+}
+
+.hero-content {
+  max-width: 900px;
+  padding: 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-tagline {
+  margin-bottom: 2rem;
+}
+
+.hero-tagline h2 {
+  font-size: 1.8rem;
+  color: #ff6b35;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+.hero-content h1 {
+  font-size: 3.5rem;
+  margin-bottom: 2rem;
+  text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.hero-content p {
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+}
+
+.service-areas {
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.95), rgba(255, 140, 53, 0.95));
+  padding: 1.5rem;
+  border-radius: 15px;
+  margin: 2rem 0;
+  font-size: 1.2rem;
+  box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-top: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.hero-slogan {
+  font-size: 1.3rem;
+  color: #ff6b35;
+  font-weight: bold;
+  margin-top: 2.5rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-content h1 {
+    font-size: 2.5rem;
+  }
+  
+  .hero-tagline h2 {
+    font-size: 1.5rem;
+  }
+  
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .hero-content p {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-content {
+    padding: 1rem;
+  }
+  
+  .hero-content h1 {
+    font-size: 2rem;
+  }
+  
+  .hero-tagline h2 {
+    font-size: 1.3rem;
+  }
+} 
