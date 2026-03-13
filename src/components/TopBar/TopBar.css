@@ -1,0 +1,95 @@
+/* =============================================
+   TOP BAR - Quick Contact Strip
+   ============================================= */
+
+.top-bar {
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  padding: var(--space-sm) 0;
+  position: relative;
+  z-index: var(--z-topbar);
+}
+
+.top-bar-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--space-xl);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.top-bar-promo {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-bg-dark);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xl);
+}
+
+.top-bar-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-bg-dark);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.top-bar-link:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+.top-bar-link svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .top-bar-container {
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .top-bar-left {
+    display: none;
+  }
+
+  .top-bar-right {
+    gap: var(--space-md);
+  }
+
+  .top-bar-link span {
+    display: none;
+  }
+
+  .top-bar-link svg {
+    width: 20px;
+    height: 20px;
+  }
+}

@@ -1,0 +1,146 @@
+/* =============================================
+   CARD COMPONENT
+   ============================================= */
+
+.ui-card {
+  border-radius: var(--radius-xl);
+  transition: all 0.4s var(--motion-easing-standard);
+  position: relative;
+  overflow: hidden;
+}
+
+/* === Variants === */
+
+.ui-card--default {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-light);
+}
+
+.ui-card--elevated {
+  background: var(--color-bg-card);
+  border: 1px solid transparent;
+  box-shadow: var(--shadow-lg);
+}
+
+.ui-card--outlined {
+  background: transparent;
+  border: 2px solid var(--color-border);
+}
+
+.ui-card--glass {
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-glass-border);
+}
+
+/* === Padding === */
+
+.ui-card--padding-none {
+  padding: 0;
+}
+
+.ui-card--padding-sm {
+  padding: var(--space-sm);
+}
+
+.ui-card--padding-md {
+  padding: var(--space-lg);
+}
+
+.ui-card--padding-lg {
+  padding: var(--space-2xl);
+}
+
+/* === Interactive States === */
+
+.ui-card--hover {
+  cursor: pointer;
+}
+
+.ui-card--hover:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--color-border-primary);
+}
+
+.ui-card--hover:hover.ui-card--default,
+.ui-card--hover:hover.ui-card--elevated {
+  background: var(--color-bg-card-hover);
+}
+
+.ui-card--hover:hover.ui-card--glass {
+  background: var(--color-glass-bg-hover);
+}
+
+.ui-card--hover:active {
+  transform: translateY(-4px);
+  transition-duration: 0.1s;
+}
+
+/* === Glow Effect === */
+
+.ui-card--glow {
+  animation: card-glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes card-glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 20px var(--color-primary-glow);
+  }
+  50% {
+    box-shadow:
+      0 0 40px var(--color-primary-glow-strong),
+      0 0 60px var(--color-primary-glow-soft);
+  }
+}
+
+/* === Card with gradient border (decorative) === */
+
+.ui-card--glow::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  opacity: 0;
+  z-index: -1;
+  transition: opacity var(--transition-base);
+}
+
+.ui-card--glow:hover::before {
+  opacity: 0.6;
+}
+
+/* === Responsive === */
+
+@media (max-width: 768px) {
+  .ui-card--padding-lg {
+    padding: var(--space-lg);
+  }
+
+  .ui-card--hover:hover {
+    transform: translateY(-4px);
+  }
+}
+
+/* =============================================
+   LIGHT THEME OVERRIDES
+   ============================================= */
+
+.theme-light .ui-card--default {
+  border-color: var(--color-border);
+}
+
+.theme-light .ui-card--elevated {
+  border-color: var(--color-border-light);
+}
+
+.theme-light .ui-card--glass {
+  border-color: var(--color-glass-border);
+}
+
+.theme-light .ui-card--hover:hover {
+  border-color: var(--color-border-primary);
+}

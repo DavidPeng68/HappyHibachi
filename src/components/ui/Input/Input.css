@@ -1,0 +1,173 @@
+/* =============================================
+   INPUT COMPONENT
+   ============================================= */
+
+.ui-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ui-input-wrapper--full {
+  width: 100%;
+}
+
+/* Label */
+.ui-input__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ui-input__required {
+  color: var(--color-primary);
+  margin-left: 0.25rem;
+}
+
+/* Container */
+.ui-input__container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Icon */
+.ui-input__icon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 100%;
+  color: var(--color-text-muted);
+  pointer-events: none;
+  transition: color 0.3s ease;
+}
+
+.ui-input-wrapper--icon-left .ui-input__icon {
+  left: 0;
+}
+
+.ui-input-wrapper--icon-right .ui-input__icon {
+  right: 0;
+}
+
+.ui-input-wrapper--icon-left .ui-input {
+  padding-left: 2.75rem;
+}
+
+.ui-input-wrapper--icon-right .ui-input {
+  padding-right: 2.75rem;
+}
+
+/* Input */
+.ui-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.ui-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Focus state */
+.ui-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: rgba(255, 107, 53, 0.05);
+  box-shadow:
+    0 0 0 3px rgba(255, 107, 53, 0.1),
+    0 0 20px rgba(255, 107, 53, 0.1);
+}
+
+.ui-input:focus + .ui-input__icon,
+.ui-input-wrapper--icon-left .ui-input:focus ~ .ui-input__icon {
+  color: var(--color-primary);
+}
+
+/* Error state */
+.ui-input-wrapper--error .ui-input {
+  border-color: var(--color-danger);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.ui-input-wrapper--error .ui-input:focus {
+  box-shadow:
+    0 0 0 3px rgba(239, 68, 68, 0.1),
+    0 0 20px rgba(239, 68, 68, 0.1);
+}
+
+/* Disabled */
+.ui-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Hint & Error */
+.ui-input__hint,
+.ui-input__error {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.ui-input__hint {
+  color: var(--color-text-muted);
+}
+
+.ui-input__error {
+  color: var(--color-danger);
+}
+
+/* Autofill fix */
+.ui-input:-webkit-autofill,
+.ui-input:-webkit-autofill:hover,
+.ui-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-text-primary);
+  -webkit-box-shadow: 0 0 0px 1000px rgba(255, 107, 53, 0.05) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Number input spinner - 隐藏默认箭头 */
+.ui-input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+.ui-input[type='number']::-webkit-outer-spin-button,
+.ui-input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* =============================================
+   LIGHT THEME OVERRIDES
+   ============================================= */
+
+.theme-light .ui-input {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: var(--color-border);
+}
+
+.theme-light .ui-input:focus {
+  background: rgba(255, 107, 53, 0.04);
+}
+
+.theme-light .ui-input:disabled {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.theme-light .ui-input:-webkit-autofill,
+.theme-light .ui-input:-webkit-autofill:hover,
+.theme-light .ui-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-text-primary);
+  -webkit-box-shadow: 0 0 0px 1000px rgba(255, 107, 53, 0.03) inset;
+}

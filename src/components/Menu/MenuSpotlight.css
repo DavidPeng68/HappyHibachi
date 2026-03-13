@@ -1,0 +1,105 @@
+/* =============================================
+   MENU SPOTLIGHT - Signature Dishes
+   ============================================= */
+
+.menu-spotlight-section {
+  margin: var(--space-3xl) 0;
+}
+
+.spotlight-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2xl);
+  align-items: center;
+  margin-bottom: var(--space-3xl);
+}
+
+.spotlight-item:nth-child(even) {
+  direction: rtl;
+}
+
+.spotlight-item:nth-child(even) > * {
+  direction: ltr;
+}
+
+.spotlight-image {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+}
+
+.spotlight-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.spotlight-item:hover .spotlight-image img {
+  transform: scale(1.03);
+}
+
+.spotlight-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.15) 0%, rgba(255, 255, 255, 0.03) 100%);
+}
+
+.spotlight-content {
+  padding: var(--space-xl) 0;
+}
+
+.spotlight-title {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: var(--space-md);
+}
+
+.spotlight-subtitle {
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+  line-height: 1.8;
+}
+
+.spotlight-video {
+  margin-top: var(--space-lg);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+}
+
+.spotlight-video iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+@media (max-width: 768px) {
+  .spotlight-item {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+
+  .spotlight-item:nth-child(even) {
+    direction: ltr;
+  }
+
+  .spotlight-title {
+    font-size: var(--text-2xl);
+  }
+}
+
+/* =============================================
+   LIGHT MODE OVERRIDES
+   ============================================= */
+
+.theme-light .spotlight-placeholder {
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(0, 0, 0, 0.03) 100%);
+}
+
+.theme-light .spotlight-title {
+  color: var(--color-text-primary);
+}

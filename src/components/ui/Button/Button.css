@@ -1,0 +1,262 @@
+/* =============================================
+   UI Button Component - 企业级设计
+   ============================================= */
+
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  font-family: var(--font-heading, inherit);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ui-btn:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.ui-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* =============================================
+   Primary Button - 主要按钮
+   ============================================= */
+
+.ui-btn--primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+}
+
+.ui-btn--primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+}
+
+.ui-btn--primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 107, 53, 0.5);
+}
+
+.ui-btn--primary:hover:not(:disabled)::before {
+  transform: translateX(100%);
+}
+
+.ui-btn--primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* =============================================
+   Secondary Button - 次要按钮
+   ============================================= */
+
+.ui-btn--secondary {
+  background: transparent;
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: none;
+}
+
+.ui-btn--secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: white;
+  transform: translateY(-2px);
+}
+
+.ui-btn--secondary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* =============================================
+   Outline Button - 轮廓按钮
+   ============================================= */
+
+.ui-btn--outline {
+  background: transparent;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+}
+
+.ui-btn--outline:hover:not(:disabled) {
+  background: rgba(255, 107, 53, 0.1);
+  transform: translateY(-2px);
+}
+
+/* =============================================
+   Ghost Button - 幽灵按钮
+   ============================================= */
+
+.ui-btn--ghost {
+  background: transparent;
+  color: var(--color-text-primary, #ffffff);
+  border: none;
+  padding: 0.5rem 1rem;
+}
+
+.ui-btn--ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* =============================================
+   Size Variants - 尺寸变体
+   ============================================= */
+
+.ui-btn--sm {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+}
+
+.ui-btn--md {
+  padding: 0.875rem 1.75rem;
+  font-size: 1rem;
+}
+
+.ui-btn--lg {
+  padding: 1.125rem 2.25rem;
+  font-size: 1.125rem;
+}
+
+.ui-btn--xl {
+  padding: 1.25rem 2.75rem;
+  font-size: 1.25rem;
+}
+
+/* =============================================
+   Full Width - 全宽按钮
+   ============================================= */
+
+.ui-btn--full {
+  width: 100%;
+}
+
+/* =============================================
+   Loading State - 加载状态
+   ============================================= */
+
+.ui-btn--loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.ui-btn--loading .ui-btn__text {
+  visibility: hidden;
+}
+
+.ui-btn__spinner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: btn-spin 0.8s linear infinite;
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =============================================
+   Icon Support - 图标支持
+   ============================================= */
+
+.ui-btn__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1em;
+}
+
+.ui-btn__icon--left {
+  margin-right: 0.25rem;
+}
+
+.ui-btn__icon--right {
+  margin-left: 0.25rem;
+}
+
+/* =============================================
+   Responsive - 响应式
+   ============================================= */
+
+@media (max-width: 768px) {
+  .ui-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9375rem;
+  }
+
+  .ui-btn--sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+  }
+
+  .ui-btn--lg {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+  }
+
+  .ui-btn--xl {
+    padding: 1.125rem 2.25rem;
+    font-size: 1.0625rem;
+  }
+}
+
+/* =============================================
+   LIGHT THEME OVERRIDES
+   ============================================= */
+
+.theme-light .ui-btn--secondary {
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+.theme-light .ui-btn--secondary:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: var(--color-text-primary);
+}
+
+.theme-light .ui-btn--ghost {
+  color: var(--color-text-primary);
+}
+
+.theme-light .ui-btn--ghost:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.theme-light .ui-btn__spinner {
+  border-color: rgba(0, 0, 0, 0.15);
+  border-top-color: var(--color-text-primary);
+}
+
+.theme-light .ui-btn--primary .ui-btn__spinner {
+  border-color: rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+}

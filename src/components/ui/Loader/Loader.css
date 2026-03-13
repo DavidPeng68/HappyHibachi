@@ -1,0 +1,35 @@
+/* =============================================
+   LOADER COMPONENT
+   ============================================= */
+
+.ui-loader {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Colors */
+.ui-loader--primary {
+  --loader-color: var(--color-primary);
+}
+.ui-loader--white {
+  --loader-color: white;
+}
+.ui-loader--muted {
+  --loader-color: var(--color-text-muted);
+}
+
+/* Sizes */
+.ui-loader--sm {
+  --loader-size: 20px;
+  font-size: 0.75rem;
+}
+.ui-loader--md {
+  --loader-size: 32px;
+  font-size: 0.875rem;
+}
+.ui-loader--lg {
+  --loader-size: 48px;
+  font-size: 1rem;
+}

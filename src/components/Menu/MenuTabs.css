@@ -1,0 +1,90 @@
+/* =============================================
+   MENU TABS - Category Navigation
+   ============================================= */
+
+.menu-tabs {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+  margin-bottom: var(--space-xl);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: var(--space-xs) 0;
+}
+
+.menu-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.menu-tab {
+  padding: var(--space-sm) var(--space-lg);
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  position: relative;
+}
+
+.menu-tab:hover {
+  border-color: rgba(255, 107, 53, 0.4);
+  color: var(--color-text-primary);
+  background: rgba(255, 107, 53, 0.05);
+}
+
+.menu-tab.active {
+  border-color: var(--color-primary);
+  color: white;
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(255, 107, 53, 0.05));
+}
+
+.menu-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  background: var(--color-primary);
+  border-radius: 1px;
+}
+
+@media (max-width: 768px) {
+  .menu-tabs {
+    justify-content: flex-start;
+    padding: var(--space-xs) var(--space-md);
+    margin-left: calc(-1 * var(--space-md));
+    margin-right: calc(-1 * var(--space-md));
+  }
+
+  .menu-tab {
+    font-size: var(--text-xs);
+    padding: var(--space-xs) var(--space-md);
+  }
+}
+
+/* =============================================
+   LIGHT MODE OVERRIDES
+   ============================================= */
+
+.theme-light .menu-tab {
+  border-color: var(--color-border);
+}
+
+.theme-light .menu-tab:hover {
+  background: rgba(255, 107, 53, 0.05);
+}
+
+.theme-light .menu-tab.active {
+  color: var(--color-text-primary);
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.12), rgba(255, 107, 53, 0.04));
+}

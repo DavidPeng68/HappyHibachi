@@ -1,0 +1,138 @@
+/* =============================================
+   SELECT COMPONENT
+   ============================================= */
+
+.ui-select-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ui-select-wrapper--full {
+  width: 100%;
+}
+
+/* Label */
+.ui-select__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ui-select__required {
+  color: var(--color-primary);
+  margin-left: 0.25rem;
+}
+
+/* Container */
+.ui-select__container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Select */
+.ui-select {
+  width: 100%;
+  padding: 0.875rem 2.5rem 0.875rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  cursor: pointer;
+  appearance: none;
+  transition: all 0.3s ease;
+}
+
+.ui-select option {
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+  padding: 0.5rem;
+}
+
+/* Arrow */
+.ui-select__arrow {
+  position: absolute;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+/* Focus state */
+.ui-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: rgba(255, 107, 53, 0.05);
+  box-shadow:
+    0 0 0 3px rgba(255, 107, 53, 0.1),
+    0 0 20px rgba(255, 107, 53, 0.1);
+}
+
+.ui-select:focus + .ui-select__arrow {
+  color: var(--color-primary);
+  transform: rotate(180deg);
+}
+
+/* Error state */
+.ui-select-wrapper--error .ui-select {
+  border-color: var(--color-danger);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.ui-select-wrapper--error .ui-select:focus {
+  box-shadow:
+    0 0 0 3px rgba(239, 68, 68, 0.1),
+    0 0 20px rgba(239, 68, 68, 0.1);
+}
+
+/* Disabled */
+.ui-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Hint & Error */
+.ui-select__hint,
+.ui-select__error {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.ui-select__hint {
+  color: var(--color-text-muted);
+}
+
+.ui-select__error {
+  color: var(--color-danger);
+}
+
+/* =============================================
+   LIGHT THEME OVERRIDES
+   ============================================= */
+
+.theme-light .ui-select {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: var(--color-border);
+}
+
+.theme-light .ui-select:focus {
+  background: rgba(255, 107, 53, 0.04);
+}
+
+.theme-light .ui-select:disabled {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.theme-light .ui-select option {
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+}

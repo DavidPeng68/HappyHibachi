@@ -1,0 +1,63 @@
+@media print {
+  /* Hide non-essential elements */
+  .navbar,
+  .topbar,
+  .footer,
+  .fire-particles,
+  .hero-bg,
+  .hero-overlay,
+  .blob,
+  .grain-overlay::after,
+  .scroll-progress-bar,
+  .mobile-menu-toggle,
+  .hero-scroll-indicator,
+  .hero-buttons .btn-secondary {
+    display: none !important;
+  }
+
+  /* Reset backgrounds */
+  body,
+  .hero,
+  section {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Ensure text is readable */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: black !important;
+    -webkit-text-fill-color: black !important;
+    background: none !important;
+  }
+
+  p,
+  li,
+  span,
+  a {
+    color: #333 !important;
+  }
+
+  /* Show URLs */
+  a[href]::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  /* Page breaks */
+  section {
+    page-break-before: auto;
+    page-break-inside: avoid;
+  }
+
+  /* Remove animations */
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

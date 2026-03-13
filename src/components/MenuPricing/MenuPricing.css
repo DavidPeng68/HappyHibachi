@@ -1,192 +1,555 @@
+/* =============================================
+   MENU & PRICING - Premium Design
+   ============================================= */
+
 .menu-pricing {
-  padding: 4rem 0;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: var(--space-4xl) var(--space-xl);
+  background: var(--color-bg-dark);
+  position: relative;
 }
 
-.menu-pricing h2 {
-  font-size: 2.5rem;
-  margin-bottom: 3rem;
-  color: #333;
-  text-align: center;
+/* Background pattern */
+.menu-pricing::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(255, 107, 53, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 215, 0, 0.03) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .pricing-container {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 0 2rem;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease;
 }
 
-.pricing-section {
-  background: white;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+.pricing-container.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.pricing-section h3 {
-  color: #ff6b35;
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
+/* Section Header */
+.menu-pricing .section-header {
+  text-align: center;
+  margin-bottom: var(--space-3xl);
 }
 
-.note {
-  color: #ff6b35;
-  font-weight: bold;
-  margin-bottom: 1rem;
+.menu-pricing h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-5xl);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.pricing-tiers {
+/* Starting From Badge */
+.starting-from-badge {
+  display: inline-block;
+  margin-top: var(--space-md);
+  padding: var(--space-sm) var(--space-xl);
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(255, 215, 0, 0.15));
+  border: 1px solid rgba(255, 107, 53, 0.3);
+  border-radius: var(--radius-full);
+  color: var(--color-secondary);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Main Pricing Card */
+.pricing-main {
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(20, 20, 30, 0.9) 100%);
+  border: 1px solid rgba(255, 107, 53, 0.2);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  margin-bottom: var(--space-2xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.pricing-main::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+}
+
+/* Price Display */
+.price-display {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+}
+
+.price-display .price-tag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+}
+
+.price-display .currency {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.price-display .amount {
+  font-family: var(--font-display);
+  font-size: var(--text-7xl);
+  color: white;
+  line-height: 1;
+  text-shadow: 0 0 30px rgba(255, 107, 53, 0.3);
+}
+
+.price-display .unit {
+  font-size: var(--text-xl);
+  color: var(--color-text-secondary);
+}
+
+.price-display .minimum {
+  margin-top: var(--space-md);
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+}
+
+.price-display .minimum strong {
+  color: var(--color-secondary);
+}
+
+/* Includes Section */
+.pricing-includes {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-md);
+  padding-top: var(--space-xl);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.tier {
-  background: #f8f9fa;
-  padding: 1.5rem;
-  border-radius: 10px;
-  border-left: 4px solid #ff6b35;
+.include-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
 }
 
-.tier h4 {
-  color: #ff6b35;
-  margin-bottom: 0.5rem;
+.include-item:hover {
+  background: rgba(255, 107, 53, 0.1);
+  transform: translateX(5px);
 }
 
-.food-options {
+.include-item .icon {
+  font-size: 1.5rem;
+}
+
+.include-item span:last-child {
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+}
+
+.kids-note {
+  text-align: center;
+  margin-top: var(--space-lg);
+  padding: var(--space-md);
+  background: rgba(255, 215, 0, 0.1);
+  border-radius: var(--radius-md);
+  color: var(--color-secondary);
+}
+
+/* Protein Section */
+.protein-section {
+  margin-bottom: var(--space-2xl);
+}
+
+.protein-section h3 {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  color: var(--color-primary);
+  margin-bottom: var(--space-lg);
+  text-align: center;
+}
+
+.protein-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-md);
+}
+
+.protein-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+  text-align: center;
+}
+
+.protein-item:hover {
+  border-color: rgba(255, 107, 53, 0.3);
+  background: var(--color-bg-card-hover);
+  transform: translateY(-3px);
+}
+
+.protein-item .name {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+}
+
+.protein-item .badge {
+  font-size: var(--text-xs);
+  color: var(--color-secondary);
+  background: rgba(255, 215, 0, 0.1);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+/* Premium Upgrades */
+.upgrades-section {
+  margin-bottom: var(--space-2xl);
+  padding: var(--space-xl);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(20, 20, 30, 0.9) 100%);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: var(--radius-lg);
+}
+
+.upgrades-section h3 {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  color: var(--color-secondary);
+  margin-bottom: var(--space-lg);
+  text-align: center;
+}
+
+.upgrade-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-md);
+}
+
+.upgrade-item {
+  text-align: center;
+  padding: var(--space-md);
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+}
+
+.upgrade-item:hover {
+  background: rgba(0, 0, 0, 0.5);
+  transform: scale(1.02);
+}
+
+.upgrade-item .name {
+  display: block;
+  color: var(--color-text-primary);
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+  font-size: var(--text-sm);
+}
+
+.upgrade-item .price {
+  color: var(--color-secondary);
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+/* Add-ons Section */
+.addons-section {
+  margin-bottom: var(--space-2xl);
+}
+
+.addons-section h3 {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  color: var(--color-primary);
+  margin-bottom: var(--space-lg);
+  text-align: center;
+}
+
+.addon-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  gap: var(--space-md);
 }
 
-.food-options h4 {
-  color: #ff6b35;
-  margin-bottom: 0.5rem;
-}
-
-/* New Pricing Design Styles */
-.main-pricing {
-  text-align: center;
-  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
-  color: white;
-}
-
-.pricing-highlight {
+.addon-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 2rem 0;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
-  backdrop-filter: blur(10px);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
 }
 
-.main-price {
+.addon-item:hover {
+  border-color: rgba(255, 107, 53, 0.3);
+  background: var(--color-bg-card-hover);
+}
+
+.addon-item .price {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Coupon Section */
+.coupon-section {
+  margin-bottom: var(--space-2xl);
+  padding: var(--space-xl);
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.05) 0%, rgba(20, 20, 30, 0.9) 100%);
+  border: 1px dashed rgba(255, 107, 53, 0.3);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.coupon-section h3 {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  color: var(--color-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.coupon-subtitle {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-lg);
+}
+
+.coupon-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.coupon-item {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: var(--space-md) var(--space-lg);
+  background: rgba(255, 107, 53, 0.1);
+  border-radius: var(--radius-md);
+  min-width: 120px;
 }
 
-.price-amount {
-  font-size: 3.5rem;
-  font-weight: bold;
-  line-height: 1;
+.coupon-item .discount {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--color-primary);
 }
 
-.price-unit {
-  font-size: 1.2rem;
-  opacity: 0.9;
+.coupon-item .range {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
 }
 
-.minimum-order {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.coupon-note {
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
 }
 
-.minimum-amount {
-  font-size: 2rem;
-  font-weight: bold;
-  line-height: 1;
+.coupon-note a {
+  color: var(--color-primary);
+  text-decoration: underline;
 }
 
-.minimum-text {
-  font-size: 1rem;
-  opacity: 0.9;
+/* Pricing Note */
+.pricing-note {
+  text-align: center;
+  padding: var(--space-lg);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
 }
 
-.kids-pricing {
-  font-size: 1.3rem;
-  font-weight: bold;
-  margin: 1rem 0;
-  color: #fff;
+.pricing-note p:first-child {
+  margin-bottom: var(--space-sm);
+  color: var(--color-text-secondary);
 }
 
-.cooking-note {
-  font-size: 1.2rem;
-  margin: 1rem 0;
-  color: #fff;
+/* =============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================= */
+
+.menu-pricing {
+  contain: content;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
 }
 
-.weather-note {
-  font-size: 1rem;
-  opacity: 0.9;
-  margin: 1rem 0;
-  color: #fff;
-}
+/* =============================================
+   RESPONSIVE STYLES
+   ============================================= */
 
-.protein-subtitle {
-  font-size: 1.2rem;
-  color: #ff6b35;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
+@media (max-width: 1024px) {
+  .menu-pricing {
+    padding: var(--space-3xl) var(--space-lg);
+  }
 
-.protein-options {
-  margin: 1.5rem 0;
-}
+  .menu-pricing h2 {
+    font-size: var(--text-4xl);
+  }
 
-.protein-options p {
-  margin: 0.5rem 0;
-  font-size: 1.1rem;
-}
+  .pricing-includes {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
-.upgrade-options {
-  color: #ff6b35;
-  font-weight: bold;
-}
+  .protein-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 
-.included-items {
-  background: #f8f9fa;
-  padding: 1.5rem;
-  border-radius: 10px;
-  margin-top: 1.5rem;
-}
+  .upgrade-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
-.included-items p {
-  margin: 0.5rem 0;
-  font-size: 1rem;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .pricing-tiers {
+  .addon-grid {
     grid-template-columns: 1fr;
   }
-  
-  .pricing-highlight {
+}
+
+@media (max-width: 768px) {
+  .menu-pricing {
+    padding: var(--section-padding-tablet);
+  }
+
+  .menu-pricing h2 {
+    font-size: var(--text-4xl);
+  }
+
+  .pricing-main {
+    padding: var(--space-xl);
+  }
+
+  .price-display .amount {
+    font-size: var(--text-4xl);
+  }
+
+  .price-display .currency {
+    font-size: var(--text-2xl);
+  }
+
+  .pricing-includes {
+    grid-template-columns: 1fr;
+  }
+
+  .protein-grid,
+  .upgrade-grid,
+  .addon-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .coupon-grid {
     flex-direction: column;
-    gap: 1rem;
+    align-items: center;
   }
-  
-  .price-amount {
-    font-size: 2.5rem;
+
+  .coupon-item {
+    width: 100%;
+    max-width: 200px;
   }
-  
-  .minimum-amount {
-    font-size: 1.5rem;
+}
+
+@media (max-width: 480px) {
+  .menu-pricing h2 {
+    font-size: var(--text-3xl);
   }
-} 
+
+  .price-display .amount {
+    font-size: var(--text-3xl);
+  }
+
+  .include-item {
+    padding: var(--space-sm);
+  }
+}
+
+/* =============================================
+   LIGHT MODE OVERRIDES
+   ============================================= */
+
+/* Main Pricing Card */
+.theme-light .pricing-main {
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.06) 0%, var(--color-bg-card) 100%);
+  border-color: rgba(255, 107, 53, 0.15);
+}
+
+.theme-light .price-display .amount {
+  color: var(--color-text-primary);
+  text-shadow: none;
+}
+
+/* Includes Section */
+.theme-light .pricing-includes {
+  border-top-color: var(--color-border);
+}
+
+.theme-light .include-item {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.theme-light .include-item:hover {
+  background: rgba(255, 107, 53, 0.06);
+}
+
+/* Protein Items */
+.theme-light .protein-item {
+  border-color: var(--color-border);
+}
+
+/* Upgrades Section */
+.theme-light .upgrades-section {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.06) 0%, var(--color-bg-card) 100%);
+  border-color: rgba(255, 215, 0, 0.15);
+}
+
+.theme-light .upgrade-item {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.theme-light .upgrade-item:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* Add-on Items */
+.theme-light .addon-item {
+  border-color: var(--color-border);
+}
+
+/* Coupon Section */
+.theme-light .coupon-section {
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.04) 0%, var(--color-bg-card) 100%);
+  border-color: rgba(255, 107, 53, 0.2);
+}
+
+.theme-light .coupon-item {
+  background: rgba(255, 107, 53, 0.06);
+}
+
+/* Pricing Note */
+.theme-light .pricing-note {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* Kids Note */
+.theme-light .kids-note {
+  background: rgba(255, 215, 0, 0.08);
+}

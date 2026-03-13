@@ -1,57 +1,353 @@
+/* =============================================
+   BOOKING SECTION - Tab-based Region Selection
+   ============================================= */
+
 .booking {
-  padding: 4rem 0;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: var(--space-4xl) var(--space-xl);
+  background: var(--color-bg-darker);
+  position: relative;
+  overflow: hidden;
 }
 
-.booking h2 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  color: #333;
-  text-align: center;
+/* Background decoration */
+.booking::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(255, 107, 53, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.05) 0%, transparent 50%);
+  pointer-events: none;
 }
 
-.booking h3 {
-  font-size: 1.5rem;
-  margin-bottom: 3rem;
-  color: #666;
-  text-align: center;
-}
-
-.regions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2rem;
-  max-width: 1200px;
+.booking-container {
+  max-width: 900px;
   margin: 0 auto;
-  padding: 0 2rem;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease;
 }
 
-.region {
-  background: white;
-  padding: 2rem;
-  border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  transition: transform 0.3s ease;
+.booking-container.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.region:hover {
-  transform: translateY(-5px);
+/* Header */
+.booking-header {
+  text-align: center;
+  margin-bottom: var(--space-3xl);
 }
 
-.region h4 {
-  color: #ff6b35;
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+.booking-header h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-5xl);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: var(--space-md);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.region p {
-  margin-bottom: 1.5rem;
-  line-height: 1.6;
+.booking-header p {
+  font-size: var(--text-xl);
+  color: var(--color-text-secondary);
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .regions {
-    grid-template-columns: 1fr;
+/* Tab Navigation */
+.region-tabs {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-2xl);
+  background: var(--color-bg-dark);
+  padding: var(--space-sm);
+  border-radius: var(--radius-full);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.region-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-full);
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.region-tab:hover {
+  color: var(--color-text-primary);
+}
+
+.region-tab.active {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: var(--color-bg-dark);
+  box-shadow: 0 5px 20px rgba(255, 107, 53, 0.3);
+}
+
+.tab-icon {
+  font-size: var(--text-xl);
+}
+
+/* Region Content */
+.region-content {
+  background: var(--color-bg-dark);
+  border-radius: var(--radius-xl);
+  padding: var(--space-3xl);
+  border: 1px solid var(--color-border);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.region-info {
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+}
+
+.region-icon-large {
+  font-size: 64px;
+  margin-bottom: var(--space-md);
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.region-info h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: var(--space-sm);
+  color: var(--color-text-primary);
+}
+
+.region-tagline {
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+}
+
+/* Cities Grid */
+.cities-grid {
+  margin-bottom: var(--space-2xl);
+  padding: var(--space-xl);
+  background: var(--color-bg-darker);
+  border-radius: var(--radius-lg);
+}
+
+.cities-grid h4 {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-primary);
+  margin-bottom: var(--space-lg);
+  text-align: center;
+}
+
+.cities-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+.city-tag {
+  display: inline-block;
+  padding: var(--space-xs) var(--space-md);
+  background: var(--color-bg-dark);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+}
+
+.city-tag:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* CTA */
+.region-cta {
+  text-align: center;
+}
+
+.region-cta .btn-primary {
+  min-width: 280px;
+}
+
+.booking-note {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-top: var(--space-md);
+}
+
+/* Quick Links */
+.quick-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-lg);
+  margin-top: var(--space-2xl);
+  padding-top: var(--space-2xl);
+  border-top: 1px solid var(--color-border);
+}
+
+.quick-links > span {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.quick-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-link:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: rgba(255, 107, 53, 0.05);
+}
+
+/* =============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================= */
+
+.booking {
+  contain: content;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
+/* =============================================
+   RESPONSIVE STYLES
+   ============================================= */
+
+@media (max-width: 1024px) {
+  .booking-container {
+    max-width: 700px;
+  }
+
+  .region-content {
+    padding: var(--space-2xl);
+  }
+
+  .region-info h3 {
+    font-size: var(--text-3xl);
+  }
+}
+
+@media (max-width: 768px) {
+  .booking {
+    padding: var(--section-padding-tablet);
+  }
+
+  .booking-header h2 {
+    font-size: var(--text-4xl);
+  }
+
+  .region-tabs {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .region-tab {
+    padding: var(--space-md) var(--space-lg);
+  }
+
+  .region-content {
+    padding: var(--space-xl);
+  }
+
+  .region-info h3 {
+    font-size: var(--text-2xl);
+  }
+
+  .region-icon-large {
+    font-size: 48px;
+  }
+
+  .cities-list {
+    justify-content: center;
+  }
+
+  .quick-links {
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .quick-links > span {
+    margin-bottom: var(--space-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .booking-header h2 {
+    font-size: var(--text-3xl);
+  }
+
+  .region-cta .ui-btn {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+/* =============================================
+   LIGHT THEME OVERRIDES
+   ============================================= */
+
+.theme-light .booking::before {
+  background:
+    radial-gradient(circle at 20% 80%, rgba(255, 107, 53, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.03) 0%, transparent 50%);
+}
+
+.theme-light .region-tab.active {
+  color: white;
+}
+
+.theme-light .quick-link:hover {
+  background: rgba(255, 107, 53, 0.03);
 }

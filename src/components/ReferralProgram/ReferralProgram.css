@@ -1,0 +1,341 @@
+/* =============================================
+   REFERRAL PROGRAM - Rewards Section
+   ============================================= */
+
+.referral-program {
+  padding: var(--space-4xl) var(--space-xl);
+  background: linear-gradient(180deg, var(--color-bg-dark) 0%, var(--color-bg-darker) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background decoration */
+.referral-program::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 70% 80%, rgba(255, 107, 53, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.referral-container {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease;
+}
+
+.referral-container.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Content */
+.referral-content {
+  margin-bottom: var(--space-3xl);
+}
+
+.referral-badge {
+  font-size: var(--text-6xl);
+  margin-bottom: var(--space-lg);
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.referral-content h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-5xl);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: var(--space-md);
+  background: linear-gradient(135deg, var(--color-secondary), var(--color-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.referral-content p {
+  font-size: var(--text-xl);
+  color: var(--color-text-secondary);
+}
+
+/* Steps Grid */
+.referral-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xl);
+  margin-bottom: var(--space-3xl);
+}
+
+.referral-step {
+  padding: var(--space-xl);
+  background: var(--color-bg-darker);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  transition: all 0.3s ease;
+}
+
+.referral-step:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-5px);
+}
+
+.step-icon {
+  width: var(--space-3xl);
+  height: var(--space-3xl);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: var(--color-bg-dark);
+  margin: 0 auto var(--space-lg);
+}
+
+.referral-step h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: var(--space-sm);
+  color: var(--color-secondary);
+}
+
+.referral-step p {
+  font-size: var(--text-sm);
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+}
+
+/* Rewards Display */
+.referral-rewards {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-3xl);
+}
+
+.reward-card {
+  padding: var(--space-xl) var(--space-2xl);
+  border-radius: var(--radius-xl);
+  text-align: center;
+}
+
+.reward-card.you {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.05));
+  border: 2px solid var(--color-secondary);
+}
+
+.reward-card.friend {
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(255, 107, 53, 0.05));
+  border: 2px solid var(--color-primary);
+}
+
+.reward-amount {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.reward-card.you .reward-amount {
+  color: var(--color-secondary);
+}
+
+.reward-card.friend .reward-amount {
+  color: var(--color-primary);
+}
+
+.reward-label {
+  font-size: var(--text-sm);
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.reward-separator {
+  font-size: var(--text-3xl);
+  color: var(--color-text-muted);
+  font-weight: 300;
+}
+
+/* Form */
+.referral-form-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: var(--space-2xl);
+  background: var(--color-bg-darker);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+}
+
+.referral-form h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: var(--space-xl);
+  color: var(--color-text-primary);
+}
+
+.form-row {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.form-row .input-wrapper {
+  flex: 1;
+}
+
+/* Success State */
+.referral-success {
+  text-align: center;
+}
+
+.referral-success .success-icon {
+  width: var(--space-3xl);
+  height: var(--space-3xl);
+  background: var(--color-success);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-2xl);
+  color: white;
+  margin: 0 auto var(--space-lg);
+  animation: scaleIn 0.3s ease;
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.referral-success h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  text-transform: uppercase;
+  margin-bottom: var(--space-sm);
+  color: var(--color-success);
+}
+
+.referral-success p {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-xl);
+}
+
+.sample-code {
+  display: inline-flex;
+  align-items: center;
+  background: var(--color-bg-dark);
+  padding: var(--space-md) var(--space-xl);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: var(--text-xl);
+  letter-spacing: 2px;
+}
+
+.sample-code .code-suffix {
+  color: var(--color-text-muted);
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  width: var(--text-xl);
+  height: var(--text-xl);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Note */
+.referral-note {
+  margin-top: var(--space-2xl);
+}
+
+.referral-note p {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .referral-program {
+    padding: var(--space-3xl) var(--space-lg);
+  }
+
+  .referral-content h2 {
+    font-size: var(--text-3xl);
+  }
+
+  .referral-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+
+  .referral-rewards {
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .reward-separator {
+    transform: rotate(90deg);
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+}
+
+/* =============================================
+   LIGHT THEME OVERRIDES
+   ============================================= */
+
+.theme-light .referral-program::before {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 215, 0, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 70% 80%, rgba(255, 107, 53, 0.03) 0%, transparent 50%);
+}
+
+.theme-light .referral-step p {
+  color: var(--color-text-secondary);
+}
+
+.theme-light .reward-label {
+  color: var(--color-text-secondary);
+}
+
+.theme-light .loading-spinner {
+  border-color: rgba(0, 0, 0, 0.15);
+  border-top-color: var(--color-primary);
+}

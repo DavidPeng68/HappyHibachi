@@ -1,0 +1,343 @@
+/* =============================================
+   PRICE CALCULATOR - Interactive Pricing Tool
+   ============================================= */
+
+.price-calculator {
+  padding: var(--space-4xl) var(--space-xl);
+  background: var(--color-bg-dark);
+  position: relative;
+}
+
+/* Background pattern */
+.price-calculator::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 10% 50%, rgba(255, 107, 53, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 90% 50%, rgba(255, 215, 0, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.calculator-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease;
+}
+
+.calculator-container.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Header */
+.calculator-header {
+  text-align: center;
+  margin-bottom: var(--space-3xl);
+}
+
+.calculator-header h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-5xl);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: var(--space-md);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.calculator-header p {
+  font-size: var(--text-xl);
+  color: var(--color-text-secondary);
+}
+
+/* Content Grid */
+.calculator-content {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: var(--space-3xl);
+}
+
+/* Inputs Section */
+.calculator-inputs {
+  background: var(--color-bg-darker);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  border: 1px solid var(--color-border);
+}
+
+.calculator-inputs h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: var(--space-xl);
+  color: var(--color-primary);
+}
+
+.calculator-inputs h3:not(:first-child) {
+  margin-top: var(--space-2xl);
+  padding-top: var(--space-xl);
+  border-top: 1px solid var(--color-border);
+}
+
+/* Input Row */
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xl);
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.input-group label {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Stepper */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.stepper button {
+  width: var(--space-2xl);
+  height: var(--space-2xl);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-dark);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  font-size: var(--text-xl);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepper button:hover:not(:disabled) {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-bg-dark);
+}
+
+.stepper button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.stepper .input-wrapper {
+  flex: 1;
+}
+
+.stepper .input-wrapper input {
+  text-align: center;
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.stepper.small {
+  gap: var(--space-xs);
+}
+
+.stepper.small button {
+  width: var(--space-xl);
+  height: var(--space-xl);
+  font-size: var(--text-base);
+}
+
+.stepper.small span {
+  min-width: var(--space-xl);
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Upgrades Grid */
+.upgrades-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.upgrade-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md);
+  background: var(--color-bg-dark);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  transition: all 0.2s ease;
+}
+
+.upgrade-item:hover {
+  border-color: var(--color-primary);
+}
+
+.upgrade-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.upgrade-name {
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.upgrade-price {
+  font-size: var(--text-sm);
+  color: var(--color-primary);
+}
+
+/* Summary Card */
+.calculator-summary {
+  position: sticky;
+  top: calc(var(--nav-height) + var(--space-lg));
+  height: fit-content;
+}
+
+.summary-card {
+  background: linear-gradient(135deg, var(--color-bg-darker) 0%, var(--color-bg-dark) 100%);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.summary-card h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: var(--space-xl);
+  text-align: center;
+  color: var(--color-text-primary);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-sm) 0;
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+}
+
+.summary-row.subtotal {
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.summary-row.discount {
+  color: var(--color-success);
+}
+
+.summary-row.minimum {
+  color: var(--color-warning);
+  font-size: var(--text-sm);
+}
+
+.summary-row.total {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.summary-row.gratuity {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.summary-row.grand-total {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--color-primary);
+  padding: var(--space-md) 0;
+}
+
+.summary-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: var(--space-md) 0;
+}
+
+.summary-card .book-btn {
+  width: 100%;
+  margin-top: var(--space-xl);
+}
+
+.summary-note {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-top: var(--space-md);
+  line-height: 1.5;
+}
+
+/* Mobile Responsive */
+@media (max-width: 1024px) {
+  .calculator-content {
+    grid-template-columns: 1fr;
+  }
+
+  .calculator-summary {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .price-calculator {
+    padding: var(--space-3xl) var(--space-lg);
+  }
+
+  .calculator-header h2 {
+    font-size: var(--text-3xl);
+  }
+
+  .input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .upgrades-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .calculator-inputs,
+  .summary-card {
+    padding: var(--space-xl);
+  }
+}
+
+@media (max-width: 480px) {
+  .calculator-header h2 {
+    font-size: var(--text-2xl);
+  }
+
+  .calculator-inputs,
+  .summary-card {
+    padding: var(--space-lg);
+  }
+
+  .stepper button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .stepper.small button {
+    min-width: 40px;
+    min-height: 40px;
+  }
+}

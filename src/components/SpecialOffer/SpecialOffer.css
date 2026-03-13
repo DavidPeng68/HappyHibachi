@@ -1,70 +1,323 @@
+/* =============================================
+   SPECIAL OFFER - Floating Popup
+   ============================================= */
+
 .special-offer {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
-  color: white;
-  padding: 1.5rem;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
-  max-width: 300px;
-  z-index: 1000;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: var(--z-modal);
+  max-width: 340px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideInRight 0.5s ease;
 }
 
-.offer-content {
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Offer Card */
+.offer-card {
+  background: linear-gradient(135deg, var(--color-bg-card) 0%, rgba(255, 107, 53, 0.1) 100%);
+  border: 1px solid rgba(255, 107, 53, 0.3);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 0 60px rgba(255, 107, 53, 0.2);
   position: relative;
+  overflow: hidden;
 }
 
-.close-btn {
+/* Animated border */
+.offer-card::before {
+  content: '';
   position: absolute;
-  top: -10px;
-  right: -10px;
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid white;
-  color: white;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--color-secondary),
+    var(--color-primary)
+  );
+  background-size: 200% 200%;
+  -webkit-mask:
+    linear-gradient(var(--color-text) 0 0) content-box,
+    linear-gradient(var(--color-text) 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: gradient-rotate 3s linear infinite;
+}
+
+@keyframes gradient-rotate {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Close Button */
+.offer-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  min-width: 44px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
+  cursor: pointer;
   transition: all 0.3s ease;
+  z-index: 1;
 }
 
-.close-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.1);
+.offer-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: rotate(90deg);
 }
 
+/* Offer Content */
+.offer-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Badge */
+.offer-badge {
+  display: inline-block;
+  background: var(--color-primary);
+  color: white;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-md);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Title */
 .offer-content h3 {
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: var(--space-sm);
 }
 
+/* Subtitle */
+.offer-content h4 {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  color: var(--color-secondary);
+  margin-bottom: var(--space-md);
+}
+
+/* Description */
 .offer-content p {
-  margin: 1rem 0;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--space-lg);
 }
 
-.service-note {
-  font-size: 0.8rem;
-  opacity: 0.9;
-  font-style: italic;
-  margin-top: 0.5rem;
+/* Offer List */
+.offer-list {
+  list-style: none;
+  margin: 0 0 var(--space-md) 0;
+  padding: 0;
 }
 
+.offer-list li {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-xs);
+  padding-left: 0;
+}
+
+.offer-note {
+  font-size: var(--text-xs);
+  color: var(--color-secondary);
+  text-align: center;
+  margin-bottom: var(--space-md) !important;
+}
+
+/* CTA Button */
+.offer-cta {
+  width: 100%;
+  padding: var(--space-md);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  border: none;
+  border-radius: var(--radius-md);
+  color: white;
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.offer-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+}
+
+.offer-cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.offer-cta:hover::before {
+  left: 100%;
+}
+
+/* Timer */
+.offer-timer {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.timer-unit {
+  text-align: center;
+}
+
+.timer-value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  color: white;
+  line-height: 1;
+}
+
+.timer-label {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
 @media (max-width: 768px) {
   .special-offer {
-    position: static;
-    margin: 2rem auto;
-    max-width: 90%;
+    bottom: 1rem;
+    right: 1rem;
+    left: 1rem;
+    max-width: none;
   }
-  
-  .close-btn {
-    top: -5px;
-    right: -5px;
+
+  .offer-card {
+    padding: var(--space-lg);
   }
+
+  .offer-content h3 {
+    font-size: var(--text-xl);
+  }
+
+  .offer-timer {
+    gap: var(--space-sm);
+  }
+
+  .timer-value {
+    font-size: var(--text-2xl);
+  }
+}
+
+@media (max-width: 480px) {
+  .special-offer {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    border-radius: 0;
+  }
+
+  .offer-card {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: var(--space-md);
+  }
+
+  .offer-content h3 {
+    font-size: var(--text-lg);
+  }
+
+  .offer-content h4 {
+    font-size: var(--text-base);
+  }
+
+  .offer-content p {
+    font-size: var(--text-xs);
+  }
+}
+
+/* =============================================
+   LIGHT THEME OVERRIDES
+   ============================================= */
+
+.theme-light .offer-card {
+  background: linear-gradient(135deg, var(--color-bg-card) 0%, rgba(255, 107, 53, 0.08) 100%);
+  border-color: rgba(255, 107, 53, 0.2);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.1),
+    0 0 60px rgba(255, 107, 53, 0.08);
+}
+
+.theme-light .offer-close {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.theme-light .offer-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--color-text-primary);
+}
+
+.theme-light .offer-content h3 {
+  color: var(--color-text-primary);
+}
+
+.theme-light .timer-value {
+  color: var(--color-text-primary);
+}
+
+/* Keep white text on colored badge and CTA since they have dark/colored backgrounds */
+.theme-light .offer-badge {
+  color: white;
+}
+
+.theme-light .offer-cta {
+  color: white;
 }

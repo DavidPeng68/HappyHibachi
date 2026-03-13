@@ -1,72 +1,486 @@
+/* =============================================
+   GALLERY - Modern Carousel Design
+   ============================================= */
+
 .gallery {
-  padding: 4rem 0;
-  background: white;
+  padding: var(--space-4xl) var(--space-xl);
+  background: var(--color-bg-darker);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background decoration */
+.gallery::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.3), transparent);
+}
+
+.gallery-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease;
+}
+
+.gallery-content.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .gallery h2 {
-  font-size: 2.5rem;
-  margin-bottom: 3rem;
-  color: #333;
+  font-family: var(--font-display);
+  font-size: var(--text-5xl);
+  text-transform: uppercase;
+  letter-spacing: 3px;
   text-align: center;
+  margin-bottom: var(--space-sm);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
+.gallery-subtitle {
+  text-align: center;
+  font-size: var(--text-xl);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-3xl);
+}
+
+/* Gallery Container */
 .gallery-container {
   position: relative;
-  max-width: 800px;
-  margin: 0 auto;
+  border-radius: var(--radius-xl);
   overflow: hidden;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  box-shadow:
+    0 25px 50px rgba(0, 0, 0, 0.5),
+    0 0 100px rgba(255, 107, 53, 0.1);
 }
 
+/* Main Slide */
 .gallery-slide {
-  height: 500px;
+  position: relative;
+  aspect-ratio: 16 / 10;
   overflow: hidden;
+  background: var(--color-bg-card);
 }
 
 .gallery-slide img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition:
+    transform 0.6s ease,
+    opacity 0.4s ease;
+  animation: imageSlide 0.5s ease;
 }
 
+@keyframes imageSlide {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.gallery-container:hover .gallery-slide img {
+  transform: scale(1.03);
+}
+
+/* Caption overlay */
+.gallery-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-xl);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+  transform: translateY(100%);
+  transition: transform 0.4s ease;
+}
+
+.gallery-container:hover .gallery-caption {
+  transform: translateY(0);
+}
+
+.gallery-caption h3 {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  color: white;
+  margin-bottom: var(--space-xs);
+}
+
+.gallery-caption p {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* Navigation Buttons */
 .gallery-btn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255, 107, 53, 0.9);
-  color: white;
-  border: none;
-  padding: 1rem;
-  cursor: pointer;
-  font-size: 1.5rem;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  opacity: 0;
   transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.gallery-container:hover .gallery-btn {
+  opacity: 1;
 }
 
 .gallery-btn:hover {
-  background: rgba(255, 107, 53, 1);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
   transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+}
+
+.gallery-btn:active {
+  transform: translateY(-50%) scale(0.95);
 }
 
 .gallery-btn.prev {
-  left: 20px;
+  left: 1rem;
 }
 
 .gallery-btn.next {
-  right: 20px;
+  right: 1rem;
 }
 
-/* Responsive Design */
+/* Dots Navigation */
+.gallery-dots {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 10;
+  padding: 0.5rem 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-full);
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+  /* Ensure 44px minimum touch target */
+  position: relative;
+}
+
+.dot::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+}
+
+.dot:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.dot.active {
+  background: var(--color-primary);
+  transform: scale(1.2);
+  box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+}
+
+/* Thumbnails */
+.gallery-thumbnails {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: var(--space-lg);
+  justify-content: center;
+  padding: 0 var(--space-lg);
+  flex-wrap: wrap;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.thumbnail {
+  width: 80px;
+  height: 60px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  padding: 0;
+  background: none;
+  scroll-snap-align: center;
+}
+
+.thumbnail:hover {
+  opacity: 0.8;
+  transform: translateY(-2px);
+}
+
+.thumbnail.active {
+  opacity: 1;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 15px rgba(255, 107, 53, 0.4);
+}
+
+.thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* =============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================= */
+
+.gallery {
+  contain: content;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
+/* =============================================
+   RESPONSIVE STYLES
+   ============================================= */
+
+@media (max-width: 1024px) {
+  .gallery-btn {
+    width: 44px;
+    height: 44px;
+    opacity: 1;
+  }
+}
+
 @media (max-width: 768px) {
-  .gallery-container {
-    max-width: 90%;
+  .gallery {
+    padding: var(--section-padding-tablet);
+  }
+
+  .gallery h2 {
+    font-size: var(--text-4xl);
+  }
+
+  .gallery-subtitle {
+    font-size: var(--text-lg);
+  }
+
+  .gallery-btn {
+    width: 38px;
+    height: 38px;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .gallery-dots {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .gallery-btn.prev {
+    left: 0.5rem;
+  }
+
+  .gallery-btn.next {
+    right: 0.5rem;
+  }
+
+  .gallery-caption {
+    transform: translateY(0);
+  }
+
+  .gallery-thumbnails {
+    gap: var(--space-sm);
+  }
+
+  .thumbnail {
+    width: 60px;
+    height: 45px;
   }
 }
 
 @media (max-width: 480px) {
-  .gallery-btn {
-    padding: 0.5rem;
-    font-size: 1rem;
+  .gallery h2 {
+    font-size: var(--text-3xl);
   }
-} 
+
+  .thumbnail {
+    width: 50px;
+    height: 38px;
+  }
+}
+
+/* === Bento Grid Layout (2026) === */
+.gallery-bento {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--space-md);
+  padding: var(--space-xl);
+}
+
+.gallery-bento-item {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  position: relative;
+  transition:
+    transform 0.4s var(--motion-easing-standard),
+    box-shadow 0.4s ease;
+}
+
+.gallery-bento-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  z-index: 2;
+}
+
+.gallery-bento-item {
+  cursor: pointer;
+}
+
+.gallery-bento-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.gallery-bento-item:hover img {
+  transform: scale(1.05);
+}
+
+.gallery-bento-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-md) var(--space-lg);
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.gallery-bento-item:hover .gallery-bento-caption {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.gallery-bento-item--large {
+  grid-column: span 6;
+  grid-row: span 2;
+  min-height: 400px;
+}
+
+.gallery-bento-item--medium {
+  grid-column: span 6;
+  min-height: 200px;
+}
+
+.gallery-bento-item--small {
+  grid-column: span 4;
+  min-height: 200px;
+}
+
+@media (max-width: 768px) {
+  .gallery-bento {
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+  }
+
+  .gallery-bento-item--large,
+  .gallery-bento-item--medium,
+  .gallery-bento-item--small {
+    grid-column: span 1;
+    grid-row: span 1;
+    min-height: 200px;
+  }
+}
+
+/* =============================================
+   LIGHT THEME OVERRIDES
+   ============================================= */
+
+.theme-light .gallery-container {
+  box-shadow:
+    0 25px 50px rgba(0, 0, 0, 0.12),
+    0 0 100px rgba(255, 107, 53, 0.05);
+}
+
+/* Captions overlay images — keep dark gradient + white text with text-shadow */
+.theme-light .gallery-caption h3 {
+  color: white;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+.theme-light .gallery-caption p {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Nav buttons overlay images — keep dark bg + white text */
+.theme-light .gallery-btn {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* Dots overlay images — keep dark bg */
+.theme-light .gallery-dots {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.theme-light .dot {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.theme-light .dot:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* Bento grid — section-level, needs light adjustments */
+.theme-light .gallery-bento-item:hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* Bento captions overlay images — keep dark gradient + white text */
+.theme-light .gallery-bento-caption {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* Section top border decoration */
+.theme-light .gallery::before {
+  background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.2), transparent);
+}

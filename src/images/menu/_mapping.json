@@ -1,0 +1,93 @@
+{
+  "chicken": {
+    "localPath": "src/images/menu/chicken.jpg",
+    "name": "CHICKEN",
+    "description": "Tender chicken breast, marinated in our signature sauce",
+    "price": "$10.00",
+    "category": "proteins"
+  },
+  "steak": {
+    "localPath": "src/images/menu/steak.jpg",
+    "name": "STEAK",
+    "description": "USDA Choice beef, perfectly seasoned",
+    "price": "$10.00",
+    "category": "proteins"
+  },
+  "shrimp": {
+    "localPath": "src/images/menu/shrimp.jpg",
+    "name": "SHRIMP",
+    "description": "Large shrimp, lightly seasoned and grilled to perfection",
+    "price": "$10.00",
+    "category": "proteins"
+  },
+  "scallops": {
+    "localPath": "src/images/menu/scallops.jpg",
+    "name": "SCALLOPS",
+    "description": "Fresh sea scallops, seared to perfection",
+    "price": "$10.00",
+    "category": "proteins"
+  },
+  "vegetables": {
+    "localPath": "src/images/menu/vegetables.jpg",
+    "name": "VEGETABLES",
+    "description": "Mixed vegetables stir-fried on a hot grill with garlic soy butter.",
+    "price": "$10.00",
+    "category": "proteins"
+  },
+  "tofu": {
+    "localPath": "src/images/menu/tofu.jpg",
+    "name": "TOFU",
+    "description": "Firm tofu, marinated and grilled",
+    "price": "$10.00",
+    "category": "proteins"
+  },
+  "salmon": {
+    "localPath": "src/images/menu/salmon.jpg",
+    "name": "Salmon",
+    "description": "Wild-caught salmon fillet, lightly seasoned",
+    "price": "$10.00",
+    "category": "proteins"
+  },
+  "spiny-lobster-tail-upgrade": {
+    "localPath": "src/images/menu/spiny-lobster-tail-upgrade.jpg",
+    "name": "Spiny Lobster Tail Upgrade",
+    "description": "Fresh Australian spiny lobster tail, pan-seared to golden perfection with clarified butter",
+    "price": "$10.00",
+    "category": "premium"
+  },
+  "premium-sea-seallops-upgrade": {
+    "localPath": "src/images/menu/premium-sea-seallops-upgrade.jpg",
+    "name": "Premium Sea Seallops Upgrade",
+    "description": "U-10 jumbo sea scallops, perfectly seared with a golden crust and creamy center",
+    "price": "$15.00",
+    "category": "premium"
+  },
+  "filet-mignon-upgrade": {
+    "localPath": "src/images/menu/filet-mignon-upgrade.jpg",
+    "name": "Filet Mignon Upgrade",
+    "description": "USDA Prime filet mignon - the most tender cut, expertly seasoned and cooked to perfection",
+    "price": "$15.00",
+    "category": "premium"
+  },
+  "edamame": {
+    "localPath": "src/images/menu/edamame.jpg",
+    "name": "EDAMAME",
+    "description": "Steamed soybeans lightly salted",
+    "price": "$10.00",
+    "category": "sides"
+  },
+  "noodles": {
+    "localPath": "src/images/menu/noodles.jpg",
+    "name": "NOODLES",
+    "description": "Stir-fried noodles with vegetables",
+    "price": "$10.00",
+    "category": "sides"
+  },
+  "gyoza": {
+    "localPath": "src/images/menu/gyoza.jpg",
+    "name": "Gyoza",
+    "description": "Pan-fried Japanese dumplings (12pcs)",
+    "price": "$15.00",
+    "category": "sides"
+  }
+}

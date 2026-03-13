@@ -1,0 +1,110 @@
+/* Legal Pages (Privacy & Terms) */
+
+.legal-page {
+  min-height: 100vh;
+  padding: calc(var(--nav-height) + var(--space-3xl)) var(--space-xl) var(--space-4xl);
+  background: var(--color-bg-dark);
+}
+
+.legal-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.legal-container h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-sm);
+  text-align: center;
+}
+
+.legal-updated {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-3xl);
+}
+
+.legal-container section {
+  margin-bottom: var(--space-2xl);
+  padding: var(--space-xl);
+  background: var(--color-bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-lg);
+}
+
+.legal-container h2 {
+  font-size: var(--text-xl);
+  color: var(--color-primary);
+  margin-bottom: var(--space-md);
+}
+
+.legal-container p {
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  margin-bottom: var(--space-md);
+}
+
+.legal-container p:last-child {
+  margin-bottom: 0;
+}
+
+.legal-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.legal-container li {
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  padding: var(--space-sm) 0;
+  padding-left: var(--space-xl);
+  position: relative;
+}
+
+.legal-container li::before {
+  content: '•';
+  position: absolute;
+  left: var(--space-sm);
+  color: var(--color-primary);
+}
+
+.legal-container li strong {
+  color: var(--color-text-primary);
+}
+
+.legal-container a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: opacity var(--transition-fast);
+}
+
+.legal-container a:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .legal-page {
+    padding-left: var(--space-md);
+    padding-right: var(--space-md);
+  }
+
+  .legal-container h1 {
+    font-size: var(--text-3xl);
+  }
+
+  .legal-container section {
+    padding: var(--space-lg);
+  }
+}
+
+/* =============================================
+   LIGHT THEME OVERRIDES
+   ============================================= */
+
+.theme-light .legal-container section {
+  border-color: var(--color-border);
+}
