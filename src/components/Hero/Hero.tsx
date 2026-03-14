@@ -1,14 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigation, useSettings, useMagnetic, useSlider } from '../../hooks';
 import { Button, Icon } from '../ui';
-import heroBg from '../../images/hero-bg.jpg';
-import chefCooking from '../../images/chef-cooking.jpg';
-import food1 from '../../images/food-1.jpg';
-import food2 from '../../images/food-2.jpg';
-import gallery1 from '../../images/gallery-1.jpg';
-import gallery2 from '../../images/gallery-2.jpg';
-import gallery3 from '../../images/gallery-3.jpg';
+import heroBg from '../../images/hero-bg.webp';
+import chefCooking from '../../images/chef-cooking.webp';
+import food1 from '../../images/food-1.webp';
+import food2 from '../../images/food-2.webp';
+import gallery1 from '../../images/gallery-1.webp';
+import gallery2 from '../../images/gallery-2.webp';
+import gallery3 from '../../images/gallery-3.webp';
 import './Hero.css';
 
 const HERO_SLIDES = [
@@ -38,22 +38,38 @@ const Hero: React.FC = () => {
     intervalMs: 5000,
   });
 
+  // Track which slides have been loaded — always load current and preload next
+  const [loadedSlides, setLoadedSlides] = useState<Set<number>>(() => new Set([0, 1]));
+
+  useEffect(() => {
+    const next = (currentSlide + 1) % HERO_SLIDES.length;
+    setLoadedSlides((prev) => {
+      if (prev.has(currentSlide) && prev.has(next)) return prev;
+      const updated = new Set(prev);
+      updated.add(currentSlide);
+      updated.add(next);
+      return updated;
+    });
+  }, [currentSlide]);
+
   return (
     <section className="hero grain-overlay" aria-label={t('hero.tagline')}>
       {/* Gradient fallback (visible while images load) */}
       <div className="hero-bg visible" aria-hidden="true" />
 
-      {/* Carousel background images */}
-      {HERO_SLIDES.map((slide, index) => (
-        <img
-          key={index}
-          className={`hero-carousel-img ${index === currentSlide ? 'active' : ''}`}
-          src={slide.src}
-          alt={t(slide.altKey)}
-          loading={index === 0 ? 'eager' : 'lazy'}
-          fetchPriority={index === 0 ? 'high' : undefined}
-        />
-      ))}
+      {/* Carousel background images — only render loaded slides */}
+      {HERO_SLIDES.map((slide, index) =>
+        loadedSlides.has(index) ? (
+          <img
+            key={index}
+            className={`hero-carousel-img ${index === currentSlide ? 'active' : ''}`}
+            src={slide.src}
+            alt={t(slide.altKey)}
+            loading={index === 0 ? 'eager' : 'lazy'}
+            fetchPriority={index === 0 ? 'high' : undefined}
+          />
+        ) : null
+      )}
 
       {/* Overlay */}
       <div className="hero-overlay" aria-hidden="true" />
