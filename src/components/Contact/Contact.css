@@ -173,6 +173,11 @@
    RESPONSIVE
    ============================================= */
 @media (max-width: 768px) {
+  .contact::before {
+    width: 300px;
+    height: 300px;
+  }
+
   .contact {
     padding: var(--section-padding-tablet);
   }

@@ -1,0 +1,218 @@
+/* =============================================
+   Shared Admin Components
+   ============================================= */
+
+/* ----- ConfirmDialog ----- */
+
+.confirm-dialog {
+  max-width: 420px;
+  animation: confirm-dialog-in 0.2s ease;
+}
+
+@keyframes confirm-dialog-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.confirm-dialog-btn-danger {
+  background: var(--admin-danger) !important;
+  color: #fff !important;
+  border-color: var(--admin-danger) !important;
+}
+
+.confirm-dialog-btn-danger:hover:not(:disabled) {
+  background: #dc2626 !important;
+}
+
+.confirm-dialog-btn-warning {
+  background: var(--admin-warning) !important;
+  color: #000 !important;
+  border-color: var(--admin-warning) !important;
+}
+
+.confirm-dialog-btn-warning:hover:not(:disabled) {
+  background: #ca8a04 !important;
+}
+
+.confirm-dialog-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.confirm-dialog-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: confirm-spinner 0.6s linear infinite;
+}
+
+@keyframes confirm-spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ----- Pagination ----- */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pagination-info {
+  font-size: 13px;
+  color: var(--admin-text-muted);
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  background: var(--admin-surface);
+  color: var(--admin-text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.pagination-btn:hover:not(:disabled):not(.active) {
+  background: var(--admin-surface-hover);
+  border-color: var(--admin-border-hover);
+  color: var(--admin-text);
+}
+
+.pagination-btn.active {
+  background: var(--admin-primary);
+  border-color: var(--admin-primary);
+  color: #fff;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--admin-text-muted);
+  font-size: 13px;
+}
+
+/* ----- ImageLightbox ----- */
+
+.image-lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.9);
+  animation: lightbox-fade-in 0.2s ease;
+}
+
+@keyframes lightbox-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.image-lightbox-img {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: var(--admin-radius);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  user-select: none;
+}
+
+.image-lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast);
+}
+
+.image-lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.image-lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast);
+}
+
+.image-lightbox-nav:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.image-lightbox-prev {
+  left: 16px;
+}
+
+.image-lightbox-next {
+  right: 16px;
+}
+
+/* ----- EmptyState action button ----- */
+
+.empty-state-action {
+  margin-top: 16px;
+}

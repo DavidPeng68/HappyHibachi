@@ -7,6 +7,7 @@
  */
 
 import { validateToken, getCorsHeaders } from './_auth';
+import { logAction } from './_auditLog';
 
 interface Review {
 	id: string;
@@ -90,6 +91,15 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 		reviews.unshift(newReview);
 		await context.env.BOOKINGS.put('reviews_list', JSON.stringify(reviews));
 
+		// Audit log
+		logAction(context.env.BOOKINGS, {
+			action: 'created',
+			entity: 'review',
+			entityId: newReview.id,
+			details: `Added review by ${newReview.name} (${newReview.rating} stars)`,
+			performedBy: 'admin',
+		}).catch(() => {});
+
 		return new Response(
 			JSON.stringify({ success: true, review: newReview }),
 			{ headers: corsHeaders }
@@ -148,6 +158,15 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 
 		await context.env.BOOKINGS.put('reviews_list', JSON.stringify(reviews));
 
+		// Audit log
+		logAction(context.env.BOOKINGS, {
+			action: 'updated',
+			entity: 'review',
+			entityId: body.id,
+			details: `Updated review by ${reviews[index].name}`,
+			performedBy: 'admin',
+		}).catch(() => {});
+
 		return new Response(
 			JSON.stringify({ success: true, review: reviews[index] }),
 			{ headers: corsHeaders }
@@ -196,6 +215,15 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
 		}
 
 		await context.env.BOOKINGS.put('reviews_list', JSON.stringify(reviews));
+
+		// Audit log
+		logAction(context.env.BOOKINGS, {
+			action: 'deleted',
+			entity: 'review',
+			entityId: id,
+			details: `Deleted review (ID: ${id})`,
+			performedBy: 'admin',
+		}).catch(() => {});
 
 		return new Response(
 			JSON.stringify({ success: true }),

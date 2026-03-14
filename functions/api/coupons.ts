@@ -29,6 +29,7 @@ interface Env {
 
 import { validateToken, getCorsHeaders } from './_auth';
 import { checkRateLimit } from './_rateLimit';
+import { logAction } from './_auditLog';
 
 // GET - 获取优惠码
 export const onRequestGet: PagesFunction<Env> = async (context) => {
@@ -159,6 +160,15 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 		coupons.unshift(newCoupon);
 		await context.env.BOOKINGS.put('coupons_list', JSON.stringify(coupons));
 
+		// Audit log
+		logAction(context.env.BOOKINGS, {
+			action: 'created',
+			entity: 'coupon',
+			entityId: newCoupon.id,
+			details: `Created coupon ${newCoupon.code} (${newCoupon.type} ${newCoupon.value})`,
+			performedBy: 'admin',
+		}).catch(() => {});
+
 		return new Response(
 			JSON.stringify({ success: true, coupon: newCoupon }),
 			{ headers: corsHeaders }
@@ -219,6 +229,15 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 
 		await context.env.BOOKINGS.put('coupons_list', JSON.stringify(coupons));
 
+		// Audit log
+		logAction(context.env.BOOKINGS, {
+			action: 'updated',
+			entity: 'coupon',
+			entityId: body.id!,
+			details: `Updated coupon ${coupons[index].code}`,
+			performedBy: 'admin',
+		}).catch(() => {});
+
 		return new Response(
 			JSON.stringify({ success: true, coupon: coupons[index] }),
 			{ headers: corsHeaders }
@@ -267,6 +286,15 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
 		}
 
 		await context.env.BOOKINGS.put('coupons_list', JSON.stringify(coupons));
+
+		// Audit log
+		logAction(context.env.BOOKINGS, {
+			action: 'deleted',
+			entity: 'coupon',
+			entityId: id,
+			details: `Deleted coupon (ID: ${id})`,
+			performedBy: 'admin',
+		}).catch(() => {});
 
 		return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
 	} catch (error) {

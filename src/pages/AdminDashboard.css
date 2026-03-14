@@ -1570,6 +1570,18 @@
   }
 }
 
+.toast-container {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast-container .toast {
+  pointer-events: auto;
+}
+
 /* =============================================
    移动端底部导航
    ============================================= */
@@ -1639,6 +1651,66 @@
   .mobile-nav-label {
     font-size: 10px;
     font-weight: 600;
+  }
+
+  /* More sheet overlay */
+  .more-sheet-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 199;
+    animation: fade-in 0.2s ease;
+  }
+
+  .more-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--admin-bg-elevated);
+    border-top: 1px solid var(--admin-border);
+    border-radius: 16px 16px 0 0;
+    padding: 12px 16px 80px;
+    z-index: 200;
+    animation: slide-up 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .more-sheet-handle {
+    width: 36px;
+    height: 4px;
+    background: var(--admin-surface-active);
+    border-radius: 2px;
+    margin: 0 auto 12px;
+  }
+
+  @keyframes slide-up {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Toast container for mobile */
+  .toast-container {
+    position: fixed;
+    bottom: 100px;
+    left: 16px;
+    right: 16px;
+    z-index: 9999;
   }
 
   .content-area {
@@ -2055,6 +2127,231 @@
   gap: 8px;
 }
 
+/* Review filters & search */
+.review-filters {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--admin-border);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.review-search {
+  flex: 1;
+  min-width: 200px;
+}
+
+.review-search .input {
+  width: 100%;
+}
+
+.review-filter-group {
+  display: flex;
+  gap: 8px;
+}
+
+.review-filter-group .input {
+  min-width: 130px;
+}
+
+/* Review bulk actions */
+.review-bulk-actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--admin-primary-soft);
+  border-bottom: 1px solid var(--admin-border);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.bulk-count {
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+  margin-right: 8px;
+}
+
+/* Review select all */
+.review-select-all {
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--admin-border);
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+}
+
+/* Review checkbox */
+.review-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--admin-text-secondary);
+}
+
+.review-checkbox-label input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--admin-primary);
+  cursor: pointer;
+}
+
+/* Review item layout with checkbox */
+.review-item-top {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.review-content-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Review visibility badge */
+.review-visibility-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: var(--admin-warning-soft);
+  color: var(--admin-warning);
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+/* Review inline edit form */
+.review-edit-form {
+  flex: 1;
+  min-width: 0;
+}
+
+.review-edit-form .form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.review-edit-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.review-edit-form label {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  font-weight: 500;
+}
+
+.review-edit-form input,
+.review-edit-form select,
+.review-edit-form textarea {
+  padding: 8px 12px;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  color: var(--admin-text);
+  font-size: 14px;
+}
+
+.review-edit-form input:focus,
+.review-edit-form select:focus,
+.review-edit-form textarea:focus {
+  border-color: var(--admin-primary);
+  outline: none;
+}
+
+.review-edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* Coupon inline edit form */
+.coupon-edit-form {
+  width: 100%;
+}
+
+.coupon-edit-form .form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.coupon-edit-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.coupon-edit-form label {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  font-weight: 500;
+}
+
+.coupon-edit-form input,
+.coupon-edit-form select {
+  padding: 8px 12px;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  color: var(--admin-text);
+  font-size: 14px;
+}
+
+.coupon-edit-form input:focus,
+.coupon-edit-form select:focus {
+  border-color: var(--admin-primary);
+  outline: none;
+}
+
+.coupon-edit-form .input-with-suffix {
+  display: flex;
+  align-items: center;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  overflow: hidden;
+}
+
+.coupon-edit-form .input-with-suffix input {
+  border: none;
+  flex: 1;
+}
+
+.coupon-edit-form .input-with-suffix span {
+  padding: 0 12px;
+  color: var(--admin-text-muted);
+  font-size: 14px;
+}
+
+.coupon-edit-form .date-range {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.coupon-edit-form .date-range input {
+  flex: 1;
+}
+
+.coupon-edit-form .date-range span {
+  color: var(--admin-text-muted);
+  font-size: 13px;
+}
+
+/* Coupon usage stats */
+.coupon-usage-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  padding: 4px 0;
+}
+
 @media (max-width: 600px) {
   .add-review-form .form-row-2 {
     grid-template-columns: 1fr;
@@ -2063,6 +2360,31 @@
   .review-header {
     flex-direction: column;
     gap: 8px;
+  }
+
+  .review-filters {
+    flex-direction: column;
+  }
+
+  .review-filter-group {
+    flex-wrap: wrap;
+  }
+
+  .review-edit-form .form-row-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .coupon-edit-form .form-row-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .coupon-edit-form .date-range {
+    flex-direction: column;
+  }
+
+  .coupon-usage-stats {
+    flex-direction: column;
+    gap: 4px;
   }
 }
 
@@ -2797,4 +3119,205 @@
 
 .toggle-switch input:focus + .toggle-slider {
   box-shadow: 0 0 0 2px var(--admin-success-soft);
+}
+
+/* =============================================
+   Analytics Dashboard
+   ============================================= */
+
+.analytics-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.analytics-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  padding: 4px;
+  overflow-x: auto;
+}
+
+.analytics-tab {
+  flex: 1;
+  min-width: 80px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--admin-radius-md, 8px);
+  background: transparent;
+  color: var(--admin-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.analytics-tab:hover {
+  color: var(--admin-text);
+  background: var(--admin-surface-hover);
+}
+
+.analytics-tab.active {
+  color: var(--admin-text);
+  background: var(--admin-surface-hover);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.analytics-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.analytics-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.analytics-period-btns {
+  display: flex;
+  gap: 4px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-md, 8px);
+  padding: 3px;
+}
+
+.analytics-period-btns .btn-sm {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--admin-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.analytics-period-btns .btn-sm:hover {
+  color: var(--admin-text);
+}
+
+.analytics-period-btns .btn-sm.active {
+  background: var(--admin-primary);
+  color: #fff;
+}
+
+.admin-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  overflow: hidden;
+}
+
+.analytics-chart-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--admin-text);
+  margin: 0 0 16px 0;
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.analytics-stat-large {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.analytics-stat-label {
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+  font-weight: 500;
+}
+
+.analytics-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--admin-text);
+  letter-spacing: -0.5px;
+}
+
+.analytics-empty {
+  text-align: center;
+  color: var(--admin-text-muted);
+  padding: 40px 20px;
+  font-size: 14px;
+}
+
+.analytics-source-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--admin-border);
+}
+
+.analytics-source-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+}
+
+.analytics-source-name {
+  font-size: 13px;
+  color: var(--admin-text);
+  font-weight: 500;
+}
+
+.analytics-source-stats {
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.analytics-coupon-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px 0;
+}
+
+.analytics-stat-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: center;
+}
+
+.analytics-stat-block .analytics-stat-value {
+  font-size: 32px;
+}
+
+@media (max-width: 768px) {
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .analytics-stat-value {
+    font-size: 24px;
+  }
+
+  .analytics-stat-block .analytics-stat-value {
+    font-size: 28px;
+  }
 }

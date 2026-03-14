@@ -7,7 +7,7 @@ pages_build_output_dir = "build"
 # binding = "BOOKINGS"
 # id = "<your-kv-namespace-id>"
 
-# R2 Bucket binding for photo uploads
-[[r2_buckets]]
-binding = "PHOTOS"
-bucket_name = "family-friends-hibachi-photos"
+# R2 Bucket binding for photo uploads (enable R2 in Cloudflare Dashboard first)
+# [[r2_buckets]]
+# binding = "PHOTOS"
+# bucket_name = "family-friends-hibachi-photos"

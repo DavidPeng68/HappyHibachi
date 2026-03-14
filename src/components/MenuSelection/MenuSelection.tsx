@@ -120,9 +120,6 @@ const MenuSelection: React.FC = () => {
             key={pkg.id}
             className={`menu-package-compare ${pkg.highlighted ? 'menu-package-compare--popular' : ''}`}
           >
-            {pkg.highlighted && (
-              <div className="menu-package-popular-badge">{t('menuSelection.mostPopular')}</div>
-            )}
             <MenuPackageCard
               pkg={pkg}
               isSelected={false}

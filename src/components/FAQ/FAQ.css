@@ -247,6 +247,11 @@
    RESPONSIVE
    ============================================= */
 @media (max-width: 768px) {
+  .faq-section::before {
+    width: 300px;
+    height: 300px;
+  }
+
   .faq-section {
     padding: var(--section-padding-tablet);
   }

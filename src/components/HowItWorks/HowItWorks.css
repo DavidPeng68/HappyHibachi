@@ -229,6 +229,11 @@
 }
 
 @media (max-width: 768px) {
+  .how-it-works::before {
+    width: 400px;
+    height: 400px;
+  }
+
   .how-it-works {
     padding: var(--space-3xl) var(--space-lg);
   }

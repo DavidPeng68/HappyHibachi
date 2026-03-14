@@ -7,6 +7,7 @@
 
 import { validateToken, getCorsHeaders } from '../_auth';
 import { sendEmail, generateConfirmedEmail } from '../_email';
+import { logAction } from '../_auditLog';
 
 interface Booking {
 	id: string;
@@ -20,6 +21,7 @@ interface Booking {
 	message?: string;
 	formType: 'booking' | 'estimate';
 	status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+	adminNotes?: string;
 	createdAt: string;
 }
 
@@ -73,10 +75,18 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 	}
 
 	try {
-		const { id, status } = await context.request.json() as { id: string; status: Booking['status'] };
+		const body = await context.request.json() as Partial<Booking> & { id: string };
+		const { id } = body;
+
+		if (!id) {
+			return new Response(
+				JSON.stringify({ success: false, error: 'Booking ID is required' }),
+				{ status: 400, headers: corsHeaders }
+			);
+		}
 
 		const VALID_STATUSES = ['pending', 'confirmed', 'completed', 'cancelled'];
-		if (!VALID_STATUSES.includes(status)) {
+		if (body.status && !VALID_STATUSES.includes(body.status)) {
 			return new Response(
 				JSON.stringify({ success: false, error: 'Invalid booking status' }),
 				{ status: 400, headers: corsHeaders }
@@ -95,10 +105,39 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 		}
 
 		const previousStatus = bookings[bookingIndex].status;
-		bookings[bookingIndex].status = status;
+
+		// Update editable fields
+		bookings[bookingIndex] = {
+			...bookings[bookingIndex],
+			...(body.status && { status: body.status }),
+			...(body.date && { date: body.date }),
+			...(body.time !== undefined && { time: body.time }),
+			...(body.guestCount !== undefined && { guestCount: body.guestCount }),
+			...(body.region && { region: body.region }),
+			...(body.name && { name: body.name }),
+			...(body.email && { email: body.email }),
+			...(body.phone && { phone: body.phone }),
+			...(body.adminNotes !== undefined && { adminNotes: body.adminNotes }),
+			...(body.message !== undefined && { message: body.message }),
+		};
+
+		const status = bookings[bookingIndex].status;
 		await context.env.BOOKINGS.put('bookings_list', JSON.stringify(bookings));
 
 		const booking = bookings[bookingIndex];
+
+		// Audit log
+		const changes: string[] = [];
+		if (body.status) changes.push(`status: ${previousStatus} → ${body.status}`);
+		if (body.date) changes.push(`date: ${body.date}`);
+		if (body.name) changes.push(`name: ${body.name}`);
+		logAction(context.env.BOOKINGS, {
+			action: 'updated',
+			entity: 'booking',
+			entityId: id,
+			details: `Updated booking for ${booking.name}${changes.length ? ': ' + changes.join(', ') : ''}`,
+			performedBy: 'admin',
+		}).catch(() => {});
 
 		// Send confirmation email when status changes to "confirmed"
 		if (status === 'confirmed' && previousStatus !== 'confirmed') {
@@ -147,9 +186,20 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
 			);
 		}
 
+		const deletedBooking = bookings[bookingIndex];
+
 		// Remove the booking
 		bookings = bookings.filter(b => b.id !== id);
 		await context.env.BOOKINGS.put('bookings_list', JSON.stringify(bookings));
+
+		// Audit log
+		logAction(context.env.BOOKINGS, {
+			action: 'deleted',
+			entity: 'booking',
+			entityId: id,
+			details: `Deleted booking for ${deletedBooking.name} (${deletedBooking.date})`,
+			performedBy: 'admin',
+		}).catch(() => {});
 
 		return new Response(
 			JSON.stringify({ success: true }),

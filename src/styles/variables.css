@@ -141,7 +141,7 @@
 
 @media (max-width: 768px) {
   :root {
-    --topbar-height: 32px;
+    --topbar-height: 36px;
     --nav-height: 72px;
   }
 }

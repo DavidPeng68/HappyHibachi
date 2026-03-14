@@ -380,6 +380,11 @@
   .reviewer-details {
     text-align: center;
   }
+
+  .reviewer-avatar {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 /* === Enhanced Carousel (2026) === */

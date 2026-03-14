@@ -131,6 +131,11 @@ const Navigation: React.FC = () => {
           </Link>
         </div>
 
+        {/* Compact language switcher (visible on mobile only) */}
+        <div className="nav-language-compact">
+          <LanguageSwitcher />
+        </div>
+
         {/* Mobile menu toggle */}
         <button
           ref={toggleBtnRef}

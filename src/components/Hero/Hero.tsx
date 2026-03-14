@@ -1,12 +1,29 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAppNavigation, useSettings, useMagnetic } from '../../hooks';
+import { useAppNavigation, useSettings, useMagnetic, useSlider } from '../../hooks';
 import { Button, Icon } from '../ui';
+import heroBg from '../../images/hero-bg.jpg';
+import chefCooking from '../../images/chef-cooking.jpg';
+import food1 from '../../images/food-1.jpg';
+import food2 from '../../images/food-2.jpg';
+import gallery1 from '../../images/gallery-1.jpg';
+import gallery2 from '../../images/gallery-2.jpg';
+import gallery3 from '../../images/gallery-3.jpg';
 import './Hero.css';
+
+const HERO_SLIDES = [
+  { src: heroBg, altKey: 'hero.slides.heroBg' },
+  { src: chefCooking, altKey: 'hero.slides.chefCooking' },
+  { src: food1, altKey: 'hero.slides.food1' },
+  { src: food2, altKey: 'hero.slides.food2' },
+  { src: gallery1, altKey: 'hero.slides.gallery1' },
+  { src: gallery2, altKey: 'hero.slides.gallery2' },
+  { src: gallery3, altKey: 'hero.slides.gallery3' },
+];
 
 /**
  * Hero section component
- * Main landing section with animated gradient background, grain overlay,
+ * Main landing section with image carousel background, grain overlay,
  * blob decorations, enhanced particles, and CTA buttons
  */
 const Hero: React.FC = () => {
@@ -15,29 +32,28 @@ const Hero: React.FC = () => {
   const { settings } = useSettings();
   const { brandInfo } = settings;
   const magneticRef = useMagnetic<HTMLDivElement>({ strength: 0.2, radius: 120 });
+  const { currentSlide } = useSlider({
+    totalSlides: HERO_SLIDES.length,
+    autoPlay: true,
+    intervalMs: 5000,
+  });
 
   return (
     <section className="hero grain-overlay" aria-label={t('hero.tagline')}>
-      {/* Background: video > image > animated gradient */}
-      {brandInfo.heroVideo ? (
-        <video className="hero-video-bg" autoPlay muted loop playsInline aria-hidden="true">
-          <source src={brandInfo.heroVideo} type="video/mp4" />
-        </video>
-      ) : (
-        <div
-          className="hero-bg visible"
-          aria-hidden="true"
-          style={
-            brandInfo.heroImage
-              ? {
-                  backgroundImage: `url(${brandInfo.heroImage})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }
-              : undefined
-          }
+      {/* Gradient fallback (visible while images load) */}
+      <div className="hero-bg visible" aria-hidden="true" />
+
+      {/* Carousel background images */}
+      {HERO_SLIDES.map((slide, index) => (
+        <img
+          key={index}
+          className={`hero-carousel-img ${index === currentSlide ? 'active' : ''}`}
+          src={slide.src}
+          alt={t(slide.altKey)}
+          loading={index === 0 ? 'eager' : 'lazy'}
+          fetchPriority={index === 0 ? 'high' : undefined}
         />
-      )}
+      ))}
 
       {/* Overlay */}
       <div className="hero-overlay" aria-hidden="true" />
@@ -88,6 +104,13 @@ const Hero: React.FC = () => {
 
         {/* Slogan */}
         <p className="hero-slogan">{t('hero.slogan', brandInfo.hashtag)}</p>
+      </div>
+
+      {/* Slide indicators */}
+      <div className="hero-slide-indicators" aria-hidden="true">
+        {HERO_SLIDES.map((_, i) => (
+          <span key={i} className={`hero-dot ${i === currentSlide ? 'active' : ''}`} />
+        ))}
       </div>
     </section>
   );

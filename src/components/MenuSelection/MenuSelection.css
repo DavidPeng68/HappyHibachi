@@ -465,6 +465,14 @@
   .menu-items-grid {
     grid-template-columns: 1fr;
   }
+
+  .menu-option-icon {
+    font-size: 2.5rem;
+  }
+
+  .menu-option {
+    padding: var(--space-lg);
+  }
 }
 
 /* =============================================
