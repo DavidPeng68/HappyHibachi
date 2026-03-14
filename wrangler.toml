@@ -2,10 +2,10 @@
 name = "family-friends-hibachi"
 pages_build_output_dir = "build"
 
-# KV Namespace binding (create via dashboard: family-friends-hibachi-bookings -> BOOKINGS)
-# [[kv_namespaces]]
-# binding = "BOOKINGS"
-# id = "<your-kv-namespace-id>"
+# KV Namespace binding
+[[kv_namespaces]]
+binding = "BOOKINGS"
+id = "a44a749c41804023ae18c8bea493a3e6"
 
 # R2 Bucket binding for photo uploads (enable R2 in Cloudflare Dashboard first)
 # [[r2_buckets]]
