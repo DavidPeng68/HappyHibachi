@@ -165,7 +165,7 @@ export async function fetchCalendar(region?: string): Promise<{
   blockedDates: BlockedDate[];
 }> {
   const params = region ? `?region=${encodeURIComponent(region)}` : '';
-  return adminRequest(`${API_BASE}/admin/calendar${params}`);
+  return adminRequest(`${API_BASE}/calendar${params}`);
 }
 
 export async function addBlockedDate(
@@ -173,7 +173,7 @@ export async function addBlockedDate(
   date: string,
   reason?: string
 ): Promise<{ success: boolean; blockedDates: BlockedDate[] }> {
-  return adminRequest(`${API_BASE}/admin/calendar`, {
+  return adminRequest(`${API_BASE}/calendar`, {
     method: 'POST',
     headers: authHeaders(token),
     body: JSON.stringify({ date, reason }),
@@ -184,7 +184,7 @@ export async function removeBlockedDate(
   token: string,
   date: string
 ): Promise<{ success: boolean; blockedDates: BlockedDate[] }> {
-  return adminRequest(`${API_BASE}/admin/calendar`, {
+  return adminRequest(`${API_BASE}/calendar`, {
     method: 'DELETE',
     headers: authHeaders(token),
     body: JSON.stringify({ date }),
@@ -198,7 +198,7 @@ export async function removeBlockedDate(
 export async function fetchReviews(
   token: string
 ): Promise<{ success: boolean; reviews: Review[] }> {
-  return adminRequest(`${API_BASE}/admin/reviews`, {
+  return adminRequest(`${API_BASE}/reviews`, {
     headers: authHeaders(token),
   });
 }
@@ -207,7 +207,7 @@ export async function addReview(
   token: string,
   data: Omit<Review, 'id' | 'createdAt'>
 ): Promise<{ success: boolean; review?: Review }> {
-  return adminRequest(`${API_BASE}/admin/reviews`, {
+  return adminRequest(`${API_BASE}/reviews`, {
     method: 'POST',
     headers: authHeaders(token),
     body: JSON.stringify(data),
@@ -218,7 +218,7 @@ export async function updateReview(
   token: string,
   data: { id: string } & Partial<Review>
 ): Promise<{ success: boolean; review?: Review }> {
-  return adminRequest(`${API_BASE}/admin/reviews`, {
+  return adminRequest(`${API_BASE}/reviews`, {
     method: 'PUT',
     headers: authHeaders(token),
     body: JSON.stringify(data),
@@ -226,7 +226,7 @@ export async function updateReview(
 }
 
 export async function deleteReview(token: string, id: string): Promise<{ success: boolean }> {
-  return adminRequest(`${API_BASE}/admin/reviews`, {
+  return adminRequest(`${API_BASE}/reviews`, {
     method: 'DELETE',
     headers: authHeaders(token),
     body: JSON.stringify({ id }),
@@ -240,7 +240,7 @@ export async function deleteReview(token: string, id: string): Promise<{ success
 export async function fetchCoupons(
   token: string
 ): Promise<{ success: boolean; coupons: Coupon[] }> {
-  return adminRequest(`${API_BASE}/admin/coupons`, {
+  return adminRequest(`${API_BASE}/coupons`, {
     headers: authHeaders(token),
   });
 }
@@ -249,7 +249,7 @@ export async function createCoupon(
   token: string,
   data: Partial<Coupon>
 ): Promise<{ success: boolean; coupon?: Coupon }> {
-  return adminRequest(`${API_BASE}/admin/coupons`, {
+  return adminRequest(`${API_BASE}/coupons`, {
     method: 'POST',
     headers: authHeaders(token),
     body: JSON.stringify(data),
@@ -260,7 +260,7 @@ export async function updateCoupon(
   token: string,
   data: { id: string } & Partial<Coupon>
 ): Promise<{ success: boolean; coupon?: Coupon }> {
-  return adminRequest(`${API_BASE}/admin/coupons`, {
+  return adminRequest(`${API_BASE}/coupons`, {
     method: 'PUT',
     headers: authHeaders(token),
     body: JSON.stringify(data),
@@ -268,7 +268,7 @@ export async function updateCoupon(
 }
 
 export async function deleteCoupon(token: string, id: string): Promise<{ success: boolean }> {
-  return adminRequest(`${API_BASE}/admin/coupons`, {
+  return adminRequest(`${API_BASE}/coupons`, {
     method: 'DELETE',
     headers: authHeaders(token),
     body: JSON.stringify({ id }),
@@ -348,15 +348,15 @@ export async function fetchInstagram(): Promise<{
   success: boolean;
   settings?: InstagramSettings;
 }> {
-  return adminRequest(`${API_BASE}/admin/instagram`);
+  return adminRequest(`${API_BASE}/instagram`);
 }
 
 export async function saveInstagramHandle(
   token: string,
   handle: string
 ): Promise<{ success: boolean; settings?: InstagramSettings }> {
-  return adminRequest(`${API_BASE}/admin/instagram`, {
-    method: 'PUT',
+  return adminRequest(`${API_BASE}/instagram`, {
+    method: 'POST',
     headers: authHeaders(token),
     body: JSON.stringify({ handle }),
   });
@@ -366,10 +366,10 @@ export async function addInstagramPost(
   token: string,
   post: { image: string; link: string }
 ): Promise<{ success: boolean; settings?: InstagramSettings }> {
-  return adminRequest(`${API_BASE}/admin/instagram/posts`, {
+  return adminRequest(`${API_BASE}/instagram`, {
     method: 'POST',
     headers: authHeaders(token),
-    body: JSON.stringify(post),
+    body: JSON.stringify({ action: 'add', post }),
   });
 }
 
@@ -377,10 +377,10 @@ export async function deleteInstagramPost(
   token: string,
   postId: string
 ): Promise<{ success: boolean; settings?: InstagramSettings }> {
-  return adminRequest(`${API_BASE}/admin/instagram/posts`, {
-    method: 'DELETE',
+  return adminRequest(`${API_BASE}/instagram`, {
+    method: 'POST',
     headers: authHeaders(token),
-    body: JSON.stringify({ id: postId }),
+    body: JSON.stringify({ action: 'delete', postId }),
   });
 }
 
@@ -388,8 +388,8 @@ export async function reorderInstagramPosts(
   token: string,
   posts: InstagramPost[]
 ): Promise<{ success: boolean; settings?: InstagramSettings }> {
-  return adminRequest(`${API_BASE}/admin/instagram/posts/reorder`, {
-    method: 'PUT',
+  return adminRequest(`${API_BASE}/instagram`, {
+    method: 'POST',
     headers: authHeaders(token),
     body: JSON.stringify({ posts }),
   });
