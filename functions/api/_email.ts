@@ -68,6 +68,75 @@ export async function sendEmail(env: Env, options: EmailOptions): Promise<boolea
 }
 
 /**
+ * Build a Google Calendar URL for email templates (server-side, no i18n dependency)
+ */
+function buildGoogleCalendarUrl(booking: {
+	name: string;
+	date: string;
+	time: string;
+	guestCount: number;
+	region: string;
+}): string {
+	const startTime = booking.time || '18:00';
+	const [hours, minutes] = startTime.split(':').map(Number);
+	const endHours = hours + 3;
+	const endTime = `${String(endHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+
+	const formatDT = (date: string, time: string) => {
+		const d = new Date(`${date}T${time}:00`);
+		return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+	};
+
+	const start = formatDT(booking.date, startTime);
+	const end = formatDT(booking.date, endTime);
+
+	const title = 'Family Friends Hibachi Party';
+	const description = `Hibachi at Home Experience\n\nGuests: ${booking.guestCount}\nRegion: ${booking.region.toUpperCase()}\nBooked by: ${booking.name}\nTime: ${startTime}\n\nOur chef will arrive 30 minutes early to set up.\n\nContact: 909-615-6633\nEmail: familyfriendshibachi@gmail.com`;
+	const location = `${booking.region.toUpperCase()} Area - Address TBD`;
+
+	const params = new URLSearchParams({
+		action: 'TEMPLATE',
+		text: title,
+		dates: `${start}/${end}`,
+		details: description,
+		location: location,
+	});
+
+	return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+/**
+ * Build an Outlook Calendar URL for email templates (server-side)
+ */
+function buildOutlookCalendarUrl(booking: {
+	name: string;
+	date: string;
+	time: string;
+	guestCount: number;
+	region: string;
+}): string {
+	const startTime = booking.time || '18:00';
+	const [hours, minutes] = startTime.split(':').map(Number);
+	const endHours = hours + 3;
+	const endTime = `${String(endHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+
+	const startDateTime = `${booking.date}T${startTime}:00`;
+	const endDateTime = `${booking.date}T${endTime}:00`;
+
+	const params = new URLSearchParams({
+		path: '/calendar/action/compose',
+		rru: 'addevent',
+		subject: 'Family Friends Hibachi Party',
+		body: `Hibachi at Home Experience - ${booking.guestCount} guests, ${booking.region.toUpperCase()} - Booked by ${booking.name}`,
+		location: `${booking.region.toUpperCase()} Area - Address TBD`,
+		startdt: startDateTime,
+		enddt: endDateTime,
+	});
+
+	return `https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`;
+}
+
+/**
  * Generate customer confirmation email HTML
  * Uses light background for maximum compatibility across email clients
  */
@@ -164,6 +233,16 @@ export function generateCustomerEmail(booking: {
 											</tr>
 											` : ''}
 										</table>
+									</td>
+								</tr>
+							</table>
+
+							<!-- Add to Calendar -->
+							<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 30px;">
+								<tr>
+									<td align="center">
+										<a href="${buildGoogleCalendarUrl(booking)}" target="_blank" style="display: inline-block; background-color: #4285f4; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; margin: 5px;">📅 Google Calendar</a>
+										<a href="${buildOutlookCalendarUrl(booking)}" target="_blank" style="display: inline-block; background-color: #0078d4; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; margin: 5px;">📅 Outlook</a>
 									</td>
 								</tr>
 							</table>
@@ -456,6 +535,16 @@ export function generateConfirmedEmail(booking: {
 											</tr>
 											` : ''}
 										</table>
+									</td>
+								</tr>
+							</table>
+
+							<!-- Add to Calendar -->
+							<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 30px;">
+								<tr>
+									<td align="center">
+										<a href="${buildGoogleCalendarUrl(booking)}" target="_blank" style="display: inline-block; background-color: #4285f4; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; margin: 5px;">📅 Google Calendar</a>
+										<a href="${buildOutlookCalendarUrl(booking)}" target="_blank" style="display: inline-block; background-color: #0078d4; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; margin: 5px;">📅 Outlook</a>
 									</td>
 								</tr>
 							</table>

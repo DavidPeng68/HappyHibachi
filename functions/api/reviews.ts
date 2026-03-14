@@ -35,7 +35,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
 		// 检查是否是管理员请求（返回所有评价）
 		const authHeader = context.request.headers.get('Authorization');
-		const isAdmin = await validateToken(authHeader, context.env);
+		const isAdmin = (await validateToken(authHeader, context.env)).valid;
 
 		// 非管理员只返回可见的评价
 		const visibleReviews = isAdmin ? reviews : reviews.filter(r => r.visible !== false);
@@ -57,7 +57,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 export const onRequestPost: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 	const authHeader = context.request.headers.get('Authorization');
-	if (!(await validateToken(authHeader, context.env))) {
+	if (!(await validateToken(authHeader, context.env)).valid) {
 		return new Response(
 			JSON.stringify({ success: false, error: 'Unauthorized' }),
 			{ status: 401, headers: corsHeaders }
@@ -117,7 +117,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 export const onRequestPatch: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 	const authHeader = context.request.headers.get('Authorization');
-	if (!(await validateToken(authHeader, context.env))) {
+	if (!(await validateToken(authHeader, context.env)).valid) {
 		return new Response(
 			JSON.stringify({ success: false, error: 'Unauthorized' }),
 			{ status: 401, headers: corsHeaders }
@@ -184,7 +184,7 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 export const onRequestDelete: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 	const authHeader = context.request.headers.get('Authorization');
-	if (!(await validateToken(authHeader, context.env))) {
+	if (!(await validateToken(authHeader, context.env)).valid) {
 		return new Response(
 			JSON.stringify({ success: false, error: 'Unauthorized' }),
 			{ status: 401, headers: corsHeaders }

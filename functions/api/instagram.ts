@@ -4,7 +4,7 @@
  * POST /api/instagram - 更新帖子（需要管理员权限）
  */
 
-import { validateToken, getCorsHeaders } from './_auth';
+import { validateToken, requireSuperAdmin, getCorsHeaders } from './_auth';
 
 interface InstagramPost {
 	id: string;
@@ -58,12 +58,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
 	// 验证身份
 	const authHeader = context.request.headers.get('Authorization');
-	if (!await validateToken(authHeader, context.env)) {
-		return new Response(
-			JSON.stringify({ success: false, error: 'Unauthorized' }),
-			{ status: 401, headers: corsHeaders }
-		);
-	}
+	const auth = await validateToken(authHeader, context.env);
+	const denied = requireSuperAdmin(auth, corsHeaders);
+	if (denied) return denied;
 
 	try {
 		const body = await context.request.json() as {

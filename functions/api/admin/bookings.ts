@@ -1,11 +1,12 @@
 /**
  * Admin Bookings API
- * GET /api/admin/bookings - Fetch all bookings
- * PATCH /api/admin/bookings - Update booking status
- * DELETE /api/admin/bookings - Delete a booking
+ * GET /api/admin/bookings - Fetch bookings (filtered by role)
+ * PATCH /api/admin/bookings - Update booking status / assign
+ * DELETE /api/admin/bookings - Delete a booking (super_admin only)
  */
 
 import { validateToken, getCorsHeaders } from '../_auth';
+import type { AuthResult } from '../_auth';
 import { sendEmail, generateConfirmedEmail } from '../_email';
 import { logAction } from '../_auditLog';
 
@@ -22,6 +23,7 @@ interface Booking {
 	formType: 'booking' | 'estimate';
 	status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
 	adminNotes?: string;
+	assignedTo?: string;
 	createdAt: string;
 }
 
@@ -33,11 +35,16 @@ interface Env {
 	ALLOWED_ORIGINS?: string;
 }
 
+function getPerformedBy(auth: AuthResult): string {
+	return auth.userId === '__env__' ? 'Admin' : (auth.userId || 'admin');
+}
+
 export const onRequestGet: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 
 	const authHeader = context.request.headers.get('Authorization');
-	if (!(await validateToken(authHeader, context.env))) {
+	const auth = await validateToken(authHeader, context.env);
+	if (!auth.valid) {
 		return new Response(
 			JSON.stringify({ success: false, error: 'Unauthorized' }),
 			{ status: 401, headers: corsHeaders }
@@ -46,7 +53,12 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
 	try {
 		const data = await context.env.BOOKINGS.get('bookings_list', 'json');
-		const bookings: Booking[] = (data as Booking[]) || [];
+		let bookings: Booking[] = (data as Booking[]) || [];
+
+		// Order managers can only see bookings assigned to them
+		if (auth.role === 'order_manager') {
+			bookings = bookings.filter(b => b.assignedTo === auth.userId);
+		}
 
 		// Sort by createdAt descending
 		bookings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -67,7 +79,8 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 
 	const authHeader = context.request.headers.get('Authorization');
-	if (!(await validateToken(authHeader, context.env))) {
+	const auth = await validateToken(authHeader, context.env);
+	if (!auth.valid) {
 		return new Response(
 			JSON.stringify({ success: false, error: 'Unauthorized' }),
 			{ status: 401, headers: corsHeaders }
@@ -75,7 +88,7 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 	}
 
 	try {
-		const body = await context.request.json() as Partial<Booking> & { id: string };
+		const body = await context.request.json() as Partial<Booking> & { id: string; assignedTo?: string };
 		const { id } = body;
 
 		if (!id) {
@@ -104,6 +117,22 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 			);
 		}
 
+		// Order managers can only update bookings assigned to them
+		if (auth.role === 'order_manager' && bookings[bookingIndex].assignedTo !== auth.userId) {
+			return new Response(
+				JSON.stringify({ success: false, error: 'Access denied' }),
+				{ status: 403, headers: corsHeaders }
+			);
+		}
+
+		// Only super_admin can assign bookings
+		if (body.assignedTo !== undefined && auth.role !== 'super_admin') {
+			return new Response(
+				JSON.stringify({ success: false, error: 'Only admin can assign bookings' }),
+				{ status: 403, headers: corsHeaders }
+			);
+		}
+
 		const previousStatus = bookings[bookingIndex].status;
 
 		// Update editable fields
@@ -119,6 +148,7 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 			...(body.phone && { phone: body.phone }),
 			...(body.adminNotes !== undefined && { adminNotes: body.adminNotes }),
 			...(body.message !== undefined && { message: body.message }),
+			...(body.assignedTo !== undefined && { assignedTo: body.assignedTo || undefined }),
 		};
 
 		const status = bookings[bookingIndex].status;
@@ -131,12 +161,13 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 		if (body.status) changes.push(`status: ${previousStatus} → ${body.status}`);
 		if (body.date) changes.push(`date: ${body.date}`);
 		if (body.name) changes.push(`name: ${body.name}`);
+		if (body.assignedTo !== undefined) changes.push(`assignedTo: ${body.assignedTo || 'unassigned'}`);
 		logAction(context.env.BOOKINGS, {
 			action: 'updated',
 			entity: 'booking',
 			entityId: id,
 			details: `Updated booking for ${booking.name}${changes.length ? ': ' + changes.join(', ') : ''}`,
-			performedBy: 'admin',
+			performedBy: getPerformedBy(auth),
 		}).catch(() => {});
 
 		// Send confirmation email when status changes to "confirmed"
@@ -160,15 +191,24 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 	}
 };
 
-// DELETE - Delete a booking
+// DELETE - Delete a booking (super_admin only)
 export const onRequestDelete: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 
 	const authHeader = context.request.headers.get('Authorization');
-	if (!(await validateToken(authHeader, context.env))) {
+	const auth = await validateToken(authHeader, context.env);
+	if (!auth.valid) {
 		return new Response(
 			JSON.stringify({ success: false, error: 'Unauthorized' }),
 			{ status: 401, headers: corsHeaders }
+		);
+	}
+
+	// Only super_admin can delete bookings
+	if (auth.role !== 'super_admin') {
+		return new Response(
+			JSON.stringify({ success: false, error: 'Access denied' }),
+			{ status: 403, headers: corsHeaders }
 		);
 	}
 
@@ -198,7 +238,7 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
 			entity: 'booking',
 			entityId: id,
 			details: `Deleted booking for ${deletedBooking.name} (${deletedBooking.date})`,
-			performedBy: 'admin',
+			performedBy: getPerformedBy(auth),
 		}).catch(() => {});
 
 		return new Response(

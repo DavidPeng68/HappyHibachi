@@ -1,6 +1,7 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type {
+  AdminUser,
   Booking,
   BookingStatus,
   StatusFilter,
@@ -9,6 +10,12 @@ import type {
 } from '../../types/admin';
 import { StatusBadge, ConfirmDialog, Pagination, EmptyState } from '../../components/admin';
 import * as adminApi from '../../services/adminApi';
+import {
+  createHibachiEvent,
+  generateGoogleCalendarUrl,
+  generateOutlookCalendarUrl,
+  downloadICS,
+} from '../../utils/calendar';
 import { useAdmin } from './AdminLayout';
 
 // ---------------------------------------------------------------------------
@@ -79,7 +86,7 @@ function copyToClipboard(text: string): Promise<void> {
 
 const BookingManagement: React.FC = () => {
   const { t } = useTranslation();
-  const { token, showToast, bookings, setBookings } = useAdmin();
+  const { token, showToast, bookings, setBookings, isSuperAdmin } = useAdmin();
 
   // --- Local state ---
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
@@ -120,6 +127,21 @@ const BookingManagement: React.FC = () => {
   }>({ open: false, status: 'pending' });
   const [statusLoading, setStatusLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // Order managers list (for assignment dropdown, super_admin only)
+  const [orderManagers, setOrderManagers] = useState<Omit<AdminUser, 'passwordHash'>[]>([]);
+
+  useEffect(() => {
+    if (isSuperAdmin) {
+      adminApi.fetchUsers(token).then((res) => {
+        if (res.success) {
+          setOrderManagers(
+            res.users.filter((u) => u.role === 'order_manager' && u.status === 'approved')
+          );
+        }
+      });
+    }
+  }, [isSuperAdmin, token]);
 
   // -------------------------------------------------------------------------
   // Filtering, sorting, pagination
@@ -259,6 +281,32 @@ const BookingManagement: React.FC = () => {
   }, []);
 
   // -------------------------------------------------------------------------
+  // Assignment (super_admin only)
+  // -------------------------------------------------------------------------
+
+  const handleAssign = useCallback(
+    async (bookingId: string, assignedTo: string) => {
+      const res = await adminApi.updateBooking(token, {
+        id: bookingId,
+        assignedTo: assignedTo || '',
+      });
+      if (res.success && res.booking) {
+        setBookings((prev) =>
+          prev.map((b) => (b.id === bookingId ? { ...b, assignedTo: assignedTo || undefined } : b))
+        );
+        if (selectedBooking?.id === bookingId) {
+          setSelectedBooking((prev) =>
+            prev ? { ...prev, assignedTo: assignedTo || undefined } : prev
+          );
+        }
+        showToast(t('admin.toast.bookingAssigned'), 'success');
+      } else {
+        showToast(t('admin.toast.updateFailed'), 'error');
+      }
+    },
+    [token, showToast, setBookings, selectedBooking, t]
+  );
+
   // Status update
   // -------------------------------------------------------------------------
 
@@ -593,6 +641,38 @@ const BookingManagement: React.FC = () => {
                 <p className="bm-customer-notes">{b.message}</p>
               </div>
             )}
+            <div className="bm-quick-actions" style={{ marginTop: '1rem' }}>
+              <a
+                href={generateGoogleCalendarUrl(
+                  createHibachiEvent(b.date, b.time, b.guestCount, b.region, b.name)
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="admin-btn admin-btn-primary bm-action-btn"
+              >
+                {t('admin.booking.addToGoogleCalendar')}
+              </a>
+              <a
+                href={generateOutlookCalendarUrl(
+                  createHibachiEvent(b.date, b.time, b.guestCount, b.region, b.name)
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="admin-btn bm-action-btn"
+                style={{ background: '#0078d4', color: 'white' }}
+              >
+                {t('admin.booking.addToOutlook')}
+              </a>
+              <button
+                className="admin-btn bm-action-btn"
+                onClick={() =>
+                  downloadICS(createHibachiEvent(b.date, b.time, b.guestCount, b.region, b.name))
+                }
+                type="button"
+              >
+                {t('admin.booking.downloadICal')}
+              </button>
+            </div>
           </div>
 
           {/* --- Order Details --- */}
@@ -769,18 +849,40 @@ const BookingManagement: React.FC = () => {
             </div>
           </div>
 
-          {/* --- Danger Zone --- */}
-          <div className="admin-card bm-card bm-danger-zone">
-            <h3 className="bm-card-title">{t('admin.booking.dangerZone')}</h3>
-            <p className="bm-danger-text">{t('admin.booking.deleteWarning')}</p>
-            <button
-              className="admin-btn bm-delete-btn"
-              onClick={() => setDeleteConfirm({ open: true, id: b.id, name: b.name })}
-              type="button"
-            >
-              {t('admin.booking.deleteBooking')}
-            </button>
-          </div>
+          {/* --- Assignment (super_admin only) --- */}
+          {isSuperAdmin && (
+            <div className="admin-card bm-card">
+              <h3 className="bm-card-title">{t('admin.booking.assignTo')}</h3>
+              <select
+                className="admin-select"
+                value={b.assignedTo || ''}
+                onChange={(e) => handleAssign(b.id, e.target.value)}
+                style={{ width: '100%' }}
+              >
+                <option value="">{t('admin.booking.unassigned')}</option>
+                {orderManagers.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.displayName} ({m.username})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* --- Danger Zone (super_admin only) --- */}
+          {isSuperAdmin && (
+            <div className="admin-card bm-card bm-danger-zone">
+              <h3 className="bm-card-title">{t('admin.booking.dangerZone')}</h3>
+              <p className="bm-danger-text">{t('admin.booking.deleteWarning')}</p>
+              <button
+                className="admin-btn bm-delete-btn"
+                onClick={() => setDeleteConfirm({ open: true, id: b.id, name: b.name })}
+                type="button"
+              >
+                {t('admin.booking.deleteBooking')}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Delete confirmation */}
@@ -915,13 +1017,15 @@ const BookingManagement: React.FC = () => {
                 </option>
               ))}
             </select>
-            <button
-              className="admin-btn bm-delete-btn"
-              onClick={() => setBatchDeleteConfirm(true)}
-              type="button"
-            >
-              {t('admin.booking.deleteSelected')}
-            </button>
+            {isSuperAdmin && (
+              <button
+                className="admin-btn bm-delete-btn"
+                onClick={() => setBatchDeleteConfirm(true)}
+                type="button"
+              >
+                {t('admin.booking.deleteSelected')}
+              </button>
+            )}
             <button className="admin-btn" onClick={exportSelected} type="button">
               {t('admin.booking.exportSelected')}
             </button>
@@ -932,7 +1036,7 @@ const BookingManagement: React.FC = () => {
       {/* Content */}
       {filteredBookings.length === 0 ? (
         <EmptyState
-          icon="\uD83D\uDCCB"
+          icon="📋"
           title={t('admin.booking.noBookings')}
           description={t('admin.booking.noBookingsHint')}
         />
@@ -1014,6 +1118,7 @@ const BookingManagement: React.FC = () => {
                   {t('admin.booking.status')}
                   {sortArrow('status')}
                 </th>
+                {isSuperAdmin && <th>{t('admin.booking.assignedTo')}</th>}
                 <th className="bm-th-sortable" onClick={() => handleSort('createdAt')}>
                   {t('admin.booking.submitted')}
                   {sortArrow('createdAt')}
@@ -1053,6 +1158,14 @@ const BookingManagement: React.FC = () => {
                   <td>
                     <StatusBadge status={b.status} />
                   </td>
+                  {isSuperAdmin && (
+                    <td>
+                      {b.assignedTo
+                        ? orderManagers.find((m) => m.id === b.assignedTo)?.displayName ||
+                          b.assignedTo
+                        : t('admin.booking.unassigned')}
+                    </td>
+                  )}
                   <td className="bm-td-submitted">{formatDateTime(b.createdAt)}</td>
                   <td>
                     <button

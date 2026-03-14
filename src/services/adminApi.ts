@@ -6,6 +6,8 @@
  */
 
 import type {
+  AdminRole,
+  AdminUser,
   Booking,
   BookingStatus,
   BlockedDate,
@@ -80,12 +82,32 @@ async function adminRequest<T extends AdminApiResponse>(
 // ---------------------------------------------------------------------------
 
 export async function login(
-  password: string
-): Promise<{ success: boolean; token?: string; error?: string }> {
+  password: string,
+  username?: string
+): Promise<{
+  success: boolean;
+  token?: string;
+  role?: AdminRole;
+  userId?: string;
+  displayName?: string;
+  error?: string;
+}> {
   return adminRequest(`${API_BASE}/admin/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password }),
+    body: JSON.stringify({ password, ...(username && { username }) }),
+  });
+}
+
+export async function register(
+  username: string,
+  password: string,
+  displayName: string
+): Promise<{ success: boolean; message?: string; error?: string }> {
+  return adminRequest(`${API_BASE}/admin/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password, displayName }),
   });
 }
 
@@ -115,6 +137,7 @@ export async function updateBooking(
     phone?: string;
     adminNotes?: string;
     message?: string;
+    assignedTo?: string;
   }
 ): Promise<{ success: boolean; booking?: Booking }> {
   return adminRequest(`${API_BASE}/admin/bookings`, {
@@ -275,6 +298,49 @@ export async function saveSettings(
 }
 
 // ---------------------------------------------------------------------------
+// Gallery Images (R2)
+// ---------------------------------------------------------------------------
+
+export async function uploadGalleryImage(
+  token: string,
+  blob: Blob
+): Promise<{ success: boolean; key?: string; url?: string; error?: string }> {
+  const formData = new FormData();
+  formData.append('image', blob, 'gallery.webp');
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30_000);
+
+  try {
+    const response = await fetch(`${API_BASE}/admin/gallery`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+      signal: controller.signal,
+    });
+    return await response.json();
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      return { success: false, error: 'Upload timed out' };
+    }
+    return { success: false, error: 'Network error' };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function deleteGalleryImages(
+  token: string,
+  keys: string[]
+): Promise<{ success: boolean; error?: string }> {
+  return adminRequest(`${API_BASE}/admin/gallery`, {
+    method: 'DELETE',
+    headers: authHeaders(token),
+    body: JSON.stringify({ keys }),
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Instagram
 // ---------------------------------------------------------------------------
 
@@ -394,6 +460,59 @@ export async function fetchAuditLog(
   token: string
 ): Promise<{ success: boolean; entries: AuditLogEntry[] }> {
   return adminRequest(`${API_BASE}/admin/audit-log`, {
+    headers: authHeaders(token),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// User Management
+// ---------------------------------------------------------------------------
+
+export async function fetchUsers(
+  token: string,
+  status?: string
+): Promise<{ success: boolean; users: Omit<AdminUser, 'passwordHash'>[] }> {
+  const params = status ? `?status=${encodeURIComponent(status)}` : '';
+  return adminRequest(`${API_BASE}/admin/users${params}`, {
+    headers: authHeaders(token),
+  });
+}
+
+export async function createUser(
+  token: string,
+  data: { username: string; password: string; displayName: string; role?: AdminRole }
+): Promise<{ success: boolean; user?: Omit<AdminUser, 'passwordHash'>; error?: string }> {
+  return adminRequest(`${API_BASE}/admin/users`, {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateUser(
+  token: string,
+  data: {
+    id: string;
+    displayName?: string;
+    password?: string;
+    enabled?: boolean;
+    status?: 'approved' | 'rejected';
+    role?: AdminRole;
+  }
+): Promise<{ success: boolean; user?: Omit<AdminUser, 'passwordHash'>; error?: string }> {
+  return adminRequest(`${API_BASE}/admin/users`, {
+    method: 'PATCH',
+    headers: authHeaders(token),
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteUser(
+  token: string,
+  id: string
+): Promise<{ success: boolean; error?: string }> {
+  return adminRequest(`${API_BASE}/admin/users?id=${encodeURIComponent(id)}`, {
+    method: 'DELETE',
     headers: authHeaders(token),
   });
 }

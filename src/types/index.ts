@@ -117,6 +117,7 @@ export interface TimeSlot {
 export interface GalleryImageApi {
   id: string;
   url: string;
+  r2Key?: string;
   caption: string;
   order: number;
 }

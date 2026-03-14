@@ -3,7 +3,7 @@
  * GET /api/admin/audit-log - Fetch audit log entries
  */
 
-import { validateToken, getCorsHeaders } from '../_auth';
+import { validateToken, requireSuperAdmin, getCorsHeaders } from '../_auth';
 import type { AuditLogEntry } from '../_auditLog';
 
 interface Env {
@@ -16,12 +16,9 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 
 	const authHeader = context.request.headers.get('Authorization');
-	if (!(await validateToken(authHeader, context.env))) {
-		return new Response(
-			JSON.stringify({ success: false, error: 'Unauthorized' }),
-			{ status: 401, headers: corsHeaders },
-		);
-	}
+	const auth = await validateToken(authHeader, context.env);
+	const denied = requireSuperAdmin(auth, corsHeaders);
+	if (denied) return denied;
 
 	try {
 		const data = await context.env.BOOKINGS.get('audit_log', 'json');

@@ -7,6 +7,12 @@ interface AuthEnv {
 	ALLOWED_ORIGINS?: string;
 }
 
+export interface AuthResult {
+	valid: boolean;
+	role?: 'super_admin' | 'order_manager';
+	userId?: string;
+}
+
 const TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 async function hmacSign(message: string, secret: string): Promise<string> {
@@ -32,32 +38,73 @@ async function hmacVerify(message: string, signature: string, secret: string): P
 	return mismatch === 0;
 }
 
-export async function createToken(adminPassword: string): Promise<string> {
+export async function createToken(
+	adminPassword: string,
+	role: string = 'super_admin',
+	userId: string = '__env__'
+): Promise<string> {
 	const exp = Date.now() + TOKEN_EXPIRY_MS;
-	const payload = `admin:${exp}`;
+	const payload = `${role}:${userId}:${exp}`;
 	const sig = await hmacSign(payload, adminPassword);
 	return btoa(`${payload}:${sig}`);
 }
 
-export async function validateToken(authHeader: string | null, env: AuthEnv): Promise<boolean> {
-	if (!authHeader || !authHeader.startsWith('Bearer ')) return false;
+export async function validateToken(authHeader: string | null, env: AuthEnv): Promise<AuthResult> {
+	const invalid: AuthResult = { valid: false };
+	if (!authHeader || !authHeader.startsWith('Bearer ')) return invalid;
 	const secret = env.ADMIN_PASSWORD;
-	if (!secret) return false;
+	if (!secret) return invalid;
 
 	try {
 		const decoded = atob(authHeader.slice(7));
 		const parts = decoded.split(':');
-		if (parts.length !== 3 || parts[0] !== 'admin') return false;
 
-		const exp = parseInt(parts[1], 10);
-		if (isNaN(exp) || Date.now() > exp) return false;
+		// Legacy token format: admin:{exp}:{sig} (3 parts)
+		if (parts.length === 3 && parts[0] === 'admin') {
+			const exp = parseInt(parts[1], 10);
+			if (isNaN(exp) || Date.now() > exp) return invalid;
+			const payload = `${parts[0]}:${parts[1]}`;
+			const sig = parts[2];
+			if (await hmacVerify(payload, sig, secret)) {
+				return { valid: true, role: 'super_admin', userId: '__env__' };
+			}
+			return invalid;
+		}
 
-		const payload = `${parts[0]}:${parts[1]}`;
-		const sig = parts[2];
-		return await hmacVerify(payload, sig, secret);
+		// New token format: {role}:{userId}:{exp}:{sig} (4 parts)
+		if (parts.length === 4) {
+			const [role, userId, expStr, sig] = parts;
+			if (role !== 'super_admin' && role !== 'order_manager') return invalid;
+			const exp = parseInt(expStr, 10);
+			if (isNaN(exp) || Date.now() > exp) return invalid;
+			const payload = `${role}:${userId}:${expStr}`;
+			if (await hmacVerify(payload, sig, secret)) {
+				return { valid: true, role: role as AuthResult['role'], userId };
+			}
+			return invalid;
+		}
+
+		return invalid;
 	} catch {
-		return false;
+		return invalid;
 	}
+}
+
+export function requireSuperAdmin(auth: AuthResult, corsHeaders: Record<string, string>): Response | null {
+	if (!auth.valid) {
+		return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), { status: 401, headers: corsHeaders });
+	}
+	if (auth.role !== 'super_admin') {
+		return new Response(JSON.stringify({ success: false, error: 'Access denied' }), { status: 403, headers: corsHeaders });
+	}
+	return null;
+}
+
+export async function hashPassword(password: string, username: string): Promise<string> {
+	const encoder = new TextEncoder();
+	const data = encoder.encode(password + ':' + username);
+	const hash = await crypto.subtle.digest('SHA-256', data);
+	return btoa(String.fromCharCode(...new Uint8Array(hash)));
 }
 
 export function getCorsHeaders(request?: Request, env?: AuthEnv): Record<string, string> {
@@ -68,7 +115,7 @@ export function getCorsHeaders(request?: Request, env?: AuthEnv): Record<string,
 
 	return {
 		'Access-Control-Allow-Origin': matchedOrigin,
-		'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+		'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
 		'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 		'Content-Type': 'application/json',
 	};

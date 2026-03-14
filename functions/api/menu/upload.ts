@@ -3,7 +3,7 @@
  * POST /api/menu/upload - Upload menu item image to R2
  */
 
-import { validateToken, getCorsHeaders } from '../_auth';
+import { validateToken, requireSuperAdmin, getCorsHeaders } from '../_auth';
 
 interface Env {
 	BOOKINGS: KVNamespace;
@@ -16,12 +16,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 
 	const authHeader = context.request.headers.get('Authorization');
-	if (!await validateToken(authHeader, context.env)) {
-		return new Response(
-			JSON.stringify({ success: false, error: 'Unauthorized' }),
-			{ status: 401, headers: corsHeaders }
-		);
-	}
+	const auth = await validateToken(authHeader, context.env);
+	const denied = requireSuperAdmin(auth, corsHeaders);
+	if (denied) return denied;
 
 	try {
 		const formData = await context.request.formData();

@@ -4,7 +4,7 @@
  * PATCH /api/admin/customers - Update customer notes/tags
  */
 
-import { validateToken, getCorsHeaders } from '../_auth';
+import { validateToken, requireSuperAdmin, getCorsHeaders } from '../_auth';
 
 interface BookingOrderData {
 	estimatedTotal: number;
@@ -65,12 +65,9 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 
 	const authHeader = context.request.headers.get('Authorization');
-	if (!(await validateToken(authHeader, context.env))) {
-		return new Response(
-			JSON.stringify({ success: false, error: 'Unauthorized' }),
-			{ status: 401, headers: corsHeaders },
-		);
-	}
+	const auth = await validateToken(authHeader, context.env);
+	const denied = requireSuperAdmin(auth, corsHeaders);
+	if (denied) return denied;
 
 	try {
 		const [bookingsData, notesData, tagsData] = await Promise.all([
@@ -166,12 +163,9 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 
 	const authHeader = context.request.headers.get('Authorization');
-	if (!(await validateToken(authHeader, context.env))) {
-		return new Response(
-			JSON.stringify({ success: false, error: 'Unauthorized' }),
-			{ status: 401, headers: corsHeaders },
-		);
-	}
+	const auth = await validateToken(authHeader, context.env);
+	const denied = requireSuperAdmin(auth, corsHeaders);
+	if (denied) return denied;
 
 	try {
 		const body = (await context.request.json()) as {

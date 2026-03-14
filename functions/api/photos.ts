@@ -6,7 +6,7 @@
  * DELETE /api/photos - Remove submission (admin only)
  */
 
-import { validateToken, getCorsHeaders } from './_auth';
+import { validateToken, requireSuperAdmin, getCorsHeaders } from './_auth';
 import { checkRateLimit } from './_rateLimit';
 
 interface PhotoSubmission {
@@ -145,12 +145,9 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 	}
 
 	const authHeader = context.request.headers.get('Authorization');
-	if (!await validateToken(authHeader, context.env)) {
-		return new Response(
-			JSON.stringify({ success: false, error: 'Unauthorized' }),
-			{ status: 401, headers: corsHeaders }
-		);
-	}
+	const auth = await validateToken(authHeader, context.env);
+	const denied = requireSuperAdmin(auth, corsHeaders);
+	if (denied) return denied;
 
 	try {
 		const data = await context.env.BOOKINGS.get('photo_submissions', 'json');
@@ -174,12 +171,9 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 
 	const authHeader = context.request.headers.get('Authorization');
-	if (!await validateToken(authHeader, context.env)) {
-		return new Response(
-			JSON.stringify({ success: false, error: 'Unauthorized' }),
-			{ status: 401, headers: corsHeaders }
-		);
-	}
+	const auth = await validateToken(authHeader, context.env);
+	const denied = requireSuperAdmin(auth, corsHeaders);
+	if (denied) return denied;
 
 	try {
 		const { id, status, applyReward } = await context.request.json() as {
@@ -232,12 +226,9 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 
 	const authHeader = context.request.headers.get('Authorization');
-	if (!await validateToken(authHeader, context.env)) {
-		return new Response(
-			JSON.stringify({ success: false, error: 'Unauthorized' }),
-			{ status: 401, headers: corsHeaders }
-		);
-	}
+	const auth = await validateToken(authHeader, context.env);
+	const denied = requireSuperAdmin(auth, corsHeaders);
+	if (denied) return denied;
 
 	try {
 		const { id } = await context.request.json() as { id: string };

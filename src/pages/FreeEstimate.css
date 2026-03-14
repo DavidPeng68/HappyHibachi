@@ -294,6 +294,78 @@
 }
 
 /* =============================================
+   CALENDAR BUTTONS (Success Screen)
+   ============================================= */
+
+.free-estimate .calendar-buttons {
+  margin: var(--space-xl) 0;
+  padding: var(--space-xl);
+  background: rgba(255, 107, 53, 0.05);
+  border: 1px solid rgba(255, 107, 53, 0.15);
+  border-radius: var(--radius-lg);
+}
+
+.free-estimate .calendar-buttons h3 {
+  font-size: var(--text-lg);
+  color: var(--color-primary);
+  margin-bottom: var(--space-lg);
+}
+
+.free-estimate .calendar-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  justify-content: center;
+}
+
+.free-estimate .calendar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.free-estimate .calendar-btn.google {
+  background: #4285f4;
+  color: white;
+}
+
+.free-estimate .calendar-btn.google:hover {
+  background: #3367d6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.4);
+}
+
+.free-estimate .calendar-btn.outlook {
+  background: #0078d4;
+  color: white;
+}
+
+.free-estimate .calendar-btn.outlook:hover {
+  background: #006cbd;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 120, 212, 0.4);
+}
+
+.free-estimate .calendar-btn.apple {
+  background: var(--color-bg-card-hover);
+  color: white;
+}
+
+.free-estimate .calendar-btn.apple:hover {
+  background: var(--color-bg-card-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* =============================================
    RESPONSIVE STYLES
    ============================================= */
 
@@ -320,6 +392,15 @@
 
   .estimate-form-card {
     padding: var(--space-xl);
+  }
+
+  .free-estimate .calendar-options {
+    flex-direction: column;
+  }
+
+  .free-estimate .calendar-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 
@@ -383,4 +464,9 @@
 .theme-light .submit-btn.loading::after {
   border-color: rgba(0, 0, 0, 0.2);
   border-top-color: var(--color-primary);
+}
+
+.theme-light .free-estimate .calendar-buttons {
+  background: rgba(255, 107, 53, 0.03);
+  border-color: rgba(255, 107, 53, 0.12);
 }

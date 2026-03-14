@@ -157,7 +157,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 		}
 
 		const authHeader = context.request.headers.get('Authorization');
-		if (!await validateToken(authHeader, context.env)) {
+		if (!(await validateToken(authHeader, context.env)).valid) {
 			return new Response(
 				JSON.stringify({ success: false, error: 'Unauthorized' }),
 				{ status: 401, headers: corsHeaders }
@@ -182,7 +182,7 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 
 	const authHeader = context.request.headers.get('Authorization');
-	if (!await validateToken(authHeader, context.env)) {
+	if (!(await validateToken(authHeader, context.env)).valid) {
 		return new Response(
 			JSON.stringify({ success: false, error: 'Unauthorized' }),
 			{ status: 401, headers: corsHeaders }

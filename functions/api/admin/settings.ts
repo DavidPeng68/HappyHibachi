@@ -1,82 +1,9 @@
 /**
- * Settings API - 系统设置管理
- * GET /api/settings - 获取公开设置（时间段等）
- * POST /api/settings - 更新设置（需要管理员权限）
+ * Admin Settings API
+ * PUT /api/admin/settings - 更新设置（需要 super_admin 权限）
  */
 
-interface TimeSlot {
-	id: string;
-	label: string;
-	startTime: string; // HH:MM
-	endTime: string;   // HH:MM
-	enabled: boolean;
-}
-
-interface SocialLinks {
-	instagram: string;
-	facebook: string;
-	tiktok: string;
-}
-
-interface PromoBanner {
-	enabled: boolean;
-	text: string;
-	emoji: string;
-}
-
-interface ContactInfo {
-	phone: string;
-	email: string;
-	contactPerson: string;
-}
-
-interface GalleryImage {
-	id: string;
-	url: string;  // base64 或 URL
-	caption: string;
-	order: number;
-}
-
-interface FeatureToggles {
-	photoShare: boolean;
-	referralProgram: boolean;
-	newsletter: boolean;
-	specialOffer: boolean;
-	instagramFeed: boolean;
-	coupons: boolean;
-}
-
-interface BrandInfo {
-	name: string;
-	url: string;
-	logoUrl: string;
-	hashtag: string;
-}
-
-interface SEODefaults {
-	title: string;
-	description: string;
-	keywords: string;
-}
-
-interface Settings {
-	timeSlots: TimeSlot[];
-	businessHours?: {
-		open: string;
-		close: string;
-	};
-	minGuests: number;
-	maxGuests: number;
-	pricePerPerson: number;
-	minimumOrder: number;
-	socialLinks: SocialLinks;
-	promoBanner: PromoBanner;
-	contactInfo: ContactInfo;
-	galleryImages: GalleryImage[];
-	featureToggles: FeatureToggles;
-	brandInfo: BrandInfo;
-	seoDefaults: SEODefaults;
-}
+import { validateToken, requireSuperAdmin, getCorsHeaders } from '../_auth';
 
 interface Env {
 	BOOKINGS: KVNamespace;
@@ -84,9 +11,35 @@ interface Env {
 	ALLOWED_ORIGINS?: string;
 }
 
-import { validateToken, requireSuperAdmin, getCorsHeaders } from './_auth';
+interface Settings {
+	timeSlots: Array<{
+		id: string;
+		label: string;
+		startTime: string;
+		endTime: string;
+		enabled: boolean;
+	}>;
+	businessHours?: { open: string; close: string };
+	minGuests: number;
+	maxGuests: number;
+	pricePerPerson: number;
+	minimumOrder: number;
+	socialLinks: { instagram: string; facebook: string; tiktok: string };
+	promoBanner: { enabled: boolean; text: string; emoji: string };
+	contactInfo: { phone: string; email: string; contactPerson: string };
+	galleryImages: Array<{ id: string; url: string; caption: string; order: number }>;
+	featureToggles: {
+		photoShare: boolean;
+		referralProgram: boolean;
+		newsletter: boolean;
+		specialOffer: boolean;
+		instagramFeed: boolean;
+		coupons: boolean;
+	};
+	brandInfo: { name: string; url: string; logoUrl: string; hashtag: string };
+	seoDefaults: { title: string; description: string; keywords: string };
+}
 
-// 默认设置
 const DEFAULT_SETTINGS: Settings = {
 	timeSlots: [
 		{ id: 'afternoon', label: 'Afternoon', startTime: '13:00', endTime: '15:00', enabled: true },
@@ -102,11 +55,7 @@ const DEFAULT_SETTINGS: Settings = {
 		facebook: 'https://facebook.com/familyfriendshibachi',
 		tiktok: 'https://tiktok.com/@familyfriendshibachi',
 	},
-	promoBanner: {
-		enabled: true,
-		text: 'Book Today & Get $30 OFF!',
-		emoji: '🔥',
-	},
+	promoBanner: { enabled: true, text: 'Book Today & Get $30 OFF!', emoji: '🔥' },
 	contactInfo: {
 		phone: '909-615-6633',
 		email: 'familyfriendshibachi@gmail.com',
@@ -134,38 +83,16 @@ const DEFAULT_SETTINGS: Settings = {
 	},
 };
 
-// GET - 获取设置（公开）
-export const onRequestGet: PagesFunction<Env> = async (context) => {
+const ALLOWED_KEYS = new Set<string>([
+	'timeSlots', 'businessHours', 'minGuests', 'maxGuests',
+	'pricePerPerson', 'minimumOrder', 'socialLinks', 'promoBanner',
+	'contactInfo', 'galleryImages', 'featureToggles', 'brandInfo', 'seoDefaults',
+]);
+
+// PUT - 更新设置
+export const onRequestPut: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 
-	try {
-		const settingsData = await context.env.BOOKINGS.get('app_settings', 'json');
-		const settings: Settings = (settingsData as Settings) || DEFAULT_SETTINGS;
-
-		// 只返回已启用的时间段
-		const publicSettings = {
-			...settings,
-			timeSlots: settings.timeSlots.filter(slot => slot.enabled),
-		};
-
-		return new Response(
-			JSON.stringify({ success: true, settings: publicSettings }),
-			{ headers: corsHeaders }
-		);
-	} catch (error) {
-		console.error('Get settings error:', error);
-		return new Response(
-			JSON.stringify({ success: false, error: 'Failed to get settings' }),
-			{ status: 500, headers: corsHeaders }
-		);
-	}
-};
-
-// POST - 更新设置（需要管理员权限）
-export const onRequestPost: PagesFunction<Env> = async (context) => {
-	const corsHeaders = getCorsHeaders(context.request, context.env);
-
-	// 验证身份
 	const authHeader = context.request.headers.get('Authorization');
 	const auth = await validateToken(authHeader, context.env);
 	const denied = requireSuperAdmin(auth, corsHeaders);
@@ -173,12 +100,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
 	try {
 		const updates = await context.request.json() as Record<string, unknown>;
-
-		const ALLOWED_KEYS = new Set<string>([
-			'timeSlots', 'businessHours', 'minGuests', 'maxGuests',
-			'pricePerPerson', 'minimumOrder', 'socialLinks', 'promoBanner',
-			'contactInfo', 'galleryImages', 'featureToggles', 'brandInfo', 'seoDefaults',
-		]);
 
 		const unknownKeys = Object.keys(updates).filter(k => !ALLOWED_KEYS.has(k));
 		if (unknownKeys.length > 0) {
@@ -238,9 +159,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
 // OPTIONS - CORS
 export const onRequestOptions: PagesFunction<Env> = async (context) => {
+	const corsHeaders = getCorsHeaders(context.request, context.env);
 	return new Response(null, {
 		status: 204,
-		headers: getCorsHeaders(context.request, context.env),
+		headers: { ...corsHeaders, 'Access-Control-Allow-Methods': 'PUT, OPTIONS' },
 	});
 };
-

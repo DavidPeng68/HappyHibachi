@@ -4,6 +4,25 @@
  * Extracted from AdminDashboard.tsx and expanded with new fields.
  */
 
+// ---------------------------------------------------------------------------
+// Role-Based Access Control
+// ---------------------------------------------------------------------------
+
+export type AdminRole = 'super_admin' | 'order_manager';
+export type AccountStatus = 'pending' | 'approved' | 'rejected';
+
+export interface AdminUser {
+  id: string;
+  username: string;
+  passwordHash: string;
+  role: AdminRole;
+  displayName: string;
+  enabled: boolean;
+  status: AccountStatus;
+  createdAt: string;
+  createdBy: string;
+}
+
 export interface BookingOrderData {
   packageName: string;
   priceModel: string;
@@ -33,6 +52,7 @@ export interface Booking {
   referralSource?: string;
   orderData?: BookingOrderData;
   adminNotes?: string;
+  assignedTo?: string;
   createdAt: string;
 }
 
@@ -142,7 +162,8 @@ export type AdminMenuType =
   | 'instagram'
   | 'customers'
   | 'activity'
-  | 'settings';
+  | 'settings'
+  | 'users';
 
 export type BookingStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
 export type StatusFilter = 'all' | BookingStatus;

@@ -6,6 +6,12 @@ import { REGIONS } from '../constants';
 import { useSettings } from '../hooks';
 import { submitEstimate } from '../services/api';
 import { validateEmail, validatePhone, validateGuestCount } from '../utils/validation';
+import {
+  createHibachiEvent,
+  generateGoogleCalendarUrl,
+  generateOutlookCalendarUrl,
+  downloadICS,
+} from '../utils/calendar';
 import type { EstimateFormData } from '../types';
 import './FreeEstimate.css';
 
@@ -146,6 +152,16 @@ const FreeEstimate: React.FC = () => {
   }));
 
   if (submitStatus === 'success') {
+    const calendarEvent = createHibachiEvent(
+      formData.preferredDate,
+      undefined,
+      formData.guestCount,
+      formData.region,
+      formData.name
+    );
+    const googleCalUrl = generateGoogleCalendarUrl(calendarEvent);
+    const outlookCalUrl = generateOutlookCalendarUrl(calendarEvent);
+
     return (
       <div className="free-estimate">
         <SEO title={t('nav.freeEstimate')} />
@@ -156,6 +172,31 @@ const FreeEstimate: React.FC = () => {
               <h2>{t('form.success')}</h2>
               <p>{t('form.successMessage')}</p>
               <p className="contact-highlight">{contactInfo.phone}</p>
+
+              <div className="calendar-buttons">
+                <h3>{t('booking.addToCalendar')}</h3>
+                <div className="calendar-options">
+                  <a
+                    href={googleCalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="calendar-btn google"
+                  >
+                    {t('booking.googleCalendar')}
+                  </a>
+                  <a
+                    href={outlookCalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="calendar-btn outlook"
+                  >
+                    {t('booking.outlook')}
+                  </a>
+                  <button onClick={() => downloadICS(calendarEvent)} className="calendar-btn apple">
+                    {t('booking.appleICal')}
+                  </button>
+                </div>
+              </div>
             </div>
           </Card>
         </div>

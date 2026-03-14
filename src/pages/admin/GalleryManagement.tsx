@@ -3,9 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { useAdmin } from './AdminLayout';
 import { ConfirmDialog, ImageLightbox } from '../../components/admin';
 import { ImageUploader } from '../../components/ui';
-import { GALLERY_PRESET } from '../../utils/imageCompression';
+import { GALLERY_PRESET, compressImage } from '../../utils/imageCompression';
 import * as adminApi from '../../services/adminApi';
 import type { GalleryImageApi } from '../../types';
+
+function base64ToBlob(base64: string): Blob {
+  const [header, data] = base64.split(',');
+  const mime = header.match(/:(.*?);/)?.[1] || 'image/webp';
+  const binary = atob(data);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
 
 const GalleryManagement: React.FC = () => {
   const { t } = useTranslation();
@@ -16,6 +25,7 @@ const GalleryManagement: React.FC = () => {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [singleDeleteId, setSingleDeleteId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const galleryImages = useMemo(
     () => [...(settings.galleryImages || [])].sort((a, b) => a.order - b.order),
@@ -47,25 +57,62 @@ const GalleryManagement: React.FC = () => {
   );
 
   // -------------------------------------------------------------------
-  // Upload
+  // Upload to R2
   // -------------------------------------------------------------------
 
-  const handleUploadMultiple = useCallback(
-    (images: string[]) => {
-      const currentImages = settings.galleryImages || [];
-      const maxOrder =
-        currentImages.length > 0 ? Math.max(...currentImages.map((img) => img.order)) : 0;
-
-      const newImages: GalleryImageApi[] = images.map((base64, i) => ({
-        id: `gallery_${Date.now()}_${i}`,
-        url: base64,
-        caption: '',
-        order: maxOrder + i + 1,
-      }));
-
-      saveGalleryImages([...currentImages, ...newImages]);
+  const uploadToR2 = useCallback(
+    async (base64: string): Promise<{ key: string; url: string } | null> => {
+      const blob = base64ToBlob(base64);
+      const result = await adminApi.uploadGalleryImage(token, blob);
+      if (result.success && result.key && result.url) {
+        return { key: result.key, url: result.url };
+      }
+      return null;
     },
-    [settings.galleryImages, saveGalleryImages]
+    [token]
+  );
+
+  const handleUploadMultiple = useCallback(
+    async (images: string[]) => {
+      setUploading(true);
+      try {
+        const currentImages = settings.galleryImages || [];
+        const maxOrder =
+          currentImages.length > 0 ? Math.max(...currentImages.map((img) => img.order)) : 0;
+
+        const results = await Promise.all(images.map((base64) => uploadToR2(base64)));
+
+        const newImages: GalleryImageApi[] = [];
+        let failCount = 0;
+
+        results.forEach((result, i) => {
+          if (result) {
+            newImages.push({
+              id: `gallery_${Date.now()}_${i}`,
+              url: result.url,
+              r2Key: result.key,
+              caption: '',
+              order: maxOrder + i + 1,
+            });
+          } else {
+            failCount++;
+          }
+        });
+
+        if (failCount > 0) {
+          showToast(t('admin.gallery.uploadFailed'), 'error');
+        }
+
+        if (newImages.length > 0) {
+          await saveGalleryImages([...currentImages, ...newImages]);
+        }
+      } catch {
+        showToast(t('admin.gallery.uploadFailed'), 'error');
+      } finally {
+        setUploading(false);
+      }
+    },
+    [settings.galleryImages, uploadToR2, saveGalleryImages, showToast, t]
   );
 
   const handleUploadSingle = useCallback(
@@ -122,13 +169,22 @@ const GalleryManagement: React.FC = () => {
     setSingleDeleteId(id);
   }, []);
 
-  const confirmDeleteSingle = useCallback(() => {
+  const confirmDeleteSingle = useCallback(async () => {
     if (!singleDeleteId) return;
-    const updated = (settings.galleryImages || []).filter((img) => img.id !== singleDeleteId);
-    saveGalleryImages(updated);
-    setSingleDeleteId(null);
-    showToast(t('admin.toast.imageDeleted'), 'success');
-  }, [singleDeleteId, settings.galleryImages, saveGalleryImages, showToast, t]);
+    setSaving(true);
+    try {
+      const imageToDelete = (settings.galleryImages || []).find((img) => img.id === singleDeleteId);
+      if (imageToDelete?.r2Key) {
+        await adminApi.deleteGalleryImages(token, [imageToDelete.r2Key]);
+      }
+      const updated = (settings.galleryImages || []).filter((img) => img.id !== singleDeleteId);
+      await saveGalleryImages(updated);
+      setSingleDeleteId(null);
+    } catch {
+      showToast(t('admin.toast.saveFailed'), 'error');
+      setSaving(false);
+    }
+  }, [singleDeleteId, settings.galleryImages, token, saveGalleryImages, showToast, t]);
 
   // -------------------------------------------------------------------
   // Bulk select & delete
@@ -159,26 +215,76 @@ const GalleryManagement: React.FC = () => {
     setDeleteConfirmOpen(true);
   }, [selectedImageIds.size]);
 
-  const confirmBulkDelete = useCallback(() => {
-    const updated = (settings.galleryImages || []).filter((img) => !selectedImageIds.has(img.id));
-    saveGalleryImages(updated);
-    setSelectedImageIds(new Set());
-    setDeleteConfirmOpen(false);
-    showToast(t('admin.toast.imageDeleted'), 'success');
-  }, [settings.galleryImages, selectedImageIds, saveGalleryImages, showToast, t]);
+  const confirmBulkDelete = useCallback(async () => {
+    setSaving(true);
+    try {
+      const imagesToDelete = (settings.galleryImages || []).filter((img) =>
+        selectedImageIds.has(img.id)
+      );
+      const r2Keys = imagesToDelete.map((img) => img.r2Key).filter(Boolean) as string[];
+      if (r2Keys.length > 0) {
+        await adminApi.deleteGalleryImages(token, r2Keys);
+      }
+      const updated = (settings.galleryImages || []).filter((img) => !selectedImageIds.has(img.id));
+      await saveGalleryImages(updated);
+      setSelectedImageIds(new Set());
+      setDeleteConfirmOpen(false);
+    } catch {
+      showToast(t('admin.toast.saveFailed'), 'error');
+      setSaving(false);
+    }
+  }, [settings.galleryImages, selectedImageIds, token, saveGalleryImages, showToast, t]);
 
   // -------------------------------------------------------------------
   // Replace image
   // -------------------------------------------------------------------
 
   const handleReplaceImage = useCallback(
-    (id: string, base64: string) => {
-      const updated = (settings.galleryImages || []).map((img) =>
-        img.id === id ? { ...img, url: base64 } : img
-      );
-      saveGalleryImages(updated);
+    async (id: string, base64: string) => {
+      setSaving(true);
+      try {
+        const oldImage = (settings.galleryImages || []).find((img) => img.id === id);
+
+        const result = await uploadToR2(base64);
+        if (!result) {
+          showToast(t('admin.gallery.uploadFailed'), 'error');
+          setSaving(false);
+          return;
+        }
+
+        // Delete old R2 object if exists
+        if (oldImage?.r2Key) {
+          await adminApi.deleteGalleryImages(token, [oldImage.r2Key]);
+        }
+
+        const updated = (settings.galleryImages || []).map((img) =>
+          img.id === id ? { ...img, url: result.url, r2Key: result.key } : img
+        );
+        await saveGalleryImages(updated);
+      } catch {
+        showToast(t('admin.toast.saveFailed'), 'error');
+        setSaving(false);
+      }
     },
-    [settings.galleryImages, saveGalleryImages]
+    [settings.galleryImages, token, uploadToR2, saveGalleryImages, showToast, t]
+  );
+
+  // -------------------------------------------------------------------
+  // Replace via file input (compress then upload to R2)
+  // -------------------------------------------------------------------
+
+  const handleReplaceFile = useCallback(
+    async (id: string, file: File) => {
+      setSaving(true);
+      try {
+        const compressed = await compressImage(file, GALLERY_PRESET);
+        await handleReplaceImage(id, compressed.base64);
+      } catch {
+        showToast(t('admin.gallery.uploadFailed'), 'error');
+        setSaving(false);
+      }
+    },
+    [handleReplaceImage, showToast, t]
   );
 
   // -------------------------------------------------------------------
@@ -221,6 +327,11 @@ const GalleryManagement: React.FC = () => {
             onMultipleChange={handleUploadMultiple}
             label={t('admin.gallery.uploadLabel')}
           />
+          {uploading && (
+            <p style={{ marginTop: 8, color: 'var(--admin-primary)' }}>
+              {t('admin.gallery.uploading')}
+            </p>
+          )}
         </div>
       </div>
 
@@ -329,13 +440,7 @@ const GalleryManagement: React.FC = () => {
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (!file) return;
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                          if (typeof reader.result === 'string') {
-                            handleReplaceImage(image.id, reader.result);
-                          }
-                        };
-                        reader.readAsDataURL(file);
+                        handleReplaceFile(image.id, file);
                         e.target.value = '';
                       }}
                     />

@@ -350,7 +350,7 @@ const SettingsPage: React.FC = () => {
     const statusMap: Record<string, string> = {
       pending: '\u23F3 Pending',
       confirmed: '\u2705 Confirmed',
-      completed: '\uD83C\uDF89 Completed',
+      completed: '🎉 Completed',
       cancelled: '\u274C Cancelled',
     };
 
@@ -377,7 +377,7 @@ const SettingsPage: React.FC = () => {
     ctx.fillStyle = '#FF6B35';
     ctx.font = 'bold 24px system-ui, -apple-system, sans-serif';
     ctx.fillText(
-      `\uD83C\uDF71 ${settings.brandInfo?.name || 'Family Friends Hibachi'} Booking Data`,
+      `🍱 ${settings.brandInfo?.name || 'Family Friends Hibachi'} Booking Data`,
       padding,
       padding + 30
     );
@@ -416,11 +416,11 @@ const SettingsPage: React.FC = () => {
       ctx.fillStyle = '#aaa';
       ctx.font = '13px system-ui, -apple-system, sans-serif';
       const lines = [
-        `\uD83D\uDCDE ${b.phone}`,
-        `\uD83D\uDCE7 ${b.email}`,
-        `\uD83D\uDCC5 ${b.date} ${b.time}`,
-        `\uD83D\uDC65 ${b.guestCount} guests | \uD83D\uDCCD ${b.region}`,
-        b.couponCode ? `\uD83C\uDFAB ${b.couponCode}` : '',
+        `📞 ${b.phone}`,
+        `📧 ${b.email}`,
+        `📅 ${b.date} ${b.time}`,
+        `👥 ${b.guestCount} guests | 📍 ${b.region}`,
+        b.couponCode ? `🎫 ${b.couponCode}` : '',
       ].filter(Boolean);
 
       lines.forEach((line, li) => {
@@ -587,7 +587,7 @@ const SettingsPage: React.FC = () => {
           <input
             type="text"
             className="input"
-            value={settings.promoBanner?.emoji ?? '\uD83D\uDD25'}
+            value={settings.promoBanner?.emoji ?? '🔥'}
             onChange={(e) =>
               setSettings((s) => ({
                 ...s,
@@ -595,7 +595,7 @@ const SettingsPage: React.FC = () => {
               }))
             }
             onBlur={() => saveSettings({ promoBanner: settings.promoBanner })}
-            placeholder="\uD83D\uDD25"
+            placeholder="🔥"
             style={{ width: '60px', textAlign: 'center' }}
           />
         </div>

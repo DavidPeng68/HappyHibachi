@@ -10,6 +10,7 @@ import React, {
 import { useTranslation } from 'react-i18next';
 import type {
   AdminMenuType,
+  AdminRole,
   Booking,
   BlockedDate,
   Review,
@@ -28,6 +29,10 @@ export interface AdminContextValue {
   activeMenu: AdminMenuType;
   setActiveMenu: (menu: AdminMenuType) => void;
   token: string;
+  role: AdminRole;
+  userId: string;
+  displayName: string;
+  isSuperAdmin: boolean;
   showToast: (message: string, type: 'success' | 'error' | 'info') => void;
   bookings: Booking[];
   setBookings: React.Dispatch<React.SetStateAction<Booking[]>>;
@@ -58,6 +63,9 @@ export function useAdmin(): AdminContextValue {
 
 interface AdminLayoutProps {
   token: string;
+  role: AdminRole;
+  userId: string;
+  displayName: string;
   onLogout: () => void;
   children: React.ReactNode;
 }
@@ -81,6 +89,7 @@ const MENU_ICONS: Record<AdminMenuType, string> = {
   customers: '\u{1F465}',
   activity: '\u{1F4DD}',
   settings: '\u2699\uFE0F',
+  users: '\u{1F464}',
 };
 
 const ALL_MENUS: AdminMenuType[] = [
@@ -96,7 +105,10 @@ const ALL_MENUS: AdminMenuType[] = [
   'customers',
   'activity',
   'settings',
+  'users',
 ];
+
+const ORDER_MANAGER_MENUS: AdminMenuType[] = ['dashboard', 'bookings', 'calendar'];
 
 const MAX_TOASTS = 3;
 const TOAST_DURATION_MS = 3000;
@@ -127,7 +139,15 @@ const DEFAULT_SETTINGS: AppSettings = {
 // Component
 // ---------------------------------------------------------------------------
 
-const AdminLayout: React.FC<AdminLayoutProps> = ({ token, onLogout, children }) => {
+const AdminLayout: React.FC<AdminLayoutProps> = ({
+  token,
+  role,
+  userId,
+  displayName,
+  onLogout,
+  children,
+}) => {
+  const isSuperAdmin = role === 'super_admin';
   const { t } = useTranslation();
 
   // Navigation
@@ -193,14 +213,24 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ token, onLogout, children }) 
   // Menu items
   // -------------------------------------------------------------------
 
+  const visibleMenus = useMemo(
+    () => (isSuperAdmin ? ALL_MENUS : ORDER_MANAGER_MENUS),
+    [isSuperAdmin]
+  );
+
   const menuItems = useMemo(
     () =>
-      ALL_MENUS.map((key) => ({
+      visibleMenus.map((key) => ({
         key,
         icon: MENU_ICONS[key],
         label: t(`admin.nav.${key}`),
       })),
-    [t]
+    [visibleMenus, t]
+  );
+
+  const visibleMobileNavItems = useMemo(
+    () => MOBILE_NAV_ITEMS.filter((key) => visibleMenus.includes(key)),
+    [visibleMenus]
   );
 
   const moreMenuItems = useMemo(
@@ -236,6 +266,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ token, onLogout, children }) 
       activeMenu,
       setActiveMenu,
       token,
+      role,
+      userId,
+      displayName,
+      isSuperAdmin,
       showToast,
       bookings,
       setBookings,
@@ -249,7 +283,21 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ token, onLogout, children }) 
       setCoupons,
       refreshAll,
     }),
-    [activeMenu, token, showToast, bookings, settings, blockedDates, reviews, coupons, refreshAll]
+    [
+      activeMenu,
+      token,
+      role,
+      userId,
+      displayName,
+      isSuperAdmin,
+      showToast,
+      bookings,
+      settings,
+      blockedDates,
+      reviews,
+      coupons,
+      refreshAll,
+    ]
   );
 
   // -------------------------------------------------------------------
@@ -317,8 +365,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ token, onLogout, children }) 
                 🔄
               </button>
               <div className="user-info">
-                <span className="user-avatar">👤</span>
-                <span className="user-name">Admin</span>
+                <span className="user-avatar">{'\uD83D\uDC64'}</span>
+                <span className="user-name">{displayName}</span>
               </div>
               <button
                 className="btn-icon"
@@ -336,7 +384,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ token, onLogout, children }) 
 
         {/* Mobile bottom navigation */}
         <nav className="mobile-nav" aria-label="Mobile navigation">
-          {MOBILE_NAV_ITEMS.map((key) => (
+          {visibleMobileNavItems.map((key) => (
             <button
               key={key}
               className={`mobile-nav-item${activeMenu === key ? ' active' : ''}`}

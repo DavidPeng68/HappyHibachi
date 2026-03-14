@@ -94,7 +94,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
 	// 验证身份
 	const authHeader = context.request.headers.get('Authorization');
-	if (!(await validateToken(authHeader, context.env))) {
+	if (!(await validateToken(authHeader, context.env)).valid) {
 		return new Response(
 			JSON.stringify({ success: false, error: 'Unauthorized' }),
 			{ status: 401, headers: corsHeaders }
@@ -151,7 +151,7 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
 
 	// 验证身份
 	const authHeader = context.request.headers.get('Authorization');
-	if (!(await validateToken(authHeader, context.env))) {
+	if (!(await validateToken(authHeader, context.env)).valid) {
 		return new Response(
 			JSON.stringify({ success: false, error: 'Unauthorized' }),
 			{ status: 401, headers: corsHeaders }
