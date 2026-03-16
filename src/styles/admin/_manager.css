@@ -148,3 +148,83 @@
   color: white;
   border-color: var(--admin-primary);
 }
+
+/* Manager Timeline */
+.manager-timeline {
+  position: relative;
+  padding-left: 24px;
+}
+
+.manager-timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: var(--admin-border);
+  border-radius: 1px;
+}
+
+.manager-timeline-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  border-radius: 8px;
+  padding-right: 8px;
+}
+
+.manager-timeline-item:hover {
+  background: var(--admin-surface-hover);
+}
+
+.manager-timeline-marker {
+  position: absolute;
+  left: -24px;
+  top: 14px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.manager-timeline-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--admin-border);
+  background: var(--admin-surface);
+}
+
+.manager-timeline-dot.pending {
+  border-color: var(--admin-warning);
+  background: var(--admin-warning-soft);
+}
+
+.manager-timeline-dot.confirmed {
+  border-color: var(--admin-success);
+  background: var(--admin-success-soft);
+}
+
+.manager-timeline-dot.completed {
+  border-color: var(--admin-info);
+  background: var(--admin-info-soft);
+}
+
+.manager-timeline-time {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-text-secondary);
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.manager-timeline-content {
+  flex: 1;
+  min-width: 0;
+}

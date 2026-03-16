@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import type { BlockedDate, Booking } from '../../types/admin';
 import * as adminApi from '../../services/adminApi';
 import { ConfirmDialog } from '../../components/admin';
@@ -9,12 +10,21 @@ import { useAdmin } from './AdminLayout';
 // Status config (mirrors AdminDashboard pattern)
 // ---------------------------------------------------------------------------
 
-const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-  pending: { label: 'Pending', color: '#f59e0b' },
-  confirmed: { label: 'Confirmed', color: '#22c55e' },
-  completed: { label: 'Completed', color: '#3b82f6' },
-  cancelled: { label: 'Cancelled', color: '#ef4444' },
+const STATUS_COLORS: Record<string, string> = {
+  pending: '#f59e0b',
+  confirmed: '#22c55e',
+  completed: '#3b82f6',
+  cancelled: '#ef4444',
 };
+
+function getStatusConfig(t: TFunction): Record<string, { label: string; color: string }> {
+  return {
+    pending: { label: t('admin.booking.statusPending'), color: STATUS_COLORS.pending },
+    confirmed: { label: t('admin.booking.statusConfirmed'), color: STATUS_COLORS.confirmed },
+    completed: { label: t('admin.booking.statusCompleted'), color: STATUS_COLORS.completed },
+    cancelled: { label: t('admin.booking.statusCancelled'), color: STATUS_COLORS.cancelled },
+  };
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -39,6 +49,7 @@ function formatDate(dateStr: string): string {
 const CalendarManagement: React.FC = () => {
   const { t } = useTranslation();
   const { token, showToast, bookings, setActiveMenu } = useAdmin();
+  const statusConfig = useMemo(() => getStatusConfig(t), [t]);
 
   // Local state
   const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
@@ -342,8 +353,8 @@ const CalendarManagement: React.FC = () => {
                       <span>
                         {b.guestCount} {t('admin.booking.guests')}
                       </span>
-                      <span style={{ color: STATUS_CONFIG[b.status]?.color }}>
-                        {STATUS_CONFIG[b.status]?.label}
+                      <span style={{ color: statusConfig[b.status]?.color }}>
+                        {statusConfig[b.status]?.label}
                       </span>
                     </div>
                   ))}

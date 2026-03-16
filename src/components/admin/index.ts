@@ -17,5 +17,10 @@ export { default as NotificationBell } from './NotificationBell';
 export { default as Breadcrumb } from './Breadcrumb';
 export type { BreadcrumbItem } from './Breadcrumb';
 export { default as PageHeader } from './PageHeader';
+export { default as AnimatedStatValue } from './AnimatedStatValue';
+export { default as Sparkline } from './Sparkline';
+export { default as InsightCard } from './InsightCard';
+export { default as SkeletonCard } from './SkeletonCard';
+export { default as SkeletonStatCard } from './SkeletonStatCard';
 
 import './AdminComponents.css';

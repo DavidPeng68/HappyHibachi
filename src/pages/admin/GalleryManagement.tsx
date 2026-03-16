@@ -176,7 +176,7 @@ const GalleryManagement: React.FC = () => {
 
   const handleUploadMultiple = useCallback(
     async (images: string[]) => {
-      setUploading(true);
+      setSaving(true);
       setUploadProgress({ current: 0, total: images.length });
       try {
         const currentImages = settings.galleryImages || [];
@@ -212,7 +212,7 @@ const GalleryManagement: React.FC = () => {
       } catch {
         showToast(t('admin.gallery.uploadFailed'), 'error');
       } finally {
-        setUploading(false);
+        setSaving(false);
         setUploadProgress(null);
       }
     },

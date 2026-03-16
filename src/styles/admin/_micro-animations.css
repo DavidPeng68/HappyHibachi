@@ -1,0 +1,143 @@
+/* =============================================
+   Micro-interactions & Animations
+   ============================================= */
+
+/* Stat card staggered entrance */
+.stats-grid .stat-card {
+  animation: admin-fade-in 0.3s ease-out both;
+}
+.stats-grid .stat-card:nth-child(1) {
+  animation-delay: 0s;
+}
+.stats-grid .stat-card:nth-child(2) {
+  animation-delay: 0.05s;
+}
+.stats-grid .stat-card:nth-child(3) {
+  animation-delay: 0.1s;
+}
+.stats-grid .stat-card:nth-child(4) {
+  animation-delay: 0.15s;
+}
+.stats-grid .stat-card:nth-child(5) {
+  animation-delay: 0.2s;
+}
+.stats-grid .stat-card:nth-child(6) {
+  animation-delay: 0.25s;
+}
+.stats-grid .stat-card:nth-child(7) {
+  animation-delay: 0.3s;
+}
+
+/* Table row hover left border slide */
+.data-table tbody tr {
+  border-left: 3px solid transparent;
+  transition:
+    border-color 0.2s ease,
+    background 0.15s ease;
+}
+.data-table tbody tr:hover {
+  border-left-color: var(--admin-primary);
+}
+
+/* Button click press effect */
+.admin-btn:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}
+
+/* Tab underline slide */
+.tab-item {
+  position: relative;
+}
+.tab-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--admin-primary);
+  transition:
+    width 0.2s ease,
+    left 0.2s ease;
+}
+.tab-item.active::after {
+  width: 100%;
+  left: 0;
+}
+
+/* Card content expand/collapse */
+.card-collapsible-content {
+  overflow: hidden;
+  transition:
+    max-height 0.3s ease,
+    opacity 0.2s ease;
+  max-height: 0;
+  opacity: 0;
+}
+.card-collapsible-content.open {
+  max-height: 500px;
+  opacity: 1;
+}
+
+/* Insight card entrance */
+.insight-cards .insight-card {
+  animation: admin-slide-up 0.25s ease-out both;
+}
+.insight-cards .insight-card:nth-child(1) {
+  animation-delay: 0s;
+}
+.insight-cards .insight-card:nth-child(2) {
+  animation-delay: 0.06s;
+}
+.insight-cards .insight-card:nth-child(3) {
+  animation-delay: 0.12s;
+}
+.insight-cards .insight-card:nth-child(4) {
+  animation-delay: 0.18s;
+}
+
+/* Toast slide-in from right */
+.toast-enter {
+  animation: toast-slide-in 0.3s ease-out;
+}
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Toast slide-out */
+.toast-exit {
+  animation: toast-slide-out 0.2s ease-in forwards;
+}
+@keyframes toast-slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .stats-grid .stat-card,
+  .insight-cards .insight-card,
+  .data-table tbody tr,
+  .admin-btn:active,
+  .tab-item::after,
+  .card-collapsible-content,
+  .toast-enter,
+  .toast-exit {
+    animation: none !important;
+    transition: none !important;
+  }
+}

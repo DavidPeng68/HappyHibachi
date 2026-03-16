@@ -9,3 +9,5 @@ export { useMagnetic } from './useMagnetic';
 export { useViewTransition } from './useViewTransition';
 export { useAnimatedCounter } from './useAnimatedCounter';
 export { useTheme } from './useTheme';
+export { useFormValidation } from './useFormValidation';
+export { useAutoSave } from './useAutoSave';

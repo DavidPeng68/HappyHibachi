@@ -187,3 +187,22 @@
 .stat-card.clickable {
   cursor: pointer;
 }
+
+/* Dashboard empty state */
+.dashboard-empty-state {
+  padding: 32px;
+  text-align: center;
+  color: var(--admin-text-muted);
+}
+
+/* Dashboard card spacing */
+.dashboard-card-spaced {
+  margin-bottom: 24px;
+}
+
+/* Dashboard subtitle (e.g., "next 7 days") */
+.dashboard-subtitle {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--admin-text-muted);
+}

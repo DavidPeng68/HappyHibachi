@@ -246,9 +246,7 @@ const InstagramManagement: React.FC = () => {
     return (
       <div className="settings-page">
         <div className="card">
-          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--admin-text-muted)' }}>
-            {t('common.loading')}
-          </div>
+          <div className="instagram-loading-state">{t('common.loading')}</div>
         </div>
       </div>
     );
@@ -263,16 +261,15 @@ const InstagramManagement: React.FC = () => {
         </div>
         <div className="form-group">
           <label>{t('admin.instagram.handleLabel')}</label>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div className="instagram-handle-row">
             <input
               type="text"
-              className="input"
+              className="input instagram-handle-input"
               value={instagramSettings.handle}
               onChange={(e) =>
                 setInstagramSettings((prev) => ({ ...prev, handle: e.target.value }))
               }
               placeholder={t('admin.instagram.handlePlaceholder')}
-              style={{ flex: 1 }}
             />
             <button
               className="btn-primary"
@@ -291,9 +288,7 @@ const InstagramManagement: React.FC = () => {
         <div className="card-header">
           <h2>{t('admin.instagram.addPost')}</h2>
         </div>
-        <div
-          style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}
-        >
+        <div className="instagram-add-post-form">
           <ImageUploader
             preset={GALLERY_PRESET}
             value={newPostImage || ''}
@@ -301,7 +296,7 @@ const InstagramManagement: React.FC = () => {
             onRemove={() => setNewPostImage(null)}
             label={t('admin.instagram.postImage')}
           />
-          <div className="form-group" style={{ marginBottom: 0 }}>
+          <div className="form-group instagram-form-group-flush">
             <label>{t('admin.instagram.postLink')}</label>
             <input
               type="url"
@@ -312,11 +307,10 @@ const InstagramManagement: React.FC = () => {
             />
           </div>
           <button
-            className="btn-primary"
+            className="btn-primary instagram-btn-full"
             onClick={handleAddPost}
             disabled={instagramLoading || !newPostImage || !newPostLink}
             type="button"
-            style={{ width: '100%' }}
           >
             {t('admin.instagram.addPostButton')}
           </button>
@@ -326,10 +320,7 @@ const InstagramManagement: React.FC = () => {
       {/* Post list */}
       {instagramSettings.posts.length > 0 && (
         <div className="card">
-          <div
-            className="card-header"
-            style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}
-          >
+          <div className="card-header instagram-posts-header">
             <h2>{t('admin.instagram.posts')}</h2>
             <button className="admin-btn" onClick={handleSelectAll} type="button">
               {selectedPostIds.size === instagramSettings.posts.length
@@ -381,17 +372,7 @@ const InstagramManagement: React.FC = () => {
                 />
 
                 {/* Link display */}
-                <div
-                  className="gallery-admin-link"
-                  style={{
-                    fontSize: '12px',
-                    color: 'var(--admin-text-muted)',
-                    padding: '0 8px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
+                <div className="gallery-admin-link instagram-post-link">
                   <a href={post.link} target="_blank" rel="noopener noreferrer">
                     {post.link}
                   </a>
@@ -418,12 +399,11 @@ const InstagramManagement: React.FC = () => {
                     &#9660;
                   </button>
                   <button
-                    className="btn-icon-sm"
+                    className="btn-icon-sm instagram-btn-danger"
                     onClick={() => handleDeleteSingle(post.id)}
                     disabled={instagramLoading}
                     title={t('admin.instagram.delete')}
                     type="button"
-                    style={{ color: 'var(--admin-danger)' }}
                   >
                     &#128465;
                   </button>

@@ -19,6 +19,7 @@ import {
 } from 'recharts';
 import { useAdmin } from './AdminLayout';
 import { useAdminNavigation } from '../../contexts/NavigationContext';
+import { usePersistedTab } from '../../hooks/usePersistedTab';
 // types used via useAdmin().bookings
 import '../../styles/admin/index.css';
 
@@ -130,7 +131,9 @@ const AnalyticsDashboard: React.FC = () => {
   const { bookings, coupons } = useAdmin();
   const { setActiveMenu } = useAdminNavigation();
 
-  const [activeTab, setActiveTab] = useState<AnalyticsTab>('revenue');
+  const ANALYTICS_TAB_KEYS: AnalyticsTab[] = ['revenue', 'bookings', 'sources', 'coupons'];
+  const [activeTabIndex, setActiveTabIndex] = usePersistedTab('admin:analytics-tab', 0);
+  const activeTab: AnalyticsTab = ANALYTICS_TAB_KEYS[activeTabIndex] ?? ANALYTICS_TAB_KEYS[0];
   const [revenuePeriod, setRevenuePeriod] = useState<Period>('weekly');
   const [dateRange, setDateRange] = useState<DateRange>('30d');
   const [customFrom, setCustomFrom] = useState('');
@@ -368,7 +371,7 @@ const AnalyticsDashboard: React.FC = () => {
                 if (data?.activeLabel != null)
                   setActiveMenu('bookings', { dateFrom: String(data.activeLabel) });
               }}
-              style={{ cursor: 'pointer' }}
+              className="cursor-pointer"
             >
               <defs>
                 <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
@@ -426,7 +429,7 @@ const AnalyticsDashboard: React.FC = () => {
                     const name = regionData[index]?.name;
                     if (name) setActiveMenu('bookings', { region: name });
                   }}
-                  style={{ cursor: 'pointer' }}
+                  className="cursor-pointer"
                 >
                   {regionData.map((_, i) => (
                     <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
@@ -465,7 +468,7 @@ const AnalyticsDashboard: React.FC = () => {
                   onClick={(data: { name?: string }) => {
                     if (data?.name) setActiveMenu('bookings', { search: data.name });
                   }}
-                  style={{ cursor: 'pointer' }}
+                  className="cursor-pointer"
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -486,7 +489,7 @@ const AnalyticsDashboard: React.FC = () => {
                 const status = data?.activeDataKey;
                 if (status) setActiveMenu('bookings', { status: String(status) });
               }}
-              style={{ cursor: 'pointer' }}
+              className="cursor-pointer"
             >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border, #333)" />
               <XAxis
@@ -529,7 +532,7 @@ const AnalyticsDashboard: React.FC = () => {
                 if (data?.activeLabel != null)
                   setActiveMenu('bookings', { dateFrom: String(data.activeLabel) });
               }}
-              style={{ cursor: 'pointer' }}
+              className="cursor-pointer"
             >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border, #333)" />
               <XAxis
@@ -615,7 +618,7 @@ const AnalyticsDashboard: React.FC = () => {
               <BarChart
                 data={couponUsageData}
                 onClick={() => setActiveMenu('coupons')}
-                style={{ cursor: 'pointer' }}
+                className="cursor-pointer"
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border, #333)" />
                 <XAxis
@@ -677,11 +680,11 @@ const AnalyticsDashboard: React.FC = () => {
     <div className="analytics-dashboard">
       {/* Tab bar */}
       <div className="analytics-tabs">
-        {tabs.map((tab) => (
+        {tabs.map((tab, index) => (
           <button
             key={tab.key}
             className={`analytics-tab${activeTab === tab.key ? ' active' : ''}`}
-            onClick={() => setActiveTab(tab.key)}
+            onClick={() => setActiveTabIndex(index)}
           >
             {tab.label}
           </button>

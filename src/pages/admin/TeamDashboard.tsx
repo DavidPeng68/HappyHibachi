@@ -1,30 +1,33 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { useAdmin } from './AdminLayout';
 import * as adminApi from '../../services/adminApi';
 import type { AdminUser } from '../../types/admin';
 import { isThisWeek } from '../../utils/adminHelpers';
+import Sparkline from '../../components/admin/Sparkline';
+import AnimatedStatValue from '../../components/admin/AnimatedStatValue';
 
 type TeamUser = Omit<AdminUser, 'passwordHash'>;
 
-function formatRelativeTime(dateStr: string): string {
+function formatRelativeTime(dateStr: string, t: TFunction): string {
   const now = Date.now();
   const then = new Date(dateStr).getTime();
   const diffMs = now - then;
 
-  if (diffMs < 0) return 'just now';
+  if (diffMs < 0) return t('admin.time.justNow');
 
   const seconds = Math.floor(diffMs / 1000);
-  if (seconds < 60) return `${seconds}s ago`;
+  if (seconds < 60) return t('admin.time.secondsAgo', { count: seconds });
 
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 60) return t('admin.time.minutesAgo', { count: minutes });
 
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return t('admin.time.hoursAgo', { count: hours });
 
   const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  return t('admin.time.daysAgo', { count: days });
 }
 
 const TeamDashboard: React.FC = () => {
@@ -102,12 +105,21 @@ const TeamDashboard: React.FC = () => {
         (b) => b.assignedTo === mgr.id && b.status === 'completed' && isThisWeek(b.date)
       );
       const status = teamStatus[mgr.id];
+      const today = new Date();
+      const sparklineData = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(today);
+        d.setDate(today.getDate() - (6 - i));
+        const dateStr = d.toISOString().slice(0, 10);
+        return bookings.filter((b) => b.assignedTo === mgr.id && b.date.slice(0, 10) === dateStr)
+          .length;
+      });
       return {
         ...mgr,
         currentLoad: assigned.length,
         completedWeek: completedThisWeek.length,
         lastSeenAt: status?.lastSeenAt || null,
         isOnline: status?.isOnline || false,
+        sparklineData,
       };
     });
   }, [managers, bookings, teamStatus]);
@@ -123,18 +135,43 @@ const TeamDashboard: React.FC = () => {
       {/* Summary Cards */}
       <div className="team-summary">
         <div className="team-summary-card">
-          <div className="team-summary-value">{managers.length}</div>
+          <AnimatedStatValue value={managers.length} className="team-summary-value" />
           <div className="team-summary-label">{t('admin.team.totalManagers')}</div>
         </div>
         <div className="team-summary-card">
-          <div className="team-summary-value">{unassignedBookings.length}</div>
+          <AnimatedStatValue value={unassignedBookings.length} className="team-summary-value" />
           <div className="team-summary-label">{t('admin.team.unassignedBookings')}</div>
         </div>
         <div className="team-summary-card">
-          <div className="team-summary-value">{pendingBookings.length}</div>
+          <AnimatedStatValue value={pendingBookings.length} className="team-summary-value" />
           <div className="team-summary-label">{t('admin.team.pendingBookings')}</div>
         </div>
       </div>
+
+      {/* Workload Distribution */}
+      {managerStats.length > 0 &&
+        (() => {
+          const maxLoad = Math.max(...managerStats.map((m) => m.currentLoad), 1);
+          return (
+            <div className="team-workload-chart">
+              <h3>{t('admin.team.workloadDistribution')}</h3>
+              <div className="team-workload-bars">
+                {managerStats.map((mgr) => (
+                  <div key={mgr.id} className="team-workload-row">
+                    <span className="team-workload-name">{mgr.displayName}</span>
+                    <div className="team-workload-bar">
+                      <div
+                        className={`team-workload-fill ${mgr.currentLoad > 6 ? 'high' : mgr.currentLoad > 3 ? 'medium' : 'low'}`}
+                        style={{ width: `${Math.min((mgr.currentLoad / maxLoad) * 100, 100)}%` }}
+                      />
+                    </div>
+                    <span className="team-workload-count">{mgr.currentLoad}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
       {/* Unassigned Alert */}
       {unassignedBookings.length > 0 && (
@@ -158,35 +195,16 @@ const TeamDashboard: React.FC = () => {
               <div className="team-member-header">
                 <span className="team-member-name">{mgr.displayName}</span>
                 {mgr.isOnline ? (
-                  <span
-                    style={{
-                      fontSize: 12,
-                      color: '#10b981',
-                      fontWeight: 600,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 4,
-                    }}
-                  >
-                    <span
-                      style={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: '50%',
-                        backgroundColor: '#10b981',
-                        display: 'inline-block',
-                      }}
-                    />
+                  <span className="team-online-text">
+                    <span className="team-online-dot" />
                     {t('admin.team.online')}
                   </span>
                 ) : mgr.lastSeenAt ? (
-                  <span style={{ fontSize: 12, color: '#6b7280', fontWeight: 500 }}>
-                    {t('admin.team.lastSeen', { time: formatRelativeTime(mgr.lastSeenAt) })}
+                  <span className="team-last-seen">
+                    {t('admin.team.lastSeen', { time: formatRelativeTime(mgr.lastSeenAt, t) })}
                   </span>
                 ) : (
-                  <span style={{ fontSize: 12, color: '#6b7280', fontWeight: 500 }}>
-                    {t('admin.team.neverSeen')}
-                  </span>
+                  <span className="team-offline-text">{t('admin.team.neverSeen')}</span>
                 )}
               </div>
               <div className="team-member-stats">
@@ -198,6 +216,29 @@ const TeamDashboard: React.FC = () => {
                   <div className="team-member-stat-value">{mgr.completedWeek}</div>
                   <div className="team-member-stat-label">{t('admin.team.completedWeek')}</div>
                 </div>
+              </div>
+              <div className="team-member-sparkline">
+                <span className="team-member-sparkline-label">7d</span>
+                <Sparkline
+                  data={mgr.sparklineData}
+                  width={120}
+                  height={28}
+                  color="var(--admin-primary)"
+                />
+              </div>
+              <div className="team-member-actions">
+                <button
+                  className="admin-btn admin-btn-sm"
+                  onClick={() => setActiveMenu('bookings')}
+                >
+                  {t('admin.team.viewBookings')}
+                </button>
+                <button
+                  className="admin-btn admin-btn-sm"
+                  onClick={() => setActiveMenu('dispatch')}
+                >
+                  {t('admin.team.reassign')}
+                </button>
               </div>
             </div>
           ))}

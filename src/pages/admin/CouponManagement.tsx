@@ -271,7 +271,7 @@ const CouponManagement: React.FC = () => {
                     }))
                   }
                   placeholder={t('admin.coupon.codePlaceholder')}
-                  style={{ textTransform: 'uppercase' }}
+                  className="coupon-code-input"
                 />
               </div>
               <div className="form-group">
@@ -570,10 +570,9 @@ const CouponManagement: React.FC = () => {
                           {coupon.enabled ? t('admin.coupon.disable') : t('admin.coupon.enable')}
                         </button>
                         <button
-                          className="btn-sm"
+                          className="btn-sm coupon-btn-danger"
                           onClick={() => setConfirmDeleteId(coupon.id)}
                           type="button"
-                          style={{ color: 'var(--admin-danger)' }}
                         >
                           {t('admin.coupon.deleteButton')}
                         </button>

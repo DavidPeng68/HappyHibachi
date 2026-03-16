@@ -37,7 +37,15 @@ function formatCurrency(amount: number): string {
 // Default tags
 // ---------------------------------------------------------------------------
 
-const DEFAULT_TAGS = ['VIP', 'Corporate', 'First-Time'];
+// Raw tag keys used for data storage / matching
+const DEFAULT_TAG_KEYS = ['VIP', 'Corporate', 'First-Time'] as const;
+
+// i18n key mapping for default tags
+const DEFAULT_TAG_I18N: Record<string, string> = {
+  VIP: 'admin.customers.tagVip',
+  Corporate: 'admin.customers.tagCorporate',
+  'First-Time': 'admin.customers.tagFirstTime',
+};
 
 // ---------------------------------------------------------------------------
 // Booking status → CSS modifier
@@ -447,7 +455,7 @@ const CustomerManagement: React.FC = () => {
             <div className="customer-section">
               <div className="customer-section-title">{t('admin.customers.tags')}</div>
               <div className="flex-row flex-wrap gap-3">
-                {DEFAULT_TAGS.map((tag) => {
+                {DEFAULT_TAG_KEYS.map((tag) => {
                   const active = selectedCustomer.tags.includes(tag);
                   return (
                     <button
@@ -456,13 +464,15 @@ const CustomerManagement: React.FC = () => {
                       type="button"
                       className={`customer-tag-btn${active ? ' customer-tag-btn--active' : ''}`}
                     >
-                      {tag}
+                      {DEFAULT_TAG_I18N[tag] ? t(DEFAULT_TAG_I18N[tag]) : tag}
                     </button>
                   );
                 })}
                 {/* Custom tags not in defaults */}
                 {selectedCustomer.tags
-                  .filter((tg) => !DEFAULT_TAGS.includes(tg))
+                  .filter(
+                    (tg) => !DEFAULT_TAG_KEYS.includes(tg as (typeof DEFAULT_TAG_KEYS)[number])
+                  )
                   .map((tag) => (
                     <Tag
                       key={tag}

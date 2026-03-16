@@ -82,7 +82,13 @@ const NotificationBell: React.FC<NotificationBellProps> = ({
         ref={buttonRef}
         className="btn-icon"
         onClick={() => setOpen((prev) => !prev)}
-        aria-label={t('admin.notifications.title')}
+        aria-label={
+          unreadCount > 0
+            ? `${t('admin.notifications.title')} (${unreadCount} ${t('admin.notifications.unread')})`
+            : t('admin.notifications.title')
+        }
+        aria-haspopup="true"
+        aria-expanded={open}
         title={t('admin.notifications.title')}
       >
         <Icon name="bell" size={18} />

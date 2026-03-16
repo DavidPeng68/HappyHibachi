@@ -2,6 +2,8 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAdmin } from './AdminLayout';
 import { StatusBadge } from '../../components/admin';
+import AnimatedStatValue from '../../components/admin/AnimatedStatValue';
+import InsightCard from '../../components/admin/InsightCard';
 import * as adminApi from '../../services/adminApi';
 import {
   isToday,
@@ -11,26 +13,7 @@ import {
   formatDate,
 } from '../../utils/adminHelpers';
 import type { Booking } from '../../types/admin';
-import { useCountAnimation } from '../../hooks/useCountAnimation';
 import '../../styles/admin/index.css';
-
-// ---------------------------------------------------------------------------
-// Animated stat value sub-component (hooks can't be called inside map)
-// ---------------------------------------------------------------------------
-
-const AnimatedStatValue: React.FC<{ value: number | string; color: string }> = ({
-  value,
-  color,
-}) => {
-  const numericValue = typeof value === 'number' ? value : 0;
-  const animated = useCountAnimation(numericValue);
-
-  return (
-    <div className="stat-value" style={{ color }}>
-      {typeof value === 'number' ? animated : value}
-    </div>
-  );
-};
 
 // ---------------------------------------------------------------------------
 // Component
@@ -145,6 +128,96 @@ const DashboardOverview: React.FC = () => {
         thisWeekBookings.filter((b) => b.status === 'completed').length,
         lastWeekBookings.filter((b) => b.status === 'completed').length
       ),
+    };
+  }, [bookings]);
+
+  // -------------------------------------------------------------------
+  // Insights
+  // -------------------------------------------------------------------
+
+  const insights = useMemo(() => {
+    const now = new Date();
+
+    // Week-over-week revenue change
+    const thisWeekStart = new Date(now);
+    thisWeekStart.setDate(now.getDate() - now.getDay());
+    thisWeekStart.setHours(0, 0, 0, 0);
+
+    const lastWeekStart = new Date(thisWeekStart);
+    lastWeekStart.setDate(thisWeekStart.getDate() - 7);
+
+    const thisWeekEnd = new Date(thisWeekStart);
+    thisWeekEnd.setDate(thisWeekStart.getDate() + 7);
+
+    const inRange = (dateStr: string, start: Date, end: Date) => {
+      const d = new Date(dateStr);
+      return d >= start && d < end;
+    };
+
+    const thisWeekRevenue = bookings
+      .filter((b) => b.status === 'completed' && inRange(b.date, thisWeekStart, thisWeekEnd))
+      .reduce((sum, b) => sum + (b.orderData?.estimatedTotal || 0), 0);
+
+    const lastWeekRevenue = bookings
+      .filter((b) => b.status === 'completed' && inRange(b.date, lastWeekStart, thisWeekStart))
+      .reduce((sum, b) => sum + (b.orderData?.estimatedTotal || 0), 0);
+
+    const revenueChange =
+      lastWeekRevenue > 0
+        ? Math.round(((thisWeekRevenue - lastWeekRevenue) / lastWeekRevenue) * 100)
+        : thisWeekRevenue > 0
+          ? 100
+          : 0;
+
+    const revenueTrend: 'up' | 'down' | 'flat' =
+      revenueChange > 0 ? 'up' : revenueChange < 0 ? 'down' : 'flat';
+
+    // Tomorrow's confirmed bookings
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+    const tomorrowConfirmed = bookings.filter(
+      (b) => b.date.slice(0, 10) === tomorrowStr && b.status === 'confirmed'
+    ).length;
+
+    // Average party size this month
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const monthBookings = bookings.filter((b) => inRange(b.date, monthStart, monthEnd));
+    const avgPartySize =
+      monthBookings.length > 0
+        ? Math.round(
+            (monthBookings.reduce((sum, b) => sum + (b.guestCount || 0), 0) /
+              monthBookings.length) *
+              10
+          ) / 10
+        : 0;
+
+    // Busiest region
+    const regionCounts: Record<string, number> = {};
+    bookings.forEach((b) => {
+      if (b.region) {
+        regionCounts[b.region] = (regionCounts[b.region] || 0) + 1;
+      }
+    });
+    const busiestRegion = Object.entries(regionCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '—';
+
+    // Sparkline: booking count per day for last 7 days
+    const sparklineData: number[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const day = new Date(now);
+      day.setDate(now.getDate() - i);
+      const dayStr = day.toISOString().slice(0, 10);
+      sparklineData.push(bookings.filter((b) => b.date.slice(0, 10) === dayStr).length);
+    }
+
+    return {
+      revenueChange,
+      revenueTrend,
+      tomorrowConfirmed,
+      avgPartySize,
+      busiestRegion,
+      sparklineData,
     };
   }, [bookings]);
 
@@ -392,8 +465,40 @@ const DashboardOverview: React.FC = () => {
         </div>
       )}
 
+      {/* Insights */}
+      {!loading && (
+        <div className="insight-cards">
+          <InsightCard
+            icon="📈"
+            title={t('admin.insights.revenueChange')}
+            value={`${insights.revenueChange > 0 ? '+' : ''}${insights.revenueChange}%`}
+            subtitle={t('admin.insights.weekOverWeek')}
+            trend={insights.revenueTrend}
+            sparklineData={insights.sparklineData}
+          />
+          <InsightCard
+            icon="📋"
+            title={t('admin.insights.tomorrowConfirmed')}
+            value={insights.tomorrowConfirmed}
+            subtitle={t('admin.insights.confirmedBookings')}
+          />
+          <InsightCard
+            icon="👥"
+            title={t('admin.insights.avgPartySize')}
+            value={insights.avgPartySize}
+            subtitle={t('admin.insights.thisMonth')}
+          />
+          <InsightCard
+            icon="📍"
+            title={t('admin.insights.busiestRegion')}
+            value={insights.busiestRegion}
+            subtitle={t('admin.insights.mostBookings')}
+          />
+        </div>
+      )}
+
       {/* Quick actions */}
-      <div className="card" style={{ marginBottom: '24px' }}>
+      <div className="card dashboard-card-spaced">
         <div className="card-header">
           <h3 className="card-title">{t('admin.dashboard.quickActions')}</h3>
         </div>
@@ -415,7 +520,7 @@ const DashboardOverview: React.FC = () => {
       </div>
 
       {/* Recent bookings */}
-      <div className="card" style={{ marginBottom: '24px' }}>
+      <div className="card dashboard-card-spaced">
         <div className="card-header">
           <h3 className="card-title">{t('admin.dashboard.recentBookings')}</h3>
         </div>
@@ -435,9 +540,7 @@ const DashboardOverview: React.FC = () => {
             </table>
           </div>
         ) : (
-          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--admin-text-muted)' }}>
-            {t('admin.dashboard.noBookings')}
-          </div>
+          <div className="dashboard-empty-state">{t('admin.dashboard.noBookings')}</div>
         )}
       </div>
 
@@ -446,15 +549,7 @@ const DashboardOverview: React.FC = () => {
         <div className="card-header">
           <h3 className="card-title">
             {t('admin.dashboard.upcomingBookings')}{' '}
-            <span
-              style={{
-                fontSize: '13px',
-                fontWeight: 400,
-                color: 'var(--admin-text-muted)',
-              }}
-            >
-              ({t('admin.dashboard.next7Days')})
-            </span>
+            <span className="dashboard-subtitle">({t('admin.dashboard.next7Days')})</span>
           </h3>
         </div>
         {upcomingBookings.length > 0 ? (
@@ -473,9 +568,7 @@ const DashboardOverview: React.FC = () => {
             </table>
           </div>
         ) : (
-          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--admin-text-muted)' }}>
-            {t('admin.dashboard.noUpcoming')}
-          </div>
+          <div className="dashboard-empty-state">{t('admin.dashboard.noUpcoming')}</div>
         )}
       </div>
     </div>

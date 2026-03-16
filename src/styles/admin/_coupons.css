@@ -305,3 +305,19 @@
   color: var(--admin-text-muted);
   padding: 4px 0;
 }
+
+/* Coupon code input uppercase */
+.coupon-code-input {
+  text-transform: uppercase;
+}
+
+/* Coupon delete button danger */
+.coupon-btn-danger {
+  color: var(--admin-danger);
+}
+
+/* Coupon status disabled text */
+.coupon-status .status-badge.disabled {
+  background: var(--admin-surface);
+  color: var(--admin-text-muted);
+}

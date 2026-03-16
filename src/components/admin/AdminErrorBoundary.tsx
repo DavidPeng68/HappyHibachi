@@ -5,6 +5,7 @@ interface Props {
   children: React.ReactNode;
   fallbackTitle?: string;
   fallbackMessage?: string;
+  retryLabel?: string;
 }
 
 interface State {
@@ -36,6 +37,7 @@ class AdminErrorBoundary extends React.Component<Props, State> {
       const message =
         this.props.fallbackMessage ||
         'An error occurred while loading this section. Please try again.';
+      const retryText = this.props.retryLabel || 'Try again';
 
       return (
         <div className="error-boundary">
@@ -50,7 +52,7 @@ class AdminErrorBoundary extends React.Component<Props, State> {
             </pre>
           )}
           <button className="admin-btn admin-btn-primary" onClick={this.handleRetry} type="button">
-            {this.props.fallbackTitle ? 'Try again' : 'Try again'}
+            {retryText}
           </button>
         </div>
       );
@@ -66,8 +68,9 @@ export const AdminErrorBoundaryWithI18n: React.FC<{ children: React.ReactNode }>
   const { t } = useTranslation();
   return (
     <AdminErrorBoundary
-      fallbackTitle={t('admin.errorBoundary.title')}
-      fallbackMessage={t('admin.errorBoundary.message')}
+      fallbackTitle={t('admin.error.title')}
+      fallbackMessage={t('admin.error.description')}
+      retryLabel={t('admin.error.retry')}
     >
       {children}
     </AdminErrorBoundary>

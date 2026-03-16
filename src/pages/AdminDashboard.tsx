@@ -8,19 +8,20 @@ import { onSessionExpired, onTokenRefreshed } from '../services/adminApi';
 import { AuthProvider } from '../contexts/AuthContext';
 import { ToastProvider } from '../contexts/ToastContext';
 import { NavigationProvider } from '../contexts/NavigationContext';
-import DashboardOverview from './admin/DashboardOverview';
-import AnalyticsDashboard from './admin/AnalyticsDashboard';
-import BookingManagement from './admin/BookingManagement';
-import CalendarManagement from './admin/CalendarManagement';
-import ReviewManagement from './admin/ReviewManagement';
-import CouponManagement from './admin/CouponManagement';
-import GalleryManagement from './admin/GalleryManagement';
-import InstagramManagement from './admin/InstagramManagement';
-import SettingsPage from './admin/SettingsPage';
+import { useSessionTimeout } from '../hooks/useSessionTimeout';
 import { AdminErrorBoundaryWithI18n } from '../components/admin/AdminErrorBoundary';
 import '../styles/admin/index.css';
 
-const MenuManagement = React.lazy(() => import('./admin/MenuManagement'));
+const DashboardOverview = React.lazy(() => import('./admin/DashboardOverview'));
+const AnalyticsDashboard = React.lazy(() => import('./admin/AnalyticsDashboard'));
+const BookingManagement = React.lazy(() => import('./admin/bookings/BookingManagement'));
+const CalendarManagement = React.lazy(() => import('./admin/CalendarManagement'));
+const ReviewManagement = React.lazy(() => import('./admin/ReviewManagement'));
+const CouponManagement = React.lazy(() => import('./admin/CouponManagement'));
+const GalleryManagement = React.lazy(() => import('./admin/GalleryManagement'));
+const InstagramManagement = React.lazy(() => import('./admin/InstagramManagement'));
+const SettingsPage = React.lazy(() => import('./admin/settings/SettingsPage'));
+const MenuManagement = React.lazy(() => import('./admin/menu/MenuManagement'));
 const CustomerManagement = React.lazy(() => import('./admin/CustomerManagement'));
 const ActivityLog = React.lazy(() => import('./admin/ActivityLog'));
 const UserManagement = React.lazy(() => import('./admin/UserManagement'));
@@ -32,70 +33,93 @@ const DispatchCenter = React.lazy(() => import('./admin/DispatchCenter'));
 // Content switcher — must be a child of AdminLayout to access context
 // ---------------------------------------------------------------------------
 
+const LazyPage: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <AdminErrorBoundaryWithI18n>
+    <React.Suspense fallback={<div className="loading-screen">Loading...</div>}>
+      {children}
+    </React.Suspense>
+  </AdminErrorBoundaryWithI18n>
+);
+
 const AdminContent: React.FC = () => {
   const { activeMenu, role } = useAdmin();
 
   return (
     <>
-      {activeMenu === 'dashboard' &&
-        (role === 'order_manager' ? (
-          <AdminErrorBoundaryWithI18n>
-            <React.Suspense fallback={<div className="loading-screen">Loading...</div>}>
-              <ManagerDashboard />
-            </React.Suspense>
-          </AdminErrorBoundaryWithI18n>
-        ) : (
-          <DashboardOverview />
-        ))}
-      {activeMenu === 'analytics' && <AnalyticsDashboard />}
-      {activeMenu === 'bookings' && <BookingManagement />}
-      {activeMenu === 'calendar' && <CalendarManagement />}
-      {activeMenu === 'reviews' && <ReviewManagement />}
-      {activeMenu === 'coupons' && <CouponManagement />}
-      {activeMenu === 'gallery' && <GalleryManagement />}
-      {activeMenu === 'menu' && (
-        <AdminErrorBoundaryWithI18n>
-          <React.Suspense fallback={<div className="loading-screen">Loading...</div>}>
-            <MenuManagement />
-          </React.Suspense>
-        </AdminErrorBoundaryWithI18n>
+      {activeMenu === 'dashboard' && (
+        <LazyPage>
+          {role === 'order_manager' ? <ManagerDashboard /> : <DashboardOverview />}
+        </LazyPage>
       )}
-      {activeMenu === 'instagram' && <InstagramManagement />}
+      {activeMenu === 'analytics' && (
+        <LazyPage>
+          <AnalyticsDashboard />
+        </LazyPage>
+      )}
+      {activeMenu === 'bookings' && (
+        <LazyPage>
+          <BookingManagement />
+        </LazyPage>
+      )}
+      {activeMenu === 'calendar' && (
+        <LazyPage>
+          <CalendarManagement />
+        </LazyPage>
+      )}
+      {activeMenu === 'reviews' && (
+        <LazyPage>
+          <ReviewManagement />
+        </LazyPage>
+      )}
+      {activeMenu === 'coupons' && (
+        <LazyPage>
+          <CouponManagement />
+        </LazyPage>
+      )}
+      {activeMenu === 'gallery' && (
+        <LazyPage>
+          <GalleryManagement />
+        </LazyPage>
+      )}
+      {activeMenu === 'menu' && (
+        <LazyPage>
+          <MenuManagement />
+        </LazyPage>
+      )}
+      {activeMenu === 'instagram' && (
+        <LazyPage>
+          <InstagramManagement />
+        </LazyPage>
+      )}
       {activeMenu === 'customers' && (
-        <AdminErrorBoundaryWithI18n>
-          <React.Suspense fallback={<div className="loading-screen">Loading...</div>}>
-            <CustomerManagement />
-          </React.Suspense>
-        </AdminErrorBoundaryWithI18n>
+        <LazyPage>
+          <CustomerManagement />
+        </LazyPage>
       )}
       {activeMenu === 'activity' && (
-        <AdminErrorBoundaryWithI18n>
-          <React.Suspense fallback={<div className="loading-screen">Loading...</div>}>
-            <ActivityLog />
-          </React.Suspense>
-        </AdminErrorBoundaryWithI18n>
+        <LazyPage>
+          <ActivityLog />
+        </LazyPage>
       )}
-      {activeMenu === 'settings' && <SettingsPage />}
+      {activeMenu === 'settings' && (
+        <LazyPage>
+          <SettingsPage />
+        </LazyPage>
+      )}
       {activeMenu === 'users' && (
-        <AdminErrorBoundaryWithI18n>
-          <React.Suspense fallback={<div className="loading-screen">Loading...</div>}>
-            <UserManagement />
-          </React.Suspense>
-        </AdminErrorBoundaryWithI18n>
+        <LazyPage>
+          <UserManagement />
+        </LazyPage>
       )}
       {activeMenu === 'team' && (
-        <AdminErrorBoundaryWithI18n>
-          <React.Suspense fallback={<div className="loading-screen">Loading...</div>}>
-            <TeamDashboard />
-          </React.Suspense>
-        </AdminErrorBoundaryWithI18n>
+        <LazyPage>
+          <TeamDashboard />
+        </LazyPage>
       )}
       {activeMenu === 'dispatch' && (
-        <AdminErrorBoundaryWithI18n>
-          <React.Suspense fallback={<div className="loading-screen">Loading...</div>}>
-            <DispatchCenter />
-          </React.Suspense>
-        </AdminErrorBoundaryWithI18n>
+        <LazyPage>
+          <DispatchCenter />
+        </LazyPage>
       )}
     </>
   );
@@ -152,6 +176,9 @@ const AdminDashboard: React.FC = () => {
     sessionStorage.removeItem('admin_displayName');
     setIsAuthenticated(false);
   }, []);
+
+  // Auto-logout after 30 minutes of inactivity
+  useSessionTimeout(handleLogout);
 
   // Wire up auto-refresh and session expiry handlers
   useEffect(() => {

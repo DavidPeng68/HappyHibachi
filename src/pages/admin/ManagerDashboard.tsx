@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAdmin } from './AdminLayout';
 import { StatusBadge } from '../../components/admin';
+import AnimatedStatValue from '../../components/admin/AnimatedStatValue';
 import { isToday, isThisWeek, isWithinNextDays, formatDate } from '../../utils/adminHelpers';
 import type { Booking } from '../../types/admin';
 
@@ -102,7 +103,7 @@ const ManagerDashboard: React.FC = () => {
       <div className="manager-stats">
         {stats.map((s, i) => (
           <div key={i} className="manager-stat-card">
-            <div className="manager-stat-value">{s.value}</div>
+            <AnimatedStatValue value={s.value} className="manager-stat-value" />
             <div className="manager-stat-label">{s.label}</div>
           </div>
         ))}
@@ -112,42 +113,45 @@ const ManagerDashboard: React.FC = () => {
       <div className="manager-tasks">
         <h3>{t('admin.manager.todaysTasks')}</h3>
         {todayTasks.length === 0 ? (
-          <p style={{ color: 'var(--admin-text-muted)', fontSize: 14 }}>
-            {t('admin.manager.noTasksToday')}
-          </p>
+          <p className="text-muted text-sm">{t('admin.manager.noTasksToday')}</p>
         ) : (
-          todayTasks.map((b) => (
-            <div key={b.id} className="manager-task-item" onClick={handleNavigateToBookings}>
-              <span className="manager-task-time">{b.time}</span>
-              <div className="manager-task-info">
-                <div className="manager-task-name">{b.name}</div>
-                <div className="manager-task-details">
-                  {t('admin.cardView.guests', { count: b.guestCount })} &middot; {b.region}
+          <div className="manager-timeline">
+            {todayTasks.map((b) => (
+              <div key={b.id} className="manager-timeline-item" onClick={handleNavigateToBookings}>
+                <div className="manager-timeline-marker">
+                  <div className={`manager-timeline-dot ${b.status}`} />
+                </div>
+                <div className="manager-timeline-time">{b.time}</div>
+                <div className="manager-timeline-content">
+                  <div className="manager-task-name">{b.name}</div>
+                  <div className="manager-task-details">
+                    {t('admin.cardView.guests', { count: b.guestCount })} &middot; {b.region}
+                  </div>
+                  <StatusBadge status={b.status} />
+                  <div className="manager-task-actions">
+                    <button
+                      className="admin-btn admin-btn-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCall(b.phone);
+                      }}
+                    >
+                      {t('admin.manager.call')}
+                    </button>
+                    <button
+                      className="admin-btn admin-btn-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSms(b.phone);
+                      }}
+                    >
+                      {t('admin.manager.sms')}
+                    </button>
+                  </div>
                 </div>
               </div>
-              <StatusBadge status={b.status} />
-              <div className="manager-task-actions">
-                <button
-                  className="admin-btn admin-btn-sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCall(b.phone);
-                  }}
-                >
-                  {t('admin.manager.call')}
-                </button>
-                <button
-                  className="admin-btn admin-btn-sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSms(b.phone);
-                  }}
-                >
-                  {t('admin.manager.sms')}
-                </button>
-              </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
 
@@ -155,9 +159,7 @@ const ManagerDashboard: React.FC = () => {
       <div className="manager-tasks">
         <h3>{t('admin.manager.upcoming7Days')}</h3>
         {upcomingDates.length === 0 ? (
-          <p style={{ color: 'var(--admin-text-muted)', fontSize: 14 }}>
-            {t('admin.manager.noUpcoming')}
-          </p>
+          <p className="text-muted text-sm">{t('admin.manager.noUpcoming')}</p>
         ) : (
           upcomingDates.map((date) => (
             <div key={date}>

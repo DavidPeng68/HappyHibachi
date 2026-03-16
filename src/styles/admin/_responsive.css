@@ -135,12 +135,13 @@
     }
   }
 
-  /* Toast container for mobile */
+  /* Toast container for mobile — positioned above bottom nav (~60px) */
   .toast-container {
     position: fixed;
-    bottom: 100px;
+    bottom: 72px;
     left: 16px;
     right: 16px;
+    top: auto;
     z-index: 9999;
   }
 
@@ -220,7 +221,7 @@
 
   .toast {
     top: auto;
-    bottom: 100px;
+    bottom: 72px;
     left: 16px;
     right: 16px;
   }

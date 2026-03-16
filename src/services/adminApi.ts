@@ -25,9 +25,60 @@ import type {
 import type { AppSettings } from '../types';
 
 const API_BASE = '/api';
-const REQUEST_TIMEOUT_MS = 15_000;
 
-function buildPaginationQuery(params: Record<string, unknown>): string {
+// ---------------------------------------------------------------------------
+// Configurable timeouts per request type
+// ---------------------------------------------------------------------------
+
+const TIMEOUT = {
+  default: 15_000,
+  upload: 30_000,
+  batch: 45_000,
+} as const;
+
+type TimeoutProfile = keyof typeof TIMEOUT;
+
+// ---------------------------------------------------------------------------
+// Request deduplication — identical concurrent GETs share one promise
+// ---------------------------------------------------------------------------
+
+const _inflightGets = new Map<string, Promise<unknown>>();
+
+function deduplicatedGet<T>(cacheKey: string, fn: () => Promise<T>): Promise<T> {
+  const existing = _inflightGets.get(cacheKey);
+  if (existing) return existing as Promise<T>;
+
+  const promise = fn().finally(() => {
+    _inflightGets.delete(cacheKey);
+  });
+  _inflightGets.set(cacheKey, promise);
+  return promise;
+}
+
+// ---------------------------------------------------------------------------
+// Exponential backoff retry for retryable errors
+// ---------------------------------------------------------------------------
+
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  maxRetries = 2,
+  isRetryable: (result: T) => boolean = () => false
+): Promise<T> {
+  let lastResult: T | undefined;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    lastResult = await fn();
+    if (!isRetryable(lastResult) || attempt === maxRetries) return lastResult;
+    // Exponential backoff: 1s, 2s
+    await new Promise((resolve) => setTimeout(resolve, 1000 * Math.pow(2, attempt)));
+  }
+  return lastResult!;
+}
+
+// ---------------------------------------------------------------------------
+// Query builder (consolidated — replaces ad-hoc URLSearchParams)
+// ---------------------------------------------------------------------------
+
+function buildQuery(params: Record<string, unknown>): string {
   const searchParams = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
     if (value !== undefined && value !== null && value !== '') {
@@ -35,6 +86,11 @@ function buildPaginationQuery(params: Record<string, unknown>): string {
     }
   }
   return searchParams.toString();
+}
+
+/** @deprecated Use buildQuery instead */
+function buildPaginationQuery(params: Record<string, unknown>): string {
+  return buildQuery(params);
 }
 
 // ---------------------------------------------------------------------------
@@ -118,10 +174,12 @@ function extractTokenFromOptions(options: RequestInit): string | null {
 
 async function adminRequest<T extends AdminApiResponse>(
   url: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  timeoutProfile: TimeoutProfile = 'default'
 ): Promise<T> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeoutMs = TIMEOUT[timeoutProfile];
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = await fetch(url, {
@@ -139,7 +197,7 @@ async function adminRequest<T extends AdminApiResponse>(
             // Retry the request with the new token
             clearTimeout(timeout);
             const retryController = new AbortController();
-            const retryTimeout = setTimeout(() => retryController.abort(), REQUEST_TIMEOUT_MS);
+            const retryTimeout = setTimeout(() => retryController.abort(), timeoutMs);
             try {
               const retryHeaders = { ...(options.headers as Record<string, string>) };
               retryHeaders.Authorization = `Bearer ${newToken}`;
@@ -224,9 +282,11 @@ export async function register(
 export async function fetchBookings(
   token: string
 ): Promise<{ success: boolean; bookings: Booking[] }> {
-  return adminRequest(`${API_BASE}/admin/bookings`, {
-    headers: authHeaders(token),
-  });
+  return deduplicatedGet(`GET:${API_BASE}/admin/bookings`, () =>
+    adminRequest(`${API_BASE}/admin/bookings`, {
+      headers: authHeaders(token),
+    })
+  );
 }
 
 export async function fetchBookingsPaginated(
@@ -318,24 +378,19 @@ export async function removeBlockedDate(
 export async function fetchReviews(
   token: string
 ): Promise<{ success: boolean; reviews: Review[] }> {
-  return adminRequest(`${API_BASE}/reviews`, {
-    headers: authHeaders(token),
-  });
+  return deduplicatedGet(`GET:${API_BASE}/reviews`, () =>
+    adminRequest(`${API_BASE}/reviews`, {
+      headers: authHeaders(token),
+    })
+  );
 }
 
 export async function fetchReviewsPaginated(
   token: string,
   params: PaginationParams & { rating?: number; visible?: boolean } = {}
 ): Promise<PaginatedResponse<Review>> {
-  const searchParams = new URLSearchParams();
-  if (params.page) searchParams.set('page', String(params.page));
-  if (params.pageSize) searchParams.set('pageSize', String(params.pageSize));
-  if (params.search) searchParams.set('search', params.search);
-  if (params.rating !== undefined) searchParams.set('rating', String(params.rating));
-  if (params.visible !== undefined) searchParams.set('visible', String(params.visible));
-  if (params.sort) searchParams.set('sort', params.sort);
-  if (params.dir) searchParams.set('dir', params.dir);
-  return adminRequest(`${API_BASE}/reviews?${searchParams.toString()}`, {
+  const query = buildQuery(params as unknown as Record<string, unknown>);
+  return adminRequest(`${API_BASE}/reviews?${query}`, {
     headers: authHeaders(token),
   }) as unknown as Promise<PaginatedResponse<Review>>;
 }
@@ -377,9 +432,11 @@ export async function deleteReview(token: string, id: string): Promise<{ success
 export async function fetchCoupons(
   token: string
 ): Promise<{ success: boolean; coupons: Coupon[] }> {
-  return adminRequest(`${API_BASE}/coupons`, {
-    headers: authHeaders(token),
-  });
+  return deduplicatedGet(`GET:${API_BASE}/coupons`, () =>
+    adminRequest(`${API_BASE}/coupons`, {
+      headers: authHeaders(token),
+    })
+  );
 }
 
 export async function fetchCouponsPaginated(
@@ -433,7 +490,7 @@ export async function fetchSettings(): Promise<{
   success: boolean;
   settings?: AppSettings;
 }> {
-  return adminRequest(`${API_BASE}/settings`);
+  return deduplicatedGet(`GET:${API_BASE}/settings`, () => adminRequest(`${API_BASE}/settings`));
 }
 
 export async function saveSettings(
@@ -459,7 +516,7 @@ export async function uploadGalleryImage(
   formData.append('image', blob, 'gallery.webp');
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 30_000);
+  const timeout = setTimeout(() => controller.abort(), TIMEOUT.upload);
 
   try {
     const response = await fetch(`${API_BASE}/admin/gallery`, {
@@ -760,6 +817,59 @@ export async function markAllNotificationsRead(token: string): Promise<{ success
     headers: authHeaders(token),
     body: JSON.stringify({ markAllRead: true }),
   });
+}
+
+// ---------------------------------------------------------------------------
+// Batch Operations
+// ---------------------------------------------------------------------------
+
+export interface BatchResult<T = unknown> {
+  succeeded: Array<{ id: string; result: T }>;
+  failed: Array<{ id: string; error: string }>;
+}
+
+export async function batchUpdateBookings(
+  token: string,
+  updates: Array<{ id: string } & Partial<Booking>>
+): Promise<BatchResult<Booking>> {
+  const results = await Promise.allSettled(updates.map((data) => updateBooking(token, data)));
+
+  const succeeded: BatchResult<Booking>['succeeded'] = [];
+  const failed: BatchResult<Booking>['failed'] = [];
+
+  results.forEach((result, i) => {
+    const id = updates[i].id;
+    if (result.status === 'fulfilled' && result.value.success && result.value.booking) {
+      succeeded.push({ id, result: result.value.booking });
+    } else {
+      const error =
+        result.status === 'rejected'
+          ? String(result.reason)
+          : result.value.error || 'Unknown error';
+      failed.push({ id, error });
+    }
+  });
+
+  return { succeeded, failed };
+}
+
+export async function batchDeleteBookings(token: string, ids: string[]): Promise<BatchResult> {
+  const results = await Promise.allSettled(ids.map((id) => deleteBooking(token, id)));
+
+  const succeeded: BatchResult['succeeded'] = [];
+  const failed: BatchResult['failed'] = [];
+
+  results.forEach((result, i) => {
+    const id = ids[i];
+    if (result.status === 'fulfilled' && result.value.success) {
+      succeeded.push({ id, result: null });
+    } else {
+      const error = result.status === 'rejected' ? String(result.reason) : 'Delete failed';
+      failed.push({ id, error });
+    }
+  });
+
+  return { succeeded, failed };
 }
 
 // ---------------------------------------------------------------------------
