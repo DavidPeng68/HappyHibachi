@@ -101,6 +101,12 @@ function logEmailFailure(env: Env, options: EmailOptions, errorMsg: string): voi
 /**
  * Build a Google Calendar URL for email templates (server-side, no i18n dependency)
  */
+/** Extract HH:MM from a time string that may be a label like "Afternoon (13:00 - 15:00)" */
+function parseTimeValue(raw: string): string {
+	const match = raw.match(/(\d{1,2}:\d{2})/);
+	return match ? match[1] : '18:00';
+}
+
 function buildGoogleCalendarUrl(booking: {
 	name: string;
 	date: string;
@@ -108,7 +114,7 @@ function buildGoogleCalendarUrl(booking: {
 	guestCount: number;
 	region: string;
 }): string {
-	const startTime = booking.time || '18:00';
+	const startTime = parseTimeValue(booking.time || '18:00');
 	const [hours, minutes] = startTime.split(':').map(Number);
 	const endHours = hours + 3;
 	const endTime = `${String(endHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
@@ -146,7 +152,7 @@ function buildOutlookCalendarUrl(booking: {
 	guestCount: number;
 	region: string;
 }): string {
-	const startTime = booking.time || '18:00';
+	const startTime = parseTimeValue(booking.time || '18:00');
 	const [hours, minutes] = startTime.split(':').map(Number);
 	const endHours = hours + 3;
 	const endTime = `${String(endHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
