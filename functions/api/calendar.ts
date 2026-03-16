@@ -6,6 +6,8 @@
  */
 
 import { validateToken, getCorsHeaders } from './_auth';
+import { checkRateLimit } from './_rateLimit';
+import { readAllShards } from './_kvHelpers';
 
 interface Booking {
 	id: string;
@@ -30,13 +32,18 @@ interface Env {
 export const onRequestGet: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 
+	const rateLimited = await checkRateLimit(context.request, context.env.BOOKINGS, corsHeaders);
+	if (rateLimited) return rateLimited;
+
 	try {
 		const url = new URL(context.request.url);
 		const region = url.searchParams.get('region');
 
 		// 获取所有预约
-		const bookingsList = await context.env.BOOKINGS.get('bookings_list', 'json');
-		const bookings: Booking[] = (bookingsList as Booking[]) || [];
+		let bookings = await readAllShards<Booking>(context.env.BOOKINGS, 'bookings');
+		if (!bookings.length) {
+			bookings = (await context.env.BOOKINGS.get('bookings_list', 'json') as Booking[]) || [];
+		}
 
 		// 获取不可用日期
 		const blockedList = await context.env.BOOKINGS.get('blocked_dates', 'json');

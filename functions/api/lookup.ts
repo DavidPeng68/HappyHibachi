@@ -5,6 +5,7 @@
 
 import { getCorsHeaders } from './_auth';
 import { checkRateLimit } from './_rateLimit';
+import { readAllShards } from './_kvHelpers';
 
 interface Booking {
 	id: string;
@@ -41,8 +42,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 		}
 
 		// 获取所有预约
-		const bookingsData = await context.env.BOOKINGS.get('bookings_list', 'json');
-		const bookings: Booking[] = (bookingsData as Booking[]) || [];
+		let bookings = await readAllShards<Booking>(context.env.BOOKINGS, 'bookings');
+		if (!bookings.length) {
+			bookings = (await context.env.BOOKINGS.get('bookings_list', 'json') as Booking[]) || [];
+		}
 
 		// 查找匹配的预约
 		const matchedBookings = bookings.filter((b) => {

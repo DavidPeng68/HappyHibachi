@@ -232,6 +232,11 @@ const CalendarManagement: React.FC = () => {
                 const past = isPastDate(day);
                 const selected = selectedCalendarDate === dateStr;
 
+                const bookingCount = dayBookings.length;
+                const heatLevel =
+                  bookingCount === 0 ? 0 : bookingCount === 1 ? 1 : bookingCount <= 3 ? 2 : 3;
+                const totalGuests = dayBookings.reduce((sum, bk) => sum + (bk.guestCount || 0), 0);
+
                 return (
                   <button
                     key={day}
@@ -239,11 +244,15 @@ const CalendarManagement: React.FC = () => {
                     onClick={() => !past && setSelectedCalendarDate(selected ? null : dateStr)}
                     disabled={past}
                     type="button"
-                    aria-label={`${day}${blocked ? ` - ${t('admin.calendar.blocked')}` : ''}${dayBookings.length > 0 ? ` - ${dayBookings.length} ${t('admin.calendar.bookingsLabel')}` : ''}`}
+                    aria-label={`${day}${blocked ? ` - ${t('admin.calendar.blocked')}` : ''}${bookingCount > 0 ? ` - ${bookingCount} ${t('admin.calendar.bookingsLabel')}` : ''}`}
+                    {...(heatLevel > 0 ? { 'data-heat': String(heatLevel) } : {})}
                   >
                     <span className="day-num">{day}</span>
-                    {dayBookings.length > 0 && (
-                      <span className="day-count">{dayBookings.length}</span>
+                    {bookingCount > 0 && <span className="day-count">{bookingCount}</span>}
+                    {bookingCount > 0 && (
+                      <span className="day-guests">
+                        {t('admin.calendar.guestsTotal', { count: totalGuests })}
+                      </span>
                     )}
                     {blocked && <span className="day-blocked">&#128683;</span>}
                   </button>
@@ -261,6 +270,15 @@ const CalendarManagement: React.FC = () => {
             </div>
             <div className="legend-item">
               <span className="legend-dot booked" /> {t('admin.calendar.hasBookings')}
+            </div>
+            <div className="legend-item">
+              <span className="legend-dot heat-low" /> {t('admin.calendar.heatLow')}
+            </div>
+            <div className="legend-item">
+              <span className="legend-dot heat-med" /> {t('admin.calendar.heatMed')}
+            </div>
+            <div className="legend-item">
+              <span className="legend-dot heat-high" /> {t('admin.calendar.heatHigh')}
             </div>
           </div>
         </div>

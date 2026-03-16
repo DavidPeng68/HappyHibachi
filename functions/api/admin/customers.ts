@@ -5,6 +5,8 @@
  */
 
 import { validateToken, requireSuperAdmin, getCorsHeaders } from '../_auth';
+import { validateStringLength, validateArrayLength } from '../_validation';
+import { paginateArray, parsePaginationParams } from '../_kvHelpers';
 
 interface BookingOrderData {
 	estimatedTotal: number;
@@ -140,13 +142,55 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 			});
 		}
 
-		// Sort by lastBookingDate descending
-		customers.sort(
-			(a, b) => new Date(b.lastBookingDate).getTime() - new Date(a.lastBookingDate).getTime(),
-		);
+		// Parse pagination params
+		const url = new URL(context.request.url);
+		const { page, pageSize, search, sort, dir } = parsePaginationParams(url, { sort: 'lastBookingDate' });
+
+		// Apply search filter
+		let filtered = customers;
+		if (search) {
+			filtered = customers.filter(c =>
+				c.name?.toLowerCase().includes(search) ||
+				c.email?.toLowerCase().includes(search) ||
+				c.phone?.toLowerCase().includes(search)
+			);
+		}
+
+		// Sort
+		filtered.sort((a, b) => {
+			let aVal: string | number = '';
+			let bVal: string | number = '';
+			if (sort === 'totalBookings') {
+				aVal = a.totalBookings;
+				bVal = b.totalBookings;
+			} else if (sort === 'totalRevenue') {
+				aVal = a.totalRevenue;
+				bVal = b.totalRevenue;
+			} else if (sort === 'name') {
+				aVal = (a.name || '').toLowerCase();
+				bVal = (b.name || '').toLowerCase();
+			} else {
+				// Default: lastBookingDate
+				aVal = a.lastBookingDate || '';
+				bVal = b.lastBookingDate || '';
+			}
+			if (aVal < bVal) return dir === 'asc' ? -1 : 1;
+			if (aVal > bVal) return dir === 'asc' ? 1 : -1;
+			return 0;
+		});
+
+		// Paginate
+		const result = paginateArray(filtered, page, pageSize);
 
 		return new Response(
-			JSON.stringify({ success: true, customers }),
+			JSON.stringify({
+				success: true,
+				customers: result.data,
+				data: result.data,
+				total: result.total,
+				page: result.page,
+				pageSize: result.pageSize,
+			}),
 			{ headers: corsHeaders },
 		);
 	} catch (error) {
@@ -182,6 +226,25 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 		}
 
 		const emailKey = hashEmail(body.email);
+
+		if (body.notes !== undefined) {
+			const err = validateStringLength(body.notes, 'notes', 2000);
+			if (err) {
+				return new Response(
+					JSON.stringify({ success: false, error: err }),
+					{ status: 400, headers: corsHeaders },
+				);
+			}
+		}
+		if (body.tags !== undefined) {
+			const err = validateArrayLength(body.tags, 'tags', 20, 50);
+			if (err) {
+				return new Response(
+					JSON.stringify({ success: false, error: err }),
+					{ status: 400, headers: corsHeaders },
+				);
+			}
+		}
 
 		if (body.notes !== undefined) {
 			const notesData = await context.env.BOOKINGS.get('customers_notes', 'json');

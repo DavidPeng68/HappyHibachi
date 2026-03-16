@@ -1,0 +1,53 @@
+/* =============================================
+   Admin Tabs
+   ============================================= */
+
+.admin-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-bottom: 1px solid var(--admin-border);
+  margin-bottom: 20px;
+}
+
+.admin-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--admin-text-muted);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.admin-tab:hover {
+  color: var(--admin-text-secondary);
+}
+
+.admin-tab.active {
+  color: var(--admin-text);
+  border-bottom-color: var(--admin-primary);
+}
+
+.admin-tab:focus-visible {
+  outline: 2px solid var(--admin-primary);
+  outline-offset: -2px;
+  border-radius: 4px 4px 0 0;
+}
+
+.admin-tab-count {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  font-weight: 400;
+}
+
+.admin-tab.active .admin-tab-count {
+  color: var(--admin-text-secondary);
+}

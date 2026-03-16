@@ -6,6 +6,7 @@
 import { sendEmail, generateCustomerEmail, generateAdminEmail } from './_email';
 import { getCorsHeaders } from './_auth';
 import { checkRateLimit } from './_rateLimit';
+import { getShardMonth, readShard, writeShard, ensureMonthInIndex } from './_kvHelpers';
 
 interface BookingOrderData {
 	packageName: string;
@@ -36,6 +37,7 @@ interface Booking {
 	referralCode?: string;
 	referralDiscount?: string;
 	referralSource?: string;
+	eventType?: string;
 	orderData?: BookingOrderData;
 	createdAt: string;
 }
@@ -82,7 +84,16 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 	if (rateLimited) return rateLimited;
 
 	try {
-		const body = await context.request.json() as Partial<Booking>;
+		const body = await context.request.json() as Partial<Booking> & { idempotencyKey?: string };
+
+		// Idempotency check — prevent duplicate submissions on network retry
+		if (body.idempotencyKey) {
+			const cacheKey = `idem:${body.idempotencyKey}`;
+			const cached = await context.env.BOOKINGS.get(cacheKey);
+			if (cached) {
+				return new Response(cached, { headers: corsHeaders });
+			}
+		}
 
 		if (!body.name || !body.email || !body.phone || !body.date || !body.guestCount || !body.region) {
 			return new Response(
@@ -101,6 +112,14 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 		if (!EMAIL_REGEX.test(body.email)) {
 			return new Response(
 				JSON.stringify({ success: false, error: 'Invalid email format' }),
+				{ status: 400, headers: corsHeaders }
+			);
+		}
+
+		const PHONE_REGEX = /^[+\d][\d\s\-().]{6,19}$/;
+		if (!PHONE_REGEX.test(body.phone)) {
+			return new Response(
+				JSON.stringify({ success: false, error: 'Invalid phone format' }),
 				{ status: 400, headers: corsHeaders }
 			);
 		}
@@ -148,6 +167,20 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 					{ status: 400, headers: corsHeaders }
 				);
 			}
+		}
+
+		// --- Availability check: blocked dates and slot capacity ---
+		const blockedData = await context.env.BOOKINGS.get('blocked_dates', 'json');
+		const blockedDates: Array<{ date: string; reason?: string; region?: string }> = (blockedData as Array<{ date: string; reason?: string; region?: string }>) || [];
+
+		const isBlocked = blockedDates.some(
+			(bd) => bd.date === body.date && (!bd.region || bd.region === body.region.toLowerCase())
+		);
+		if (body.formType !== 'estimate' && isBlocked) {
+			return new Response(
+				JSON.stringify({ success: false, error: 'DATE_BLOCKED', message: 'This date is not available for booking' }),
+				{ status: 400, headers: corsHeaders }
+			);
 		}
 
 		const bookingId = crypto.randomUUID();
@@ -227,8 +260,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 			referralCode: referralDiscount ? ((body as Record<string, unknown>).referralCode as string)?.toUpperCase() : undefined,
 			referralDiscount: referralDiscount || undefined,
 			referralSource: body.referralSource || undefined,
+			eventType: (body as Record<string, unknown>).eventType as string | undefined,
 			orderData: body.orderData || undefined,
 			createdAt: new Date().toISOString(),
+			_version: 1,
 		};
 
 		// Get existing bookings
@@ -240,6 +275,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
 		// Save to KV
 		await context.env.BOOKINGS.put('bookings_list', JSON.stringify(bookings));
+
+		// Dual-write to monthly shard (migration period)
+		const shardMonth = getShardMonth(booking.date);
+		const shardBookings = await readShard<Booking>(context.env.BOOKINGS, 'bookings', shardMonth);
+		shardBookings.push(booking);
+		await writeShard(context.env.BOOKINGS, 'bookings', shardMonth, shardBookings);
+		await ensureMonthInIndex(context.env.BOOKINGS, 'bookings', shardMonth);
 
 		// Send emails (non-blocking)
 		const emailPromises: Promise<boolean>[] = [];
@@ -266,10 +308,18 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 		// Wait for emails but don't fail if they fail
 		await Promise.allSettled(emailPromises);
 
-		return new Response(
-			JSON.stringify({ success: true, booking }),
-			{ headers: corsHeaders }
-		);
+		const responseBody = JSON.stringify({ success: true, booking });
+
+		// Cache idempotency key for 5 minutes to prevent duplicate processing
+		if (body.idempotencyKey) {
+			context.env.BOOKINGS.put(
+				`idem:${body.idempotencyKey}`,
+				responseBody,
+				{ expirationTtl: 300 }
+			).catch(() => {});
+		}
+
+		return new Response(responseBody, { headers: corsHeaders });
 	} catch (error) {
 		console.error('Booking error:', error);
 		return new Response(

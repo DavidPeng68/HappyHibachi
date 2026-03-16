@@ -13,7 +13,7 @@ export interface AuthResult {
 	userId?: string;
 }
 
-const TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
+const TOKEN_EXPIRY_MS = 4 * 60 * 60 * 1000; // 4 hours
 
 async function hmacSign(message: string, secret: string): Promise<string> {
 	const encoder = new TextEncoder();
@@ -105,6 +105,56 @@ export async function hashPassword(password: string, username: string): Promise<
 	const data = encoder.encode(password + ':' + username);
 	const hash = await crypto.subtle.digest('SHA-256', data);
 	return btoa(String.fromCharCode(...new Uint8Array(hash)));
+}
+
+/**
+ * PBKDF2 password hashing (upgrade from SHA-256)
+ * Format: base64(salt):base64(derivedKey)
+ */
+export async function hashPasswordPBKDF2(password: string, username: string): Promise<string> {
+	const encoder = new TextEncoder();
+	const salt = crypto.getRandomValues(new Uint8Array(16));
+	const keyMaterial = await crypto.subtle.importKey(
+		'raw',
+		encoder.encode(password + ':' + username),
+		'PBKDF2',
+		false,
+		['deriveBits']
+	);
+	const derived = await crypto.subtle.deriveBits(
+		{ name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+		keyMaterial,
+		256
+	);
+	const saltB64 = btoa(String.fromCharCode(...salt));
+	const hashB64 = btoa(String.fromCharCode(...new Uint8Array(derived)));
+	return `${saltB64}:${hashB64}`;
+}
+
+export async function verifyPasswordPBKDF2(password: string, username: string, stored: string): Promise<boolean> {
+	const [saltB64, hashB64] = stored.split(':');
+	if (!saltB64 || !hashB64) return false;
+	const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
+	const encoder = new TextEncoder();
+	const keyMaterial = await crypto.subtle.importKey(
+		'raw',
+		encoder.encode(password + ':' + username),
+		'PBKDF2',
+		false,
+		['deriveBits']
+	);
+	const derived = await crypto.subtle.deriveBits(
+		{ name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+		keyMaterial,
+		256
+	);
+	const computedB64 = btoa(String.fromCharCode(...new Uint8Array(derived)));
+	return computedB64 === hashB64;
+}
+
+/** Check if a stored hash is the legacy SHA-256 format (no colon separator). */
+export function isLegacyHash(stored: string): boolean {
+	return !stored.includes(':');
 }
 
 export function getCorsHeaders(request?: Request, env?: AuthEnv): Record<string, string> {

@@ -30,16 +30,16 @@ function relativeTime(iso: string): string {
   });
 }
 
-function actionColor(action: string): { color: string; bg: string } {
+function actionModifier(action: string): string {
   switch (action) {
     case 'created':
-      return { color: '#16a34a', bg: '#dcfce7' };
+      return 'created';
     case 'updated':
-      return { color: '#2563eb', bg: '#dbeafe' };
+      return 'updated';
     case 'deleted':
-      return { color: '#dc2626', bg: '#fef2f2' };
+      return 'deleted';
     default:
-      return { color: '#6b7280', bg: '#f3f4f6' };
+      return 'default';
   }
 }
 
@@ -120,57 +120,27 @@ const ActivityLog: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94a3b8' }}>
-        {t('admin.activity.loading')}
-      </div>
+      <div className="activity-loading activity-loading--full">{t('admin.activity.loading')}</div>
     );
   }
 
   return (
-    <div style={{ padding: '0' }}>
+    <div>
       {/* Header */}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '12px',
-          alignItems: 'center',
-          marginBottom: '20px',
-        }}
-      >
-        <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700 }}>
-          {t('admin.activity.title')}
-        </h2>
-        <span
-          style={{
-            background: '#f1f5f9',
-            borderRadius: '12px',
-            padding: '2px 10px',
-            fontSize: '0.85rem',
-            color: '#64748b',
-          }}
-        >
+      <div className="admin-page-header">
+        <h2>{t('admin.activity.title')}</h2>
+        <span className="count-badge">
           {filtered.length} {t('admin.activity.entries')}
         </span>
       </div>
 
       {/* Filters */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+      <div className="activity-filters">
         {filters.map(({ key, label }) => (
           <button
             key={key}
             onClick={() => handleFilterChange(key)}
-            style={{
-              padding: '6px 14px',
-              borderRadius: '6px',
-              border: '1px solid',
-              borderColor: entityFilter === key ? '#3b82f6' : '#e2e8f0',
-              background: entityFilter === key ? '#eff6ff' : '#fff',
-              color: entityFilter === key ? '#2563eb' : '#64748b',
-              fontSize: '0.85rem',
-              cursor: 'pointer',
-              fontWeight: entityFilter === key ? 600 : 400,
-            }}
+            className={`activity-filter-btn ${entityFilter === key ? 'activity-filter-btn--active' : ''}`}
           >
             {label}
           </button>
@@ -179,106 +149,31 @@ const ActivityLog: React.FC = () => {
 
       {/* Timeline */}
       {filtered.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px 20px', color: '#94a3b8' }}>
-          {t('admin.activity.noEntries')}
-        </div>
+        <div className="activity-empty">{t('admin.activity.noEntries')}</div>
       ) : (
-        <div style={{ position: 'relative', paddingLeft: '28px' }}>
+        <div className="activity-timeline">
           {/* Vertical line */}
-          <div
-            style={{
-              position: 'absolute',
-              left: '10px',
-              top: '0',
-              bottom: '0',
-              width: '2px',
-              background: '#e2e8f0',
-            }}
-          />
+          <div className="activity-timeline-line" />
 
           {filtered.map((entry) => {
-            const { color, bg } = actionColor(entry.action);
+            const mod = actionModifier(entry.action);
             return (
-              <div
-                key={entry.id}
-                style={{
-                  position: 'relative',
-                  marginBottom: '12px',
-                  padding: '12px 16px',
-                  background: '#fff',
-                  borderRadius: '10px',
-                  border: '1px solid #e2e8f0',
-                }}
-              >
+              <div key={entry.id} className="activity-entry">
                 {/* Dot on timeline */}
-                <div
-                  style={{
-                    position: 'absolute',
-                    left: '-23px',
-                    top: '16px',
-                    width: '10px',
-                    height: '10px',
-                    borderRadius: '50%',
-                    background: color,
-                    border: '2px solid #fff',
-                    boxShadow: '0 0 0 2px ' + color,
-                  }}
-                />
+                <div className={`activity-dot activity-dot--${mod}`} />
 
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    gap: '12px',
-                  }}
-                >
-                  <div style={{ flex: 1 }}>
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        marginBottom: '4px',
-                      }}
-                    >
-                      <span style={{ fontSize: '1rem' }}>{entityIcon(entry.entity)}</span>
-                      <span
-                        style={{
-                          display: 'inline-block',
-                          padding: '1px 8px',
-                          borderRadius: '10px',
-                          fontSize: '0.75rem',
-                          fontWeight: 600,
-                          color,
-                          background: bg,
-                          textTransform: 'capitalize',
-                        }}
-                      >
+                <div className="activity-entry-header">
+                  <div className="activity-entry-body">
+                    <div className="activity-entry-meta">
+                      <span className="activity-entry-icon">{entityIcon(entry.entity)}</span>
+                      <span className={`activity-action-badge activity-action-badge--${mod}`}>
                         {entry.action}
                       </span>
-                      <span
-                        style={{
-                          fontSize: '0.8rem',
-                          color: '#94a3b8',
-                          textTransform: 'capitalize',
-                        }}
-                      >
-                        {entry.entity}
-                      </span>
+                      <span className="activity-entity">{entry.entity}</span>
                     </div>
-                    <div style={{ fontSize: '0.85rem', color: '#334155' }}>{entry.details}</div>
+                    <div className="activity-details">{entry.details}</div>
                   </div>
-                  <div
-                    style={{
-                      fontSize: '0.8rem',
-                      color: '#94a3b8',
-                      whiteSpace: 'nowrap',
-                      marginTop: '2px',
-                    }}
-                  >
-                    {relativeTime(entry.createdAt)}
-                  </div>
+                  <div className="activity-timestamp">{relativeTime(entry.createdAt)}</div>
                 </div>
               </div>
             );

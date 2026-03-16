@@ -10,6 +10,7 @@
 
 export type AdminRole = 'super_admin' | 'order_manager';
 export type AccountStatus = 'pending' | 'approved' | 'rejected';
+export type FieldVisibility = 'full' | 'standard' | 'minimal';
 
 export interface AdminUser {
   id: string;
@@ -21,6 +22,7 @@ export interface AdminUser {
   status: AccountStatus;
   createdAt: string;
   createdBy: string;
+  visibility?: FieldVisibility;
 }
 
 export interface BookingOrderData {
@@ -50,10 +52,17 @@ export interface Booking {
   couponCode?: string;
   couponDiscount?: string;
   referralSource?: string;
+  referralCode?: string;
+  referralDiscount?: string;
+  eventType?: string;
   orderData?: BookingOrderData;
   adminNotes?: string;
   assignedTo?: string;
   createdAt: string;
+  _version?: number;
+  deletedAt?: string | null;
+  dietaryRestrictions?: string[]; // TODO: future feature — dietary needs collection
+  allergens?: string[]; // TODO: future feature — allergen tracking
 }
 
 export interface Coupon {
@@ -140,6 +149,15 @@ export interface Customer {
   tags: string[];
 }
 
+export interface BookingComment {
+  id: string;
+  bookingId: string;
+  userId: string;
+  displayName: string;
+  content: string;
+  createdAt: string;
+}
+
 export interface AuditLogEntry {
   id: string;
   action: string;
@@ -147,6 +165,16 @@ export interface AuditLogEntry {
   entityId?: string;
   details: string;
   performedBy: string;
+  createdAt: string;
+}
+
+export interface AdminNotification {
+  id: string;
+  type: 'booking_assigned' | 'status_changed' | 'booking_cancelled' | 'reminder' | 'mention';
+  title: string;
+  message: string;
+  bookingId?: string;
+  read: boolean;
   createdAt: string;
 }
 
@@ -163,7 +191,9 @@ export type AdminMenuType =
   | 'customers'
   | 'activity'
   | 'settings'
-  | 'users';
+  | 'users'
+  | 'team'
+  | 'dispatch';
 
 export type BookingStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
 export type StatusFilter = 'all' | BookingStatus;
@@ -181,4 +211,28 @@ export interface ToastMessage {
   id: string;
   message: string;
   type: 'success' | 'error' | 'info';
+}
+
+// ---------------------------------------------------------------------------
+// Pagination
+// ---------------------------------------------------------------------------
+
+export interface PaginatedResponse<T> {
+  success: boolean;
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface PaginationParams {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  status?: string;
+  region?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  sort?: string;
+  dir?: 'asc' | 'desc';
 }

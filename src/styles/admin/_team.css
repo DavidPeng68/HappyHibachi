@@ -1,0 +1,206 @@
+/* Team Dashboard */
+.team-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.team-summary-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  padding: 20px;
+}
+.team-summary-value {
+  font-size: 28px;
+  font-weight: 700;
+}
+.team-summary-label {
+  font-size: 13px;
+  color: var(--admin-text-muted);
+  margin-top: 4px;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.team-member-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  padding: 18px;
+}
+.team-member-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.team-member-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+.team-member-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.team-member-stat {
+}
+.team-member-stat-value {
+  font-size: 20px;
+  font-weight: 700;
+}
+.team-member-stat-label {
+  font-size: 11px;
+  color: var(--admin-text-muted);
+}
+
+.team-unassigned-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: var(--admin-radius-lg);
+  padding: 14px 18px;
+  margin-bottom: 20px;
+}
+.team-unassigned-alert-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #856404;
+}
+.team-unassigned-alert-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-primary);
+  cursor: pointer;
+  background: none;
+  border: none;
+  text-decoration: underline;
+}
+
+/* Dispatch Center */
+.dispatch-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+}
+.dispatch-queue {
+}
+.dispatch-managers {
+}
+
+.dispatch-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.dispatch-booking-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  margin-bottom: 8px;
+  transition: all 0.15s;
+}
+.dispatch-booking-item:hover {
+  background: var(--admin-surface-hover);
+}
+.dispatch-booking-item.selected {
+  border-color: var(--admin-primary);
+  background: var(--admin-primary-soft);
+}
+.dispatch-booking-info {
+  flex: 1;
+}
+.dispatch-booking-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+.dispatch-booking-details {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  margin-top: 2px;
+}
+
+.dispatch-manager-card {
+  padding: 14px;
+  background: var(--admin-surface);
+  border: 2px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.dispatch-manager-card:hover {
+  border-color: var(--admin-border-hover);
+}
+.dispatch-manager-card.selected {
+  border-color: var(--admin-primary);
+  background: var(--admin-primary-soft);
+}
+.dispatch-manager-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+.dispatch-manager-load {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  margin-top: 4px;
+}
+
+.dispatch-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--admin-border);
+}
+
+.dispatch-recent {
+  margin-top: 24px;
+}
+.dispatch-recent-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--admin-border);
+  font-size: 13px;
+}
+.dispatch-recent-item:last-child {
+  border-bottom: none;
+}
+
+.dispatch-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--admin-text-muted);
+  font-size: 14px;
+}
+
+/* Online status indicator */
+.online-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  background: var(--admin-text-muted);
+}
+.online-dot.online {
+  background: var(--admin-success);
+  box-shadow: 0 0 4px var(--admin-success);
+}
+
+@media (max-width: 768px) {
+  .dispatch-layout {
+    grid-template-columns: 1fr;
+  }
+}

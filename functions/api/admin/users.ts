@@ -6,8 +6,10 @@
  * DELETE /api/admin/users - Delete a user (super_admin only)
  */
 
-import { validateToken, requireSuperAdmin, getCorsHeaders, hashPassword } from '../_auth';
+import { validateToken, requireSuperAdmin, getCorsHeaders, hashPasswordPBKDF2 } from '../_auth';
 import { logAction } from '../_auditLog';
+import { validatePasswordComplexity, validateStringLength } from '../_validation';
+import { trackActivity } from '../_activity';
 
 interface AdminUser {
 	id: string;
@@ -44,6 +46,10 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 	const denied = requireSuperAdmin(auth, corsHeaders);
 	if (denied) return denied;
 
+	if (auth.userId) {
+		context.waitUntil(trackActivity(context.env.BOOKINGS, auth.userId));
+	}
+
 	try {
 		const users = await getUsers(context.env.BOOKINGS);
 		const url = new URL(context.request.url);
@@ -77,6 +83,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 	const denied = requireSuperAdmin(auth, corsHeaders);
 	if (denied) return denied;
 
+	if (auth.userId) {
+		context.waitUntil(trackActivity(context.env.BOOKINGS, auth.userId));
+	}
+
 	try {
 		const body = await context.request.json() as {
 			username: string;
@@ -88,6 +98,22 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 		if (!body.username?.trim() || !body.password?.trim() || !body.displayName?.trim()) {
 			return new Response(
 				JSON.stringify({ success: false, error: 'Missing required fields' }),
+				{ status: 400, headers: corsHeaders }
+			);
+		}
+
+		const pwErr = validatePasswordComplexity(body.password);
+		if (pwErr) {
+			return new Response(
+				JSON.stringify({ success: false, error: pwErr }),
+				{ status: 400, headers: corsHeaders }
+			);
+		}
+
+		const nameErr = validateStringLength(body.displayName, 'displayName', 100, 1);
+		if (nameErr) {
+			return new Response(
+				JSON.stringify({ success: false, error: nameErr }),
 				{ status: 400, headers: corsHeaders }
 			);
 		}
@@ -105,7 +131,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 		const newUser: AdminUser = {
 			id: crypto.randomUUID(),
 			username,
-			passwordHash: await hashPassword(body.password, username),
+			passwordHash: await hashPasswordPBKDF2(body.password, username),
 			role: body.role || 'order_manager',
 			displayName: body.displayName.trim(),
 			enabled: true,
@@ -146,6 +172,10 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 	const denied = requireSuperAdmin(auth, corsHeaders);
 	if (denied) return denied;
 
+	if (auth.userId) {
+		context.waitUntil(trackActivity(context.env.BOOKINGS, auth.userId));
+	}
+
 	try {
 		const body = await context.request.json() as {
 			id: string;
@@ -154,6 +184,7 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 			enabled?: boolean;
 			status?: 'approved' | 'rejected';
 			role?: 'super_admin' | 'order_manager';
+			visibility?: 'full' | 'standard' | 'minimal';
 		};
 
 		if (!body.id) {
@@ -177,11 +208,25 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 		const changes: string[] = [];
 
 		if (body.displayName !== undefined) {
+			const nameErr = validateStringLength(body.displayName.trim(), 'displayName', 100, 1);
+			if (nameErr) {
+				return new Response(
+					JSON.stringify({ success: false, error: nameErr }),
+					{ status: 400, headers: corsHeaders }
+				);
+			}
 			user.displayName = body.displayName.trim();
 			changes.push('displayName');
 		}
 		if (body.password !== undefined) {
-			user.passwordHash = await hashPassword(body.password, user.username);
+			const pwErr = validatePasswordComplexity(body.password);
+			if (pwErr) {
+				return new Response(
+					JSON.stringify({ success: false, error: pwErr }),
+					{ status: 400, headers: corsHeaders }
+				);
+			}
+			user.passwordHash = await hashPasswordPBKDF2(body.password, user.username);
 			changes.push('password');
 		}
 		if (body.enabled !== undefined) {
@@ -196,6 +241,10 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 			user.role = body.role;
 			changes.push(`role=${body.role}`);
 		}
+		if (body.visibility && ['full', 'standard', 'minimal'].includes(body.visibility)) {
+			(user as any).visibility = body.visibility;
+			changes.push(`visibility=${body.visibility}`);
+		}
 
 		users[idx] = user;
 		await saveUsers(context.env.BOOKINGS, users);
@@ -207,6 +256,11 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 			details: `Updated user "${user.displayName}" (${user.username}): ${changes.join(', ')}`,
 			performedBy: auth.userId === '__env__' ? 'Admin' : (auth.userId || 'admin'),
 		});
+
+		// Track specific action after successful user update
+		if (auth.userId) {
+			context.waitUntil(trackActivity(context.env.BOOKINGS, auth.userId, 'user_update'));
+		}
 
 		const { passwordHash, ...safeUser } = user;
 		return new Response(
@@ -228,6 +282,10 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
 	const auth = await validateToken(authHeader, context.env);
 	const denied = requireSuperAdmin(auth, corsHeaders);
 	if (denied) return denied;
+
+	if (auth.userId) {
+		context.waitUntil(trackActivity(context.env.BOOKINGS, auth.userId));
+	}
 
 	try {
 		const url = new URL(context.request.url);

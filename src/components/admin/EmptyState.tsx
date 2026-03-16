@@ -1,7 +1,8 @@
 import React from 'react';
 
 interface EmptyStateProps {
-  icon: string;
+  icon?: string;
+  svgIcon?: React.ReactNode;
   title: string;
   description?: string;
   action?: {
@@ -10,12 +11,16 @@ interface EmptyStateProps {
   };
 }
 
-const EmptyState: React.FC<EmptyStateProps> = ({ icon, title, description, action }) => {
+const EmptyState: React.FC<EmptyStateProps> = ({ icon, svgIcon, title, description, action }) => {
   return (
     <div className="empty-state">
-      <span role="img" aria-hidden="true">
-        {icon}
-      </span>
+      {svgIcon ? (
+        <div className="empty-state-svg">{svgIcon}</div>
+      ) : (
+        <span role="img" aria-hidden="true">
+          {icon}
+        </span>
+      )}
       <h3>{title}</h3>
       {description && <p>{description}</p>}
       {action && (

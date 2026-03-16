@@ -132,6 +132,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 // GET - Validate code (public) or list all (admin)
 export const onRequestGet: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
+
+	const rateLimited = await checkRateLimit(context.request, context.env.BOOKINGS, corsHeaders);
+	if (rateLimited) return rateLimited;
+
 	const url = new URL(context.request.url);
 	const code = url.searchParams.get('code');
 

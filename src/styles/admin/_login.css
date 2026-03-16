@@ -1,0 +1,381 @@
+/* =============================================
+   登录页面
+   ============================================= */
+
+.admin-login-page {
+  min-height: 100vh;
+  background: var(--admin-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 背景装饰 */
+.admin-login-page::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 107, 53, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 70% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
+  animation: bg-pulse 15s ease-in-out infinite;
+}
+
+@keyframes bg-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.login-container {
+  position: relative;
+  background: linear-gradient(135deg, rgba(24, 24, 27, 0.9), rgba(15, 15, 18, 0.95));
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-xl);
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 420px;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 25px 50px -12px rgba(0, 0, 0, 0.6);
+}
+
+.login-brand {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.brand-icon {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.3));
+}
+
+.login-brand h1 {
+  font-size: 26px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #fff, var(--admin-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
+
+.login-brand p {
+  font-size: 14px;
+  color: var(--admin-text-muted);
+  margin: 0;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.form-group input {
+  padding: 14px 16px;
+  font-size: 15px;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  color: var(--admin-text);
+  outline: none;
+  transition: all var(--transition-base);
+}
+
+.form-group input:focus {
+  border-color: var(--admin-primary);
+  box-shadow: 0 0 0 3px var(--admin-primary-soft);
+}
+
+.form-group input::placeholder {
+  color: var(--admin-text-muted);
+}
+
+.form-error {
+  background: var(--admin-danger-soft);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--admin-danger);
+  padding: 12px 16px;
+  border-radius: var(--admin-radius);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-error::before {
+  content: '⚠';
+}
+
+.login-footer {
+  margin-top: 32px;
+  text-align: center;
+}
+
+.login-footer p {
+  font-size: 13px;
+  color: var(--admin-text-muted);
+  margin: 0;
+}
+
+/* =============================================
+   Login page — extended styles
+   ============================================= */
+
+/* Password input wrapper + toggle */
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-input-wrapper input {
+  padding-right: 44px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--admin-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--admin-radius);
+  transition: color var(--transition-fast, 0.15s ease);
+}
+
+.password-toggle-btn:hover {
+  color: var(--admin-text-secondary);
+}
+
+.password-toggle-btn:focus-visible {
+  outline: 2px solid var(--admin-primary);
+  outline-offset: 2px;
+}
+
+/* Mode switch button */
+.login-mode-switch {
+  background: none;
+  border: none;
+  color: var(--admin-primary);
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 14px;
+  padding: 0;
+  transition: color var(--transition-fast, 0.15s ease);
+}
+
+.login-mode-switch:hover {
+  color: var(--admin-text);
+}
+
+.login-mode-switch:focus-visible {
+  outline: 2px solid var(--admin-primary);
+  outline-offset: 2px;
+}
+
+/* Form transition */
+.login-form-area {
+  animation: form-fade-in 0.3s ease forwards;
+}
+
+@keyframes form-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Password strength indicator */
+.password-strength {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: -16px;
+}
+
+.password-strength-bar {
+  display: flex;
+  gap: 4px;
+  height: 4px;
+}
+
+.password-strength-segment {
+  flex: 1;
+  border-radius: 2px;
+  background: var(--admin-border);
+  transition: background var(--transition-fast, 0.15s ease);
+}
+
+.password-strength-segment.active-weak {
+  background: var(--admin-danger);
+}
+
+.password-strength-segment.active-fair {
+  background: var(--admin-warning);
+}
+
+.password-strength-segment.active-good {
+  background: var(--admin-info);
+}
+
+.password-strength-segment.active-strong {
+  background: var(--admin-success);
+}
+
+.password-strength-label {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  display: flex;
+  justify-content: space-between;
+}
+
+.password-strength-text {
+  font-weight: 600;
+}
+
+.password-strength-text.text-weak {
+  color: var(--admin-danger);
+}
+.password-strength-text.text-fair {
+  color: var(--admin-warning);
+}
+.password-strength-text.text-good {
+  color: var(--admin-info);
+}
+.password-strength-text.text-strong {
+  color: var(--admin-success);
+}
+
+/* Error variants */
+.form-error::before {
+  content: none;
+}
+
+.form-error {
+  align-items: flex-start;
+  gap: 10px;
+  animation: form-fade-in 0.2s ease;
+}
+
+.form-error svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.form-error--warning {
+  background: rgba(234, 179, 8, 0.08);
+  border-color: rgba(234, 179, 8, 0.3);
+  color: var(--admin-warning);
+}
+
+.form-error--info {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: var(--admin-info);
+}
+
+/* Brand icon SVG */
+.brand-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 0;
+}
+
+.brand-icon svg {
+  width: 56px;
+  height: 56px;
+}
+
+/* Registration success */
+.register-success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--admin-success);
+  margin: 0 auto 20px;
+  animation: success-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.register-success-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+@keyframes success-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Help link */
+.login-help-link {
+  color: var(--admin-text-muted);
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color var(--transition-fast, 0.15s ease);
+  cursor: default;
+}
+
+.login-help-link svg {
+  width: 14px;
+  height: 14px;
+}
+
+.login-footer p + p {
+  margin-top: 12px;
+}

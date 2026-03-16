@@ -3,58 +3,34 @@ import { useTranslation } from 'react-i18next';
 import { useAdmin } from './AdminLayout';
 import { StatusBadge } from '../../components/admin';
 import * as adminApi from '../../services/adminApi';
+import {
+  isToday,
+  isThisWeek,
+  isWithinNextDays,
+  formatCurrency,
+  formatDate,
+} from '../../utils/adminHelpers';
 import type { Booking } from '../../types/admin';
-import '../AdminDashboard.css';
+import { useCountAnimation } from '../../hooks/useCountAnimation';
+import '../../styles/admin/index.css';
 
 // ---------------------------------------------------------------------------
-// Helpers
+// Animated stat value sub-component (hooks can't be called inside map)
 // ---------------------------------------------------------------------------
 
-function isToday(dateStr: string): boolean {
-  const today = new Date();
-  const d = new Date(dateStr);
+const AnimatedStatValue: React.FC<{ value: number | string; color: string }> = ({
+  value,
+  color,
+}) => {
+  const numericValue = typeof value === 'number' ? value : 0;
+  const animated = useCountAnimation(numericValue);
+
   return (
-    d.getFullYear() === today.getFullYear() &&
-    d.getMonth() === today.getMonth() &&
-    d.getDate() === today.getDate()
+    <div className="stat-value" style={{ color }}>
+      {typeof value === 'number' ? animated : value}
+    </div>
   );
-}
-
-function isThisWeek(dateStr: string): boolean {
-  const now = new Date();
-  const start = new Date(now);
-  start.setDate(now.getDate() - now.getDay());
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(start);
-  end.setDate(start.getDate() + 7);
-  const d = new Date(dateStr);
-  return d >= start && d < end;
-}
-
-function isWithinNextDays(dateStr: string, days: number): boolean {
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  const future = new Date(now);
-  future.setDate(now.getDate() + days);
-  const d = new Date(dateStr);
-  return d >= now && d < future;
-}
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  });
-}
+};
 
 // ---------------------------------------------------------------------------
 // Component
@@ -62,7 +38,7 @@ function formatDate(dateStr: string): string {
 
 const DashboardOverview: React.FC = () => {
   const { t } = useTranslation();
-  const { bookings, token, showToast, setActiveMenu } = useAdmin();
+  const { bookings, token, showToast, setActiveMenu, loading } = useAdmin();
 
   const [sendingReminders, setSendingReminders] = useState(false);
 
@@ -84,6 +60,94 @@ const DashboardOverview: React.FC = () => {
     return { todayCount, weekCount, pending, confirmed, completed, totalGuests, revenue };
   }, [bookings]);
 
+  // -------------------------------------------------------------------
+  // Priority Alerts
+  // -------------------------------------------------------------------
+
+  const alerts = useMemo(() => {
+    const now = Date.now();
+    const twentyFourHours = 24 * 60 * 60 * 1000;
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+
+    const overduePending = bookings.filter(
+      (b) => b.status === 'pending' && now - new Date(b.createdAt).getTime() > twentyFourHours
+    ).length;
+
+    const todayUnconfirmed = bookings.filter(
+      (b) => b.date.slice(0, 10) === todayStr && b.status === 'pending'
+    ).length;
+
+    const tomorrowReminder = bookings.filter(
+      (b) => b.date.slice(0, 10) === tomorrowStr && b.status === 'confirmed'
+    ).length;
+
+    return { overduePending, todayUnconfirmed, tomorrowReminder };
+  }, [bookings]);
+
+  // -------------------------------------------------------------------
+  // Trend calculations (this week vs last week)
+  // -------------------------------------------------------------------
+
+  const trends = useMemo(() => {
+    const now = new Date();
+    const thisWeekStart = new Date(now);
+    thisWeekStart.setDate(now.getDate() - now.getDay());
+    thisWeekStart.setHours(0, 0, 0, 0);
+
+    const lastWeekStart = new Date(thisWeekStart);
+    lastWeekStart.setDate(thisWeekStart.getDate() - 7);
+
+    const thisWeekEnd = new Date(thisWeekStart);
+    thisWeekEnd.setDate(thisWeekStart.getDate() + 7);
+
+    const isInRange = (dateStr: string, start: Date, end: Date) => {
+      const d = new Date(dateStr);
+      return d >= start && d < end;
+    };
+
+    const thisWeekBookings = bookings.filter((b) => isInRange(b.date, thisWeekStart, thisWeekEnd));
+    const lastWeekBookings = bookings.filter((b) =>
+      isInRange(b.date, lastWeekStart, thisWeekStart)
+    );
+
+    const calcTrend = (thisCnt: number, lastCnt: number): 'up' | 'down' | 'flat' => {
+      if (thisCnt > lastCnt) return 'up';
+      if (thisCnt < lastCnt) return 'down';
+      return 'flat';
+    };
+
+    const todayCountThis = thisWeekBookings.filter((b) => isToday(b.date)).length;
+    // For "today" trend, compare today's count against the same weekday last week
+    const todayDayOfWeek = now.getDay();
+    const lastWeekSameDay = new Date(lastWeekStart);
+    lastWeekSameDay.setDate(lastWeekStart.getDate() + todayDayOfWeek);
+    const lastWeekSameDayStr = lastWeekSameDay.toISOString().slice(0, 10);
+    const todayCountLast = lastWeekBookings.filter(
+      (b) => b.date.slice(0, 10) === lastWeekSameDayStr
+    ).length;
+
+    return {
+      todayCount: calcTrend(todayCountThis, todayCountLast),
+      weekCount: calcTrend(thisWeekBookings.length, lastWeekBookings.length),
+      pending: calcTrend(
+        thisWeekBookings.filter((b) => b.status === 'pending').length,
+        lastWeekBookings.filter((b) => b.status === 'pending').length
+      ),
+      confirmed: calcTrend(
+        thisWeekBookings.filter((b) => b.status === 'confirmed').length,
+        lastWeekBookings.filter((b) => b.status === 'confirmed').length
+      ),
+      completed: calcTrend(
+        thisWeekBookings.filter((b) => b.status === 'completed').length,
+        lastWeekBookings.filter((b) => b.status === 'completed').length
+      ),
+    };
+  }, [bookings]);
+
   const statCards = useMemo(
     () => [
       {
@@ -91,30 +155,37 @@ const DashboardOverview: React.FC = () => {
         value: stats.todayCount,
         icon: '📅',
         color: 'var(--admin-primary)',
+        trend: trends.todayCount,
+        onClick: () => setActiveMenu('calendar'),
       },
       {
         label: t('admin.stats.thisWeek'),
         value: stats.weekCount,
         icon: '📆',
         color: 'var(--admin-info)',
+        trend: trends.weekCount,
       },
       {
         label: t('admin.stats.pending'),
         value: stats.pending,
         icon: '⏳',
         color: 'var(--admin-warning)',
+        trend: trends.pending,
+        onClick: () => setActiveMenu('bookings'),
       },
       {
         label: t('admin.stats.confirmed'),
         value: stats.confirmed,
         icon: '✅',
         color: 'var(--admin-success)',
+        trend: trends.confirmed,
       },
       {
         label: t('admin.stats.completed'),
         value: stats.completed,
         icon: '🎉',
         color: 'var(--admin-info)',
+        trend: trends.completed,
       },
       {
         label: t('admin.stats.totalGuests'),
@@ -130,7 +201,7 @@ const DashboardOverview: React.FC = () => {
         isRevenue: true,
       },
     ],
-    [stats, t]
+    [stats, trends, t, setActiveMenu]
   );
 
   // -------------------------------------------------------------------
@@ -231,24 +302,95 @@ const DashboardOverview: React.FC = () => {
   // Render
   // -------------------------------------------------------------------
 
+  const trendArrow = (trend: 'up' | 'down' | 'flat') => {
+    if (trend === 'up') return <span className="stat-trend up">↑</span>;
+    if (trend === 'down') return <span className="stat-trend down">↓</span>;
+    return <span className="stat-trend flat">→</span>;
+  };
+
   return (
     <div className="dashboard-page">
-      {/* Stats grid */}
-      <div className="stats-grid">
-        {statCards.map((stat) => (
-          <div className="stat-card" key={stat.label}>
-            <div className="stat-icon" style={{ background: `${stat.color}15`, color: stat.color }}>
-              {stat.icon}
-            </div>
-            <div className="stat-info">
-              <div className="stat-value" style={{ color: stat.color }}>
-                {stat.isRevenue ? stat.value : stat.value}
+      {/* Priority Alerts */}
+      {(alerts.overduePending > 0 ||
+        alerts.todayUnconfirmed > 0 ||
+        alerts.tomorrowReminder > 0) && (
+        <div className="dashboard-alerts">
+          {alerts.overduePending > 0 && (
+            <div className="alert-card alert-warning">
+              <span className="alert-icon">⚠️</span>
+              <div className="alert-content">
+                <span className="alert-title">
+                  {t('admin.alerts.overduePending', { count: alerts.overduePending })}
+                </span>
               </div>
-              <div className="stat-label">{stat.label}</div>
+              <button className="alert-action" onClick={() => setActiveMenu('bookings')}>
+                {t('admin.alerts.viewBookings')}
+              </button>
             </div>
-          </div>
-        ))}
-      </div>
+          )}
+          {alerts.todayUnconfirmed > 0 && (
+            <div className="alert-card alert-danger">
+              <span className="alert-icon">🔴</span>
+              <div className="alert-content">
+                <span className="alert-title">
+                  {t('admin.alerts.todayUnconfirmed', { count: alerts.todayUnconfirmed })}
+                </span>
+              </div>
+              <button className="alert-action" onClick={() => setActiveMenu('bookings')}>
+                {t('admin.alerts.viewBookings')}
+              </button>
+            </div>
+          )}
+          {alerts.tomorrowReminder > 0 && (
+            <div className="alert-card alert-info">
+              <span className="alert-icon">ℹ️</span>
+              <div className="alert-content">
+                <span className="alert-title">
+                  {t('admin.alerts.tomorrowReminder', { count: alerts.tomorrowReminder })}
+                </span>
+              </div>
+              <button className="alert-action" onClick={() => setActiveMenu('bookings')}>
+                {t('admin.alerts.viewBookings')}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Stats grid */}
+      {loading ? (
+        <div className="stats-grid">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="skeleton skeleton-stat-card" />
+          ))}
+        </div>
+      ) : (
+        <div className="stats-grid">
+          {statCards.map((stat) => (
+            <div
+              className={`stat-card${stat.onClick ? ' clickable' : ''}`}
+              key={stat.label}
+              onClick={stat.onClick}
+              role={stat.onClick ? 'button' : undefined}
+              tabIndex={stat.onClick ? 0 : undefined}
+            >
+              <div
+                className="stat-icon"
+                style={{ background: `${stat.color}15`, color: stat.color }}
+              >
+                {stat.icon}
+              </div>
+              <div className="stat-info">
+                <AnimatedStatValue value={stat.value} color={stat.color} />
+                <div className="stat-label">
+                  {stat.label}
+                  {stat.trend && trendArrow(stat.trend)}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Quick actions */}
       <div className="card" style={{ marginBottom: '24px' }}>

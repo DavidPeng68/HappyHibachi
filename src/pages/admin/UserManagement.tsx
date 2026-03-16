@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { AdminUser, AdminRole } from '../../types/admin';
+import type { AdminUser, AdminRole, FieldVisibility } from '../../types/admin';
 import { ConfirmDialog } from '../../components/admin';
 import * as adminApi from '../../services/adminApi';
 import { useAdmin } from './AdminLayout';
@@ -165,6 +165,20 @@ const UserManagement: React.FC = () => {
     }
   };
 
+  // Change visibility
+  const handleVisibilityChange = async (userId: string, visibility: string) => {
+    const res = await adminApi.updateUser(token, {
+      id: userId,
+      visibility: visibility as FieldVisibility,
+    });
+    if (res.success) {
+      showToast(t('admin.toast.visibilityUpdated'), 'success');
+      fetchAllUsers();
+    } else {
+      showToast(t('admin.toast.updateFailed'), 'error');
+    }
+  };
+
   // Delete user
   const handleDelete = async () => {
     if (!deleteConfirm.user) return;
@@ -188,11 +202,8 @@ const UserManagement: React.FC = () => {
     <div className="admin-page">
       {/* Pending Approval Section */}
       {pendingUsers.length > 0 && (
-        <div
-          className="admin-card"
-          style={{ borderLeft: '4px solid #f59e0b', marginBottom: '24px' }}
-        >
-          <h3 className="bm-card-title" style={{ color: '#f59e0b' }}>
+        <div className="admin-card admin-card--warning-left mb-12">
+          <h3 className="bm-card-title">
             {t('admin.users.pendingApproval')} ({pendingUsers.length})
           </h3>
           <div className="admin-table-wrapper">
@@ -212,7 +223,7 @@ const UserManagement: React.FC = () => {
                     <td>{user.username}</td>
                     <td>{new Date(user.createdAt).toLocaleDateString()}</td>
                     <td>
-                      <div style={{ display: 'flex', gap: '8px' }}>
+                      <div className="flex-row gap-4">
                         <button
                           className="admin-btn admin-btn-primary"
                           onClick={() => handleApprove(user.id)}
@@ -238,14 +249,7 @@ const UserManagement: React.FC = () => {
       )}
 
       {/* Header + Add Button */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '16px',
-        }}
-      >
+      <div className="flex-between mb-8">
         <h2>{t('admin.users.title')}</h2>
         <button
           className="admin-btn admin-btn-primary"
@@ -258,10 +262,10 @@ const UserManagement: React.FC = () => {
 
       {/* Create User Form */}
       {showCreateForm && (
-        <div className="admin-card" style={{ marginBottom: '24px' }}>
+        <div className="admin-card mb-12">
           <h3 className="bm-card-title">{t('admin.users.addUser')}</h3>
           <form onSubmit={handleCreate}>
-            <div className="form-group" style={{ marginBottom: '12px' }}>
+            <div className="form-group mb-4">
               <label>{t('admin.users.displayName')}</label>
               <input
                 type="text"
@@ -271,7 +275,7 @@ const UserManagement: React.FC = () => {
                 placeholder={t('admin.users.displayNamePlaceholder')}
               />
             </div>
-            <div className="form-group" style={{ marginBottom: '12px' }}>
+            <div className="form-group mb-4">
               <label>{t('admin.users.username')}</label>
               <input
                 type="text"
@@ -281,7 +285,7 @@ const UserManagement: React.FC = () => {
                 placeholder={t('admin.users.usernamePlaceholder')}
               />
             </div>
-            <div className="form-group" style={{ marginBottom: '12px' }}>
+            <div className="form-group mb-4">
               <label>{t('admin.users.password')}</label>
               <input
                 type="password"
@@ -291,16 +295,17 @@ const UserManagement: React.FC = () => {
                 placeholder={t('admin.users.passwordPlaceholder')}
               />
             </div>
-            <div className="form-group" style={{ marginBottom: '12px' }}>
+            <div className="form-group mb-4">
               <label>{t('admin.users.confirmPassword')}</label>
               <input
                 type="password"
                 className="admin-input"
                 value={createData.confirmPassword}
                 onChange={(e) => setCreateData((d) => ({ ...d, confirmPassword: e.target.value }))}
+                placeholder={t('admin.users.confirmPasswordPlaceholder')}
               />
             </div>
-            <div className="form-group" style={{ marginBottom: '12px' }}>
+            <div className="form-group mb-4">
               <label>{t('admin.users.role')}</label>
               <select
                 className="admin-select"
@@ -313,12 +318,8 @@ const UserManagement: React.FC = () => {
                 <option value="super_admin">{t('admin.roles.superAdmin')}</option>
               </select>
             </div>
-            {createError && (
-              <div className="form-error" style={{ marginBottom: '12px' }}>
-                {createError}
-              </div>
-            )}
-            <div style={{ display: 'flex', gap: '8px' }}>
+            {createError && <div className="form-error mb-4">{createError}</div>}
+            <div className="flex-row gap-4">
               <button
                 type="submit"
                 className="admin-btn admin-btn-primary"
@@ -334,7 +335,7 @@ const UserManagement: React.FC = () => {
                   setCreateError('');
                 }}
               >
-                {t('admin.booking.cancel')}
+                {t('admin.cancel')}
               </button>
             </div>
           </form>
@@ -343,8 +344,8 @@ const UserManagement: React.FC = () => {
 
       {/* Users Table */}
       {approvedUsers.length === 0 ? (
-        <div className="admin-card" style={{ textAlign: 'center', padding: '40px' }}>
-          <p style={{ color: 'var(--admin-text-muted)' }}>{t('admin.users.noUsers')}</p>
+        <div className="admin-card admin-card--empty">
+          <p className="text-muted">{t('admin.users.noUsers')}</p>
         </div>
       ) : (
         <div className="admin-card">
@@ -357,6 +358,7 @@ const UserManagement: React.FC = () => {
                   <th>{t('admin.users.role')}</th>
                   <th>{t('admin.users.status')}</th>
                   <th>{t('admin.users.enabled')}</th>
+                  <th>{t('admin.users.visibility')}</th>
                   <th>{t('admin.users.createdAt')}</th>
                   <th>{t('admin.booking.actions')}</th>
                 </tr>
@@ -368,10 +370,9 @@ const UserManagement: React.FC = () => {
                       {editingUser?.id === user.id ? (
                         <input
                           type="text"
-                          className="admin-input"
+                          className="admin-input admin-input--sm"
                           value={editDisplayName}
                           onChange={(e) => setEditDisplayName(e.target.value)}
-                          style={{ width: '150px' }}
                         />
                       ) : (
                         user.displayName
@@ -380,14 +381,7 @@ const UserManagement: React.FC = () => {
                     <td>{user.username}</td>
                     <td>
                       <span
-                        style={{
-                          padding: '2px 8px',
-                          borderRadius: '12px',
-                          fontSize: '12px',
-                          fontWeight: 600,
-                          background: user.role === 'super_admin' ? '#dbeafe' : '#fef3c7',
-                          color: user.role === 'super_admin' ? '#1d4ed8' : '#92400e',
-                        }}
+                        className={`role-badge ${user.role === 'super_admin' ? 'role-badge--admin' : 'role-badge--manager'}`}
                       >
                         {user.role === 'super_admin'
                           ? t('admin.roles.superAdmin')
@@ -396,14 +390,7 @@ const UserManagement: React.FC = () => {
                     </td>
                     <td>
                       <span
-                        style={{
-                          padding: '2px 8px',
-                          borderRadius: '12px',
-                          fontSize: '12px',
-                          fontWeight: 600,
-                          background: user.status === 'approved' ? '#d1fae5' : '#fee2e2',
-                          color: user.status === 'approved' ? '#065f46' : '#991b1b',
-                        }}
+                        className={`status-pill ${user.status === 'approved' ? 'status-pill--approved' : 'status-pill--rejected'}`}
                       >
                         {user.status === 'approved'
                           ? t('admin.users.statusApproved')
@@ -412,60 +399,71 @@ const UserManagement: React.FC = () => {
                     </td>
                     <td>
                       <button
-                        className={`admin-btn ${user.enabled ? 'admin-btn-primary' : ''}`}
+                        className={`admin-btn admin-btn--sm ${user.enabled ? 'admin-btn-primary' : ''}`}
                         onClick={() => handleToggleEnabled(user)}
                         type="button"
-                        style={{ fontSize: '12px', padding: '4px 8px' }}
                       >
                         {user.enabled ? t('admin.users.enabled') : t('admin.users.disabled')}
                       </button>
                     </td>
+                    <td>
+                      {user.role === 'order_manager' ? (
+                        <select
+                          className="admin-select admin-select--sm"
+                          value={user.visibility || 'standard'}
+                          onChange={(e) => handleVisibilityChange(user.id, e.target.value)}
+                        >
+                          <option value="full">{t('admin.users.visibilityFull')}</option>
+                          <option value="standard">{t('admin.users.visibilityStandard')}</option>
+                          <option value="minimal">{t('admin.users.visibilityMinimal')}</option>
+                        </select>
+                      ) : (
+                        <span className="text-xs text-muted">
+                          {t('admin.users.visibilityFull')}
+                        </span>
+                      )}
+                    </td>
                     <td>{new Date(user.createdAt).toLocaleDateString()}</td>
                     <td>
-                      <div style={{ display: 'flex', gap: '4px' }}>
+                      <div className="flex-row gap-2">
                         {editingUser?.id === user.id ? (
                           <>
                             <input
                               type="password"
-                              className="admin-input"
+                              className="admin-input admin-input--pw"
                               value={editPassword}
                               onChange={(e) => setEditPassword(e.target.value)}
                               placeholder={t('admin.users.newPassword')}
-                              style={{ width: '120px' }}
                             />
                             <button
-                              className="admin-btn admin-btn-primary"
+                              className="admin-btn admin-btn-primary admin-btn--sm"
                               onClick={handleSaveEdit}
                               disabled={editLoading}
                               type="button"
-                              style={{ fontSize: '12px' }}
                             >
                               {t('admin.booking.save')}
                             </button>
                             <button
-                              className="admin-btn"
+                              className="admin-btn admin-btn--sm"
                               onClick={() => setEditingUser(null)}
                               type="button"
-                              style={{ fontSize: '12px' }}
                             >
-                              {t('admin.booking.cancel')}
+                              {t('admin.cancel')}
                             </button>
                           </>
                         ) : (
                           <>
                             <button
-                              className="admin-btn"
+                              className="admin-btn admin-btn--sm"
                               onClick={() => startEdit(user)}
                               type="button"
-                              style={{ fontSize: '12px' }}
                             >
                               {t('admin.users.edit')}
                             </button>
                             <button
-                              className="admin-btn bm-delete-btn"
+                              className="admin-btn bm-delete-btn admin-btn--sm"
                               onClick={() => setDeleteConfirm({ open: true, user })}
                               type="button"
-                              style={{ fontSize: '12px' }}
                             >
                               {t('admin.users.delete')}
                             </button>

@@ -2,13 +2,17 @@
  * Admin Bookings API
  * GET /api/admin/bookings - Fetch bookings (filtered by role)
  * PATCH /api/admin/bookings - Update booking status / assign
- * DELETE /api/admin/bookings - Delete a booking (super_admin only)
+ * DELETE /api/admin/bookings - Soft-delete a booking (super_admin only)
  */
 
-import { validateToken, getCorsHeaders } from '../_auth';
+import { validateToken, getCorsHeaders, escapeHtml } from '../_auth';
 import type { AuthResult } from '../_auth';
 import { sendEmail, generateConfirmedEmail } from '../_email';
 import { logAction } from '../_auditLog';
+import { createNotification } from '../_notifications';
+import { validateStringLength, validateArrayLength } from '../_validation';
+import { getShardMonth, readShard, writeShard, ensureMonthInIndex, readAllShards, readShardRange, paginateArray, parsePaginationParams } from '../_kvHelpers';
+import { trackActivity } from '../_activity';
 
 interface Booking {
 	id: string;
@@ -25,6 +29,10 @@ interface Booking {
 	adminNotes?: string;
 	assignedTo?: string;
 	createdAt: string;
+	_version?: number;
+	deletedAt?: string | null;
+	dietaryRestrictions?: string[];
+	allergens?: string[];
 }
 
 interface Env {
@@ -35,9 +43,54 @@ interface Env {
 	ALLOWED_ORIGINS?: string;
 }
 
+// ---------------------------------------------------------------------------
+// Status state machine — prevents invalid transitions
+// ---------------------------------------------------------------------------
+
+const VALID_TRANSITIONS: Record<string, string[]> = {
+	pending: ['confirmed', 'cancelled'],
+	confirmed: ['completed', 'cancelled'],
+	completed: [], // terminal state
+	cancelled: ['pending'], // only super_admin can restore
+};
+
+function isValidTransition(
+	from: string,
+	to: string,
+	role: string | undefined
+): { valid: boolean; error?: string } {
+	if (from === to) return { valid: true };
+
+	const allowed = VALID_TRANSITIONS[from];
+	if (!allowed || !allowed.includes(to)) {
+		return {
+			valid: false,
+			error: `Cannot transition from '${from}' to '${to}'`,
+		};
+	}
+
+	// Only super_admin can restore cancelled bookings
+	if (from === 'cancelled' && to === 'pending' && role !== 'super_admin') {
+		return {
+			valid: false,
+			error: 'Only admin can restore cancelled bookings',
+		};
+	}
+
+	return { valid: true };
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
 function getPerformedBy(auth: AuthResult): string {
 	return auth.userId === '__env__' ? 'Admin' : (auth.userId || 'admin');
 }
+
+// ---------------------------------------------------------------------------
+// GET - Fetch bookings (excludes soft-deleted by default)
+// ---------------------------------------------------------------------------
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
@@ -51,20 +104,146 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 		);
 	}
 
+	if (auth.userId) {
+		context.waitUntil(trackActivity(context.env.BOOKINGS, auth.userId));
+	}
+
 	try {
-		const data = await context.env.BOOKINGS.get('bookings_list', 'json');
-		let bookings: Booking[] = (data as Booking[]) || [];
+		const url = new URL(context.request.url);
+		const { page, pageSize, search, sort, dir } = parsePaginationParams(url);
+		const status = url.searchParams.get('status') || '';
+		const region = url.searchParams.get('region') || '';
+		const dateFrom = url.searchParams.get('dateFrom') || '';
+		const dateTo = url.searchParams.get('dateTo') || '';
+		const assignedTo = url.searchParams.get('assignedTo') || '';
+		const includeDeleted = url.searchParams.get('includeDeleted') === 'true' && auth.role === 'super_admin';
+
+		// Load bookings: prefer shards when date range given, fallback to legacy key
+		let bookings: Booking[];
+		if (dateFrom && dateTo) {
+			const fromMonth = dateFrom.slice(0, 7);
+			const toMonth = dateTo.slice(0, 7);
+			bookings = await readShardRange<Booking>(context.env.BOOKINGS, 'bookings', fromMonth, toMonth);
+			// If shards empty, fallback to legacy key
+			if (bookings.length === 0) {
+				const data = await context.env.BOOKINGS.get('bookings_list', 'json');
+				bookings = (data as Booking[]) || [];
+			}
+		} else {
+			// Try shards first, fallback to legacy
+			bookings = await readAllShards<Booking>(context.env.BOOKINGS, 'bookings');
+			if (bookings.length === 0) {
+				const data = await context.env.BOOKINGS.get('bookings_list', 'json');
+				bookings = (data as Booking[]) || [];
+			}
+		}
+
+		// Exclude soft-deleted unless requested by super_admin
+		if (!includeDeleted) {
+			bookings = bookings.filter(b => !b.deletedAt);
+		}
 
 		// Order managers can only see bookings assigned to them
 		if (auth.role === 'order_manager') {
 			bookings = bookings.filter(b => b.assignedTo === auth.userId);
 		}
 
-		// Sort by createdAt descending
-		bookings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+		// Apply filters
+		if (status) {
+			bookings = bookings.filter(b => b.status === status);
+		}
+		if (region) {
+			const regionLower = region.toLowerCase();
+			bookings = bookings.filter(b => b.region?.toLowerCase() === regionLower);
+		}
+		if (assignedTo) {
+			bookings = bookings.filter(b => b.assignedTo === assignedTo);
+		}
+		if (dateFrom) {
+			bookings = bookings.filter(b => b.date >= dateFrom);
+		}
+		if (dateTo) {
+			bookings = bookings.filter(b => b.date <= dateTo);
+		}
+		if (search) {
+			bookings = bookings.filter(b =>
+				b.name?.toLowerCase().includes(search) ||
+				b.email?.toLowerCase().includes(search) ||
+				b.phone?.toLowerCase().includes(search)
+			);
+		}
+
+		// Sort
+		const sortField = sort as keyof Booking;
+		bookings.sort((a, b) => {
+			let aVal: string | number = '';
+			let bVal: string | number = '';
+			if (sortField === 'guestCount') {
+				aVal = a.guestCount || 0;
+				bVal = b.guestCount || 0;
+			} else if (sortField === 'name') {
+				aVal = (a.name || '').toLowerCase();
+				bVal = (b.name || '').toLowerCase();
+			} else if (sortField === 'date') {
+				aVal = a.date || '';
+				bVal = b.date || '';
+			} else if (sortField === 'status') {
+				aVal = a.status || '';
+				bVal = b.status || '';
+			} else {
+				// Default: createdAt
+				aVal = a.createdAt || '';
+				bVal = b.createdAt || '';
+			}
+			if (aVal < bVal) return dir === 'asc' ? -1 : 1;
+			if (aVal > bVal) return dir === 'asc' ? 1 : -1;
+			return 0;
+		});
+
+		// Field visibility stripping for order_managers
+		if (auth.role === 'order_manager') {
+			const usersRaw = await context.env.BOOKINGS.get('admin_users', 'json') as any[] | null;
+			const currentUser = usersRaw?.find((u: any) => u.id === auth.userId);
+			const visibility = currentUser?.visibility || 'standard';
+
+			if (visibility === 'minimal') {
+				bookings = bookings.map(b => ({
+					id: b.id,
+					name: b.name,
+					date: b.date,
+					time: b.time,
+					guestCount: b.guestCount,
+					region: b.region,
+					status: b.status,
+					assignedTo: b.assignedTo,
+					createdAt: b.createdAt,
+					email: '***',
+					phone: '***',
+					formType: b.formType,
+				} as Booking));
+			} else if (visibility === 'standard') {
+				bookings = bookings.map(b => ({
+					...b,
+					orderData: b.orderData ? { ...b.orderData, estimatedTotal: 0 } : undefined,
+					couponDiscount: undefined,
+					couponCode: undefined,
+				} as Booking));
+			}
+			// 'full' = no stripping
+		}
+
+		// Paginate
+		const result = paginateArray(bookings, page, pageSize);
 
 		return new Response(
-			JSON.stringify({ success: true, bookings }),
+			JSON.stringify({
+				success: true,
+				bookings: result.data,
+				data: result.data,
+				total: result.total,
+				page: result.page,
+				pageSize: result.pageSize,
+			}),
 			{ headers: corsHeaders }
 		);
 	} catch (error) {
@@ -74,6 +253,10 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 		);
 	}
 };
+
+// ---------------------------------------------------------------------------
+// PATCH - Update booking with optimistic locking + state machine
+// ---------------------------------------------------------------------------
 
 export const onRequestPatch: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
@@ -87,8 +270,12 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 		);
 	}
 
+	if (auth.userId) {
+		context.waitUntil(trackActivity(context.env.BOOKINGS, auth.userId));
+	}
+
 	try {
-		const body = await context.request.json() as Partial<Booking> & { id: string; assignedTo?: string };
+		const body = await context.request.json() as Partial<Booking> & { id: string; _version?: number };
 		const { id } = body;
 
 		if (!id) {
@@ -106,6 +293,46 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 			);
 		}
 
+		// XSS protection on text fields
+		if (body.adminNotes !== undefined) {
+			body.adminNotes = escapeHtml(body.adminNotes);
+		}
+		if (body.name) {
+			body.name = escapeHtml(body.name);
+		}
+		if (body.message !== undefined) {
+			body.message = escapeHtml(body.message);
+		}
+
+		// Input length validation
+		if (body.adminNotes !== undefined) {
+			const err = validateStringLength(body.adminNotes, 'adminNotes', 2000);
+			if (err) {
+				return new Response(
+					JSON.stringify({ success: false, error: err }),
+					{ status: 400, headers: corsHeaders }
+				);
+			}
+		}
+		if (body.dietaryRestrictions !== undefined) {
+			const err = validateArrayLength(body.dietaryRestrictions, 'dietaryRestrictions', 20, 100);
+			if (err) {
+				return new Response(
+					JSON.stringify({ success: false, error: err }),
+					{ status: 400, headers: corsHeaders }
+				);
+			}
+		}
+		if (body.allergens !== undefined) {
+			const err = validateArrayLength(body.allergens, 'allergens', 20, 100);
+			if (err) {
+				return new Response(
+					JSON.stringify({ success: false, error: err }),
+					{ status: 400, headers: corsHeaders }
+				);
+			}
+		}
+
 		const data = await context.env.BOOKINGS.get('bookings_list', 'json');
 		const bookings: Booking[] = (data as Booking[]) || [];
 
@@ -117,8 +344,32 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 			);
 		}
 
+		const existing = bookings[bookingIndex];
+
+		// Reject updates to soft-deleted bookings
+		if (existing.deletedAt) {
+			return new Response(
+				JSON.stringify({ success: false, error: 'Cannot update a deleted booking' }),
+				{ status: 400, headers: corsHeaders }
+			);
+		}
+
+		// Optimistic locking — check version if client sends it
+		if (body._version !== undefined && existing._version !== undefined) {
+			if (body._version !== existing._version) {
+				return new Response(
+					JSON.stringify({
+						success: false,
+						error: 'This booking has been modified by another user. Please refresh and try again.',
+						code: 'VERSION_CONFLICT',
+					}),
+					{ status: 409, headers: corsHeaders }
+				);
+			}
+		}
+
 		// Order managers can only update bookings assigned to them
-		if (auth.role === 'order_manager' && bookings[bookingIndex].assignedTo !== auth.userId) {
+		if (auth.role === 'order_manager' && existing.assignedTo !== auth.userId) {
 			return new Response(
 				JSON.stringify({ success: false, error: 'Access denied' }),
 				{ status: 403, headers: corsHeaders }
@@ -133,11 +384,22 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 			);
 		}
 
-		const previousStatus = bookings[bookingIndex].status;
+		// Status state machine validation
+		if (body.status && body.status !== existing.status) {
+			const transition = isValidTransition(existing.status, body.status, auth.role);
+			if (!transition.valid) {
+				return new Response(
+					JSON.stringify({ success: false, error: transition.error }),
+					{ status: 400, headers: corsHeaders }
+				);
+			}
+		}
 
-		// Update editable fields
+		const previousStatus = existing.status;
+
+		// Update editable fields + bump version
 		bookings[bookingIndex] = {
-			...bookings[bookingIndex],
+			...existing,
 			...(body.status && { status: body.status }),
 			...(body.date && { date: body.date }),
 			...(body.time !== undefined && { time: body.time }),
@@ -149,10 +411,25 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 			...(body.adminNotes !== undefined && { adminNotes: body.adminNotes }),
 			...(body.message !== undefined && { message: body.message }),
 			...(body.assignedTo !== undefined && { assignedTo: body.assignedTo || undefined }),
+			...(body.dietaryRestrictions !== undefined && { dietaryRestrictions: body.dietaryRestrictions }),
+			...(body.allergens !== undefined && { allergens: body.allergens }),
+			_version: (existing._version || 0) + 1,
 		};
 
 		const status = bookings[bookingIndex].status;
 		await context.env.BOOKINGS.put('bookings_list', JSON.stringify(bookings));
+
+		// Dual-write to monthly shard (migration period)
+		const shardMonth = getShardMonth(existing.date);
+		const shardBookings = await readShard<Booking>(context.env.BOOKINGS, 'bookings', shardMonth);
+		const shardIdx = shardBookings.findIndex(b => b.id === id);
+		if (shardIdx !== -1) {
+			shardBookings[shardIdx] = bookings[bookingIndex];
+		} else {
+			shardBookings.push(bookings[bookingIndex]);
+		}
+		await writeShard(context.env.BOOKINGS, 'bookings', shardMonth, shardBookings);
+		await ensureMonthInIndex(context.env.BOOKINGS, 'bookings', shardMonth);
 
 		const booking = bookings[bookingIndex];
 
@@ -170,6 +447,28 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 			performedBy: getPerformedBy(auth),
 		}).catch(() => {});
 
+		// Fire-and-forget notifications
+		if (body.assignedTo !== undefined && body.assignedTo && body.assignedTo !== existing.assignedTo) {
+			createNotification(
+				context.env.BOOKINGS,
+				body.assignedTo,
+				'booking_assigned',
+				'Booking Assigned',
+				`Booking for ${booking.name} on ${booking.date} has been assigned to you.`,
+				id
+			).catch(() => {});
+		}
+		if (body.status && body.status !== previousStatus && booking.assignedTo) {
+			createNotification(
+				context.env.BOOKINGS,
+				booking.assignedTo,
+				'status_changed',
+				'Status Changed',
+				`Booking for ${booking.name} status changed from ${previousStatus} to ${body.status}.`,
+				id
+			).catch(() => {});
+		}
+
 		// Send confirmation email when status changes to "confirmed"
 		if (status === 'confirmed' && previousStatus !== 'confirmed') {
 			sendEmail(context.env, {
@@ -177,6 +476,11 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 				subject: `✅ Booking Confirmed - Family Friends Hibachi`,
 				html: generateConfirmedEmail(booking),
 			}).catch(err => console.error('Failed to send confirmation email:', err));
+		}
+
+		// Track specific action after successful update
+		if (auth.userId) {
+			context.waitUntil(trackActivity(context.env.BOOKINGS, auth.userId, 'booking_update'));
 		}
 
 		return new Response(
@@ -191,7 +495,10 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 	}
 };
 
-// DELETE - Delete a booking (super_admin only)
+// ---------------------------------------------------------------------------
+// DELETE - Soft-delete a booking (super_admin only)
+// ---------------------------------------------------------------------------
+
 export const onRequestDelete: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 
@@ -202,6 +509,10 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
 			JSON.stringify({ success: false, error: 'Unauthorized' }),
 			{ status: 401, headers: corsHeaders }
 		);
+	}
+
+	if (auth.userId) {
+		context.waitUntil(trackActivity(context.env.BOOKINGS, auth.userId));
 	}
 
 	// Only super_admin can delete bookings
@@ -216,7 +527,7 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
 		const { id } = await context.request.json() as { id: string };
 
 		const data = await context.env.BOOKINGS.get('bookings_list', 'json');
-		let bookings: Booking[] = (data as Booking[]) || [];
+		const bookings: Booking[] = (data as Booking[]) || [];
 
 		const bookingIndex = bookings.findIndex(b => b.id === id);
 		if (bookingIndex === -1) {
@@ -228,16 +539,32 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
 
 		const deletedBooking = bookings[bookingIndex];
 
-		// Remove the booking
-		bookings = bookings.filter(b => b.id !== id);
+		// Soft delete — set deletedAt timestamp instead of removing
+		bookings[bookingIndex] = {
+			...bookings[bookingIndex],
+			deletedAt: new Date().toISOString(),
+			_version: (bookings[bookingIndex]._version || 0) + 1,
+		};
 		await context.env.BOOKINGS.put('bookings_list', JSON.stringify(bookings));
+
+		// Dual-write to monthly shard (migration period)
+		const shardMonth = getShardMonth(deletedBooking.date);
+		const shardBookings = await readShard<Booking>(context.env.BOOKINGS, 'bookings', shardMonth);
+		const shardIdx = shardBookings.findIndex(b => b.id === id);
+		if (shardIdx !== -1) {
+			shardBookings[shardIdx] = bookings[bookingIndex];
+		} else {
+			shardBookings.push(bookings[bookingIndex]);
+		}
+		await writeShard(context.env.BOOKINGS, 'bookings', shardMonth, shardBookings);
+		await ensureMonthInIndex(context.env.BOOKINGS, 'bookings', shardMonth);
 
 		// Audit log
 		logAction(context.env.BOOKINGS, {
 			action: 'deleted',
 			entity: 'booking',
 			entityId: id,
-			details: `Deleted booking for ${deletedBooking.name} (${deletedBooking.date})`,
+			details: `Soft-deleted booking for ${deletedBooking.name} (${deletedBooking.date})`,
 			performedBy: getPerformedBy(auth),
 		}).catch(() => {});
 

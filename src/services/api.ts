@@ -73,6 +73,7 @@ export async function submitEstimate(data: EstimateFormData): Promise<ApiRespons
       guestCount: data.guestCount,
       region: data.region,
       message: `Event Type: ${data.eventType}\n${data.additionalInfo || ''}`,
+      eventType: data.eventType,
       formType: 'estimate',
     }),
   });

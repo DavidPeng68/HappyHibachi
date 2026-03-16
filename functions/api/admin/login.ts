@@ -7,7 +7,8 @@
  * 2. Username + password → checks admin_users in KV → role from user record
  */
 
-import { createToken, getCorsHeaders, hashPassword } from '../_auth';
+import { createToken, getCorsHeaders, hashPassword, hashPasswordPBKDF2, verifyPasswordPBKDF2, isLegacyHash } from '../_auth';
+import { checkRateLimit, checkLoginLockout, recordFailedLogin, clearLoginLockout } from '../_rateLimit';
 
 interface AdminUser {
 	id: string;
@@ -30,6 +31,12 @@ interface Env {
 export const onRequestPost: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 
+	const rateLimited = await checkRateLimit(context.request, context.env.BOOKINGS, corsHeaders);
+	if (rateLimited) return rateLimited;
+
+	const locked = await checkLoginLockout(context.request, context.env.BOOKINGS, corsHeaders);
+	if (locked) return locked;
+
 	try {
 		const adminPassword = context.env.ADMIN_PASSWORD;
 		if (!adminPassword) {
@@ -45,6 +52,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 		// Mode 1: Password-only login (super admin via env var)
 		if (!username || username.trim() === '') {
 			if (password === adminPassword) {
+				await clearLoginLockout(context.request, context.env.BOOKINGS);
 				const token = await createToken(adminPassword, 'super_admin', '__env__');
 				return new Response(
 					JSON.stringify({
@@ -58,6 +66,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 				);
 			}
 
+			await recordFailedLogin(context.request, context.env.BOOKINGS);
 			return new Response(
 				JSON.stringify({ success: false, error: 'Invalid password' }),
 				{ status: 401, headers: corsHeaders }
@@ -70,15 +79,34 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 		const user = users.find(u => u.username === username.trim());
 
 		if (!user) {
+			await recordFailedLogin(context.request, context.env.BOOKINGS);
 			return new Response(
 				JSON.stringify({ success: false, error: 'Invalid username or password' }),
 				{ status: 401, headers: corsHeaders }
 			);
 		}
 
-		// Check password
-		const inputHash = await hashPassword(password, user.username);
-		if (inputHash !== user.passwordHash) {
+		// Check password — transparent PBKDF2 migration
+		let passwordValid = false;
+		if (isLegacyHash(user.passwordHash)) {
+			// Legacy SHA-256 hash — verify and migrate
+			const legacyHash = await hashPassword(password, user.username);
+			if (legacyHash === user.passwordHash) {
+				passwordValid = true;
+				// Migrate to PBKDF2
+				user.passwordHash = await hashPasswordPBKDF2(password, user.username);
+				const userIdx = users.findIndex(u => u.id === user.id);
+				if (userIdx !== -1) {
+					users[userIdx] = user;
+					await context.env.BOOKINGS.put('admin_users', JSON.stringify(users));
+				}
+			}
+		} else {
+			passwordValid = await verifyPasswordPBKDF2(password, user.username, user.passwordHash);
+		}
+
+		if (!passwordValid) {
+			await recordFailedLogin(context.request, context.env.BOOKINGS);
 			return new Response(
 				JSON.stringify({ success: false, error: 'Invalid username or password' }),
 				{ status: 401, headers: corsHeaders }
@@ -107,6 +135,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 			);
 		}
 
+		await clearLoginLockout(context.request, context.env.BOOKINGS);
 		const token = await createToken(adminPassword, user.role, user.id);
 		return new Response(
 			JSON.stringify({

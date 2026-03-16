@@ -1,0 +1,120 @@
+/* =============================================
+   数据表格 - 现代设计
+   ============================================= */
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.data-table th {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--admin-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: var(--admin-bg);
+  border-bottom: 1px solid var(--admin-border);
+  position: sticky;
+  top: 0;
+}
+
+.data-table td {
+  font-size: 14px;
+  border-bottom: 1px solid var(--admin-border);
+  transition: background var(--transition-fast);
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tbody tr:hover td {
+  background: var(--admin-surface-hover);
+}
+
+.data-table tr.row-highlight td {
+  background: var(--admin-primary-soft);
+}
+
+.cell-main {
+  font-weight: 500;
+  color: var(--admin-text);
+}
+
+.cell-sub {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  margin-top: 2px;
+}
+
+.cell-muted {
+  color: var(--admin-text-muted);
+  font-size: 13px;
+}
+
+/* Sortable columns */
+.data-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.data-table th.sortable:hover {
+  color: var(--admin-text-secondary);
+}
+
+.sort-indicator {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 10px;
+}
+
+.sort-indicator-inactive {
+  opacity: 0.3;
+}
+
+/* Checkbox cell */
+.checkbox-cell {
+  width: 40px;
+  text-align: center !important;
+}
+
+.checkbox-cell input[type='checkbox'] {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: var(--admin-primary);
+}
+
+/* Skeleton loading */
+.skeleton-row td {
+  pointer-events: none;
+}
+
+.skeleton-pulse {
+  height: 14px;
+  width: 70%;
+  background: var(--admin-surface-hover);
+  border-radius: 4px;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}

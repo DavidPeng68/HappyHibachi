@@ -7,7 +7,9 @@
  */
 
 import { validateToken, getCorsHeaders } from './_auth';
+import { checkRateLimit } from './_rateLimit';
 import { logAction } from './_auditLog';
+import { paginateArray, parsePaginationParams } from './_kvHelpers';
 
 interface Review {
 	id: string;
@@ -29,6 +31,10 @@ interface Env {
 // GET - 获取评价（公开）
 export const onRequestGet: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
+
+	const rateLimited = await checkRateLimit(context.request, context.env.BOOKINGS, corsHeaders);
+	if (rateLimited) return rateLimited;
+
 	try {
 		const reviewsData = await context.env.BOOKINGS.get('reviews_list', 'json');
 		const reviews: Review[] = (reviewsData as Review[]) || [];
@@ -37,11 +43,50 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 		const authHeader = context.request.headers.get('Authorization');
 		const isAdmin = (await validateToken(authHeader, context.env)).valid;
 
-		// 非管理员只返回可见的评价
-		const visibleReviews = isAdmin ? reviews : reviews.filter(r => r.visible !== false);
+		// 非管理员只返回可见的评价（no pagination）
+		if (!isAdmin) {
+			const visibleReviews = reviews.filter(r => r.visible !== false);
+			return new Response(
+				JSON.stringify({ success: true, reviews: visibleReviews }),
+				{ headers: corsHeaders }
+			);
+		}
+
+		// Admin path: apply filters and pagination
+		const url = new URL(context.request.url);
+		const { page, pageSize, search } = parsePaginationParams(url);
+		const ratingParam = url.searchParams.get('rating');
+		const visibleParam = url.searchParams.get('visible');
+
+		let filtered = reviews;
+		if (search) {
+			filtered = filtered.filter(r =>
+				r.name?.toLowerCase().includes(search) ||
+				r.review?.toLowerCase().includes(search)
+			);
+		}
+		if (ratingParam) {
+			const ratingVal = parseInt(ratingParam, 10);
+			if (ratingVal >= 1 && ratingVal <= 5) {
+				filtered = filtered.filter(r => r.rating === ratingVal);
+			}
+		}
+		if (visibleParam !== null && visibleParam !== '') {
+			const visibleVal = visibleParam === 'true';
+			filtered = filtered.filter(r => r.visible === visibleVal);
+		}
+
+		const result = paginateArray(filtered, page, pageSize);
 
 		return new Response(
-			JSON.stringify({ success: true, reviews: visibleReviews }),
+			JSON.stringify({
+				success: true,
+				reviews: result.data,
+				data: result.data,
+				total: result.total,
+				page: result.page,
+				pageSize: result.pageSize,
+			}),
 			{ headers: corsHeaders }
 		);
 	} catch (error) {

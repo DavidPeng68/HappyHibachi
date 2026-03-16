@@ -1,0 +1,150 @@
+/* Manager Dashboard */
+.manager-dashboard {
+}
+.manager-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.manager-stat-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  padding: 18px;
+}
+.manager-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+}
+.manager-stat-label {
+  font-size: 13px;
+  color: var(--admin-text-muted);
+  margin-top: 4px;
+}
+
+.manager-tasks {
+  margin-bottom: 24px;
+}
+.manager-task-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.manager-task-item:hover {
+  background: var(--admin-surface-hover);
+  border-color: var(--admin-border-hover);
+}
+.manager-task-time {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--admin-primary);
+  min-width: 60px;
+}
+.manager-task-info {
+  flex: 1;
+}
+.manager-task-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+.manager-task-details {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  margin-top: 2px;
+}
+.manager-task-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* Timeline */
+.manager-timeline-date {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-text-muted);
+  padding: 12px 0 6px;
+  border-bottom: 1px solid var(--admin-border);
+  margin-bottom: 8px;
+}
+
+/* Booking Cards */
+.booking-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+.booking-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  padding: 16px;
+  transition: all 0.15s;
+}
+.booking-card:hover {
+  border-color: var(--admin-border-hover);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.booking-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.booking-card-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+.booking-card-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+  margin-bottom: 14px;
+}
+.booking-card-detail-label {
+  font-size: 11px;
+  color: var(--admin-text-muted);
+}
+.booking-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.booking-card-actions a,
+.booking-card-actions button {
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
+/* Card tabs */
+.card-view-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.card-view-tab {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  color: var(--admin-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.card-view-tab.active {
+  background: var(--admin-primary);
+  color: white;
+  border-color: var(--admin-primary);
+}

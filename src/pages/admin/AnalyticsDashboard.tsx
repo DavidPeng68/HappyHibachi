@@ -18,8 +18,9 @@ import {
   Legend,
 } from 'recharts';
 import { useAdmin } from './AdminLayout';
+import { useAdminNavigation } from '../../contexts/NavigationContext';
 // types used via useAdmin().bookings
-import '../AdminDashboard.css';
+import '../../styles/admin/index.css';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -27,6 +28,7 @@ import '../AdminDashboard.css';
 
 type AnalyticsTab = 'revenue' | 'bookings' | 'sources' | 'coupons';
 type Period = 'daily' | 'weekly' | 'monthly';
+type DateRange = '7d' | '30d' | '90d' | 'year' | 'custom';
 
 const COLORS = {
   primary: '#f05e2a',
@@ -108,20 +110,10 @@ interface CustomTooltipProps {
 const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, isCurrency }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div
-      style={{
-        background: 'var(--admin-card-bg, #1e1e2e)',
-        border: '1px solid var(--admin-border, #333)',
-        borderRadius: 8,
-        padding: '8px 12px',
-        fontSize: 13,
-      }}
-    >
-      <p style={{ margin: 0, color: 'var(--admin-text-secondary, #999)', marginBottom: 4 }}>
-        {label}
-      </p>
+    <div className="analytics-tooltip">
+      <p className="analytics-tooltip-label">{label}</p>
       {payload.map((entry, i) => (
-        <p key={i} style={{ margin: 0, color: entry.color, fontWeight: 600 }}>
+        <p key={i} className="analytics-tooltip-value" style={{ color: entry.color }}>
           {entry.name}: {isCurrency ? formatCurrency(entry.value) : entry.value}
         </p>
       ))}
@@ -136,9 +128,13 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
 const AnalyticsDashboard: React.FC = () => {
   const { t } = useTranslation();
   const { bookings, coupons } = useAdmin();
+  const { setActiveMenu } = useAdminNavigation();
 
   const [activeTab, setActiveTab] = useState<AnalyticsTab>('revenue');
   const [revenuePeriod, setRevenuePeriod] = useState<Period>('weekly');
+  const [dateRange, setDateRange] = useState<DateRange>('30d');
+  const [customFrom, setCustomFrom] = useState('');
+  const [customTo, setCustomTo] = useState('');
 
   const tabs: { key: AnalyticsTab; label: string }[] = [
     { key: 'revenue', label: t('admin.analytics.tabs.revenue') },
@@ -148,12 +144,51 @@ const AnalyticsDashboard: React.FC = () => {
   ];
 
   // -----------------------------------------------------------------------
+  // Date range filter
+  // -----------------------------------------------------------------------
+
+  const filteredBookings = useMemo(() => {
+    const now = new Date();
+    let from: Date;
+    let to = new Date();
+
+    switch (dateRange) {
+      case '7d':
+        from = new Date(now);
+        from.setDate(from.getDate() - 7);
+        break;
+      case '30d':
+        from = new Date(now);
+        from.setDate(from.getDate() - 30);
+        break;
+      case '90d':
+        from = new Date(now);
+        from.setDate(from.getDate() - 90);
+        break;
+      case 'year':
+        from = new Date(now.getFullYear(), 0, 1);
+        break;
+      case 'custom':
+        from = customFrom ? new Date(customFrom) : new Date(0);
+        to = customTo ? new Date(customTo + 'T23:59:59') : new Date();
+        break;
+      default:
+        from = new Date(0);
+    }
+
+    return bookings.filter((b) => {
+      const d = new Date(b.date || b.createdAt);
+      return d >= from && d <= to;
+    });
+  }, [bookings, dateRange, customFrom, customTo]);
+
+  // -----------------------------------------------------------------------
   // Revenue data
   // -----------------------------------------------------------------------
 
   const completedBookings = useMemo(
-    () => bookings.filter((b) => b.status === 'completed'),
-    [bookings]
+    () => filteredBookings.filter((b) => b.status === 'completed'),
+    [filteredBookings]
   );
 
   const totalRevenue = useMemo(
@@ -185,17 +220,17 @@ const AnalyticsDashboard: React.FC = () => {
 
   const regionData = useMemo(() => {
     const counts: Record<string, number> = {};
-    bookings.forEach((b) => {
+    filteredBookings.forEach((b) => {
       const region = b.region || 'Unknown';
       counts[region] = (counts[region] || 0) + 1;
     });
-    const total = bookings.length || 1;
+    const total = filteredBookings.length || 1;
     return Object.entries(counts).map(([name, value]) => ({
       name,
       value,
       percentage: Math.round((value / total) * 100),
     }));
-  }, [bookings]);
+  }, [filteredBookings]);
 
   // -----------------------------------------------------------------------
   // Bookings by package
@@ -203,14 +238,14 @@ const AnalyticsDashboard: React.FC = () => {
 
   const packageData = useMemo(() => {
     const counts: Record<string, number> = {};
-    bookings.forEach((b) => {
+    filteredBookings.forEach((b) => {
       const pkg = b.orderData?.packageName || t('admin.analytics.unknown');
       counts[pkg] = (counts[pkg] || 0) + 1;
     });
     return Object.entries(counts)
       .sort(([, a], [, b]) => b - a)
       .map(([name, count]) => ({ name, count }));
-  }, [bookings, t]);
+  }, [filteredBookings, t]);
 
   // -----------------------------------------------------------------------
   // Bookings by status over time (weekly)
@@ -218,7 +253,7 @@ const AnalyticsDashboard: React.FC = () => {
 
   const statusOverTimeData = useMemo(() => {
     const weekMap: Record<string, Record<string, number>> = {};
-    bookings.forEach((b) => {
+    filteredBookings.forEach((b) => {
       const week = getWeekKey(b.date || b.createdAt);
       if (!weekMap[week]) weekMap[week] = { pending: 0, confirmed: 0, completed: 0, cancelled: 0 };
       weekMap[week][b.status] = (weekMap[week][b.status] || 0) + 1;
@@ -229,7 +264,7 @@ const AnalyticsDashboard: React.FC = () => {
         name: formatPeriodLabel(key, 'weekly'),
         ...statuses,
       }));
-  }, [bookings]);
+  }, [filteredBookings]);
 
   // -----------------------------------------------------------------------
   // Volume trend
@@ -237,7 +272,7 @@ const AnalyticsDashboard: React.FC = () => {
 
   const volumeTrendData = useMemo(() => {
     const counts: Record<string, number> = {};
-    bookings.forEach((b) => {
+    filteredBookings.forEach((b) => {
       const key = getWeekKey(b.date || b.createdAt);
       counts[key] = (counts[key] || 0) + 1;
     });
@@ -247,7 +282,7 @@ const AnalyticsDashboard: React.FC = () => {
         name: formatPeriodLabel(key, 'weekly'),
         count,
       }));
-  }, [bookings]);
+  }, [filteredBookings]);
 
   // -----------------------------------------------------------------------
   // Referral sources
@@ -255,11 +290,11 @@ const AnalyticsDashboard: React.FC = () => {
 
   const sourceData = useMemo(() => {
     const counts: Record<string, number> = {};
-    bookings.forEach((b) => {
+    filteredBookings.forEach((b) => {
       const source = b.referralSource || t('admin.analytics.directOrUnknown');
       counts[source] = (counts[source] || 0) + 1;
     });
-    const total = bookings.length || 1;
+    const total = filteredBookings.length || 1;
     return Object.entries(counts)
       .sort(([, a], [, b]) => b - a)
       .map(([name, count]) => ({
@@ -267,7 +302,7 @@ const AnalyticsDashboard: React.FC = () => {
         count,
         percentage: Math.round((count / total) * 100),
       }));
-  }, [bookings, t]);
+  }, [filteredBookings, t]);
 
   // -----------------------------------------------------------------------
   // Coupon data
@@ -285,18 +320,18 @@ const AnalyticsDashboard: React.FC = () => {
 
   const totalCouponDiscount = useMemo(() => {
     let total = 0;
-    bookings.forEach((b) => {
+    filteredBookings.forEach((b) => {
       if (b.couponDiscount) {
         const val = parseFloat(b.couponDiscount);
         if (!isNaN(val)) total += val;
       }
     });
     return total;
-  }, [bookings]);
+  }, [filteredBookings]);
 
   const couponBookingsCount = useMemo(
-    () => bookings.filter((b) => b.couponCode).length,
-    [bookings]
+    () => filteredBookings.filter((b) => b.couponCode).length,
+    [filteredBookings]
   );
 
   // -----------------------------------------------------------------------
@@ -322,12 +357,19 @@ const AnalyticsDashboard: React.FC = () => {
           ))}
         </div>
       </div>
-      <div className="admin-card" style={{ padding: 16 }}>
+      <div className="admin-card admin-card--padded">
         {revenueChartData.length === 0 ? (
           <p className="analytics-empty">{t('admin.analytics.noData')}</p>
         ) : (
           <ResponsiveContainer width="100%" height={360}>
-            <AreaChart data={revenueChartData}>
+            <AreaChart
+              data={revenueChartData}
+              onClick={(data) => {
+                if (data?.activeLabel != null)
+                  setActiveMenu('bookings', { dateFrom: String(data.activeLabel) });
+              }}
+              style={{ cursor: 'pointer' }}
+            >
               <defs>
                 <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor={COLORS.primary} stopOpacity={0.4} />
@@ -363,7 +405,7 @@ const AnalyticsDashboard: React.FC = () => {
     <div className="analytics-section">
       {/* By Region - Pie */}
       <div className="analytics-grid">
-        <div className="admin-card" style={{ padding: 16 }}>
+        <div className="admin-card admin-card--padded">
           <h3 className="analytics-chart-title">{t('admin.analytics.byRegion')}</h3>
           {regionData.length === 0 ? (
             <p className="analytics-empty">{t('admin.analytics.noData')}</p>
@@ -380,6 +422,11 @@ const AnalyticsDashboard: React.FC = () => {
                   label={({ name, percent }: { name?: string; percent?: number }) =>
                     `${name ?? ''} ${Math.round((percent ?? 0) * 100)}%`
                   }
+                  onClick={(_: unknown, index: number) => {
+                    const name = regionData[index]?.name;
+                    if (name) setActiveMenu('bookings', { region: name });
+                  }}
+                  style={{ cursor: 'pointer' }}
                 >
                   {regionData.map((_, i) => (
                     <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
@@ -393,7 +440,7 @@ const AnalyticsDashboard: React.FC = () => {
         </div>
 
         {/* By Package - Bar */}
-        <div className="admin-card" style={{ padding: 16 }}>
+        <div className="admin-card admin-card--padded">
           <h3 className="analytics-chart-title">{t('admin.analytics.byPackage')}</h3>
           {packageData.length === 0 ? (
             <p className="analytics-empty">{t('admin.analytics.noData')}</p>
@@ -415,6 +462,10 @@ const AnalyticsDashboard: React.FC = () => {
                   name={t('admin.analytics.bookingCount')}
                   fill={COLORS.info}
                   radius={[4, 4, 0, 0]}
+                  onClick={(data: { name?: string }) => {
+                    if (data?.name) setActiveMenu('bookings', { search: data.name });
+                  }}
+                  style={{ cursor: 'pointer' }}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -423,13 +474,20 @@ const AnalyticsDashboard: React.FC = () => {
       </div>
 
       {/* By Status Over Time */}
-      <div className="admin-card" style={{ padding: 16, marginTop: 16 }}>
+      <div className="admin-card analytics-chart-wrapper--mt">
         <h3 className="analytics-chart-title">{t('admin.analytics.byStatus')}</h3>
         {statusOverTimeData.length === 0 ? (
           <p className="analytics-empty">{t('admin.analytics.noData')}</p>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={statusOverTimeData}>
+            <AreaChart
+              data={statusOverTimeData}
+              onClick={(data) => {
+                const status = data?.activeDataKey;
+                if (status) setActiveMenu('bookings', { status: String(status) });
+              }}
+              style={{ cursor: 'pointer' }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border, #333)" />
               <XAxis
                 dataKey="name"
@@ -459,13 +517,20 @@ const AnalyticsDashboard: React.FC = () => {
       </div>
 
       {/* Volume Trend */}
-      <div className="admin-card" style={{ padding: 16, marginTop: 16 }}>
+      <div className="admin-card analytics-chart-wrapper--mt">
         <h3 className="analytics-chart-title">{t('admin.analytics.volumeTrend')}</h3>
         {volumeTrendData.length === 0 ? (
           <p className="analytics-empty">{t('admin.analytics.noData')}</p>
         ) : (
           <ResponsiveContainer width="100%" height={280}>
-            <LineChart data={volumeTrendData}>
+            <LineChart
+              data={volumeTrendData}
+              onClick={(data) => {
+                if (data?.activeLabel != null)
+                  setActiveMenu('bookings', { dateFrom: String(data.activeLabel) });
+              }}
+              style={{ cursor: 'pointer' }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border, #333)" />
               <XAxis
                 dataKey="name"
@@ -493,7 +558,7 @@ const AnalyticsDashboard: React.FC = () => {
 
   const renderSourcesTab = () => (
     <div className="analytics-section">
-      <div className="admin-card" style={{ padding: 16 }}>
+      <div className="admin-card admin-card--padded">
         <h3 className="analytics-chart-title">{t('admin.analytics.referralSources')}</h3>
         {sourceData.length === 0 ? (
           <p className="analytics-empty">{t('admin.analytics.noData')}</p>
@@ -541,13 +606,17 @@ const AnalyticsDashboard: React.FC = () => {
   const renderCouponsTab = () => (
     <div className="analytics-section">
       <div className="analytics-grid">
-        <div className="admin-card" style={{ padding: 16 }}>
+        <div className="admin-card admin-card--padded">
           <h3 className="analytics-chart-title">{t('admin.analytics.usageByCoupon')}</h3>
           {couponUsageData.length === 0 ? (
             <p className="analytics-empty">{t('admin.analytics.noCouponData')}</p>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={couponUsageData}>
+              <BarChart
+                data={couponUsageData}
+                onClick={() => setActiveMenu('coupons')}
+                style={{ cursor: 'pointer' }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border, #333)" />
                 <XAxis
                   dataKey="name"
@@ -569,14 +638,14 @@ const AnalyticsDashboard: React.FC = () => {
           )}
         </div>
 
-        <div className="admin-card" style={{ padding: 16 }}>
+        <div className="admin-card admin-card--padded">
           <h3 className="analytics-chart-title">{t('admin.analytics.revenueImpact')}</h3>
           <div className="analytics-coupon-stats">
             <div className="analytics-stat-block">
               <span className="analytics-stat-label">
                 {t('admin.analytics.totalDiscountGiven')}
               </span>
-              <span className="analytics-stat-value" style={{ color: COLORS.danger }}>
+              <span className="analytics-stat-value analytics-stat-value--danger">
                 {formatCurrency(totalCouponDiscount)}
               </span>
             </div>
@@ -584,13 +653,13 @@ const AnalyticsDashboard: React.FC = () => {
               <span className="analytics-stat-label">
                 {t('admin.analytics.bookingsWithCoupons')}
               </span>
-              <span className="analytics-stat-value" style={{ color: COLORS.info }}>
+              <span className="analytics-stat-value analytics-stat-value--info">
                 {couponBookingsCount}
               </span>
             </div>
             <div className="analytics-stat-block">
               <span className="analytics-stat-label">{t('admin.analytics.activeCoupons')}</span>
-              <span className="analytics-stat-value" style={{ color: COLORS.success }}>
+              <span className="analytics-stat-value analytics-stat-value--success">
                 {coupons.filter((c) => c.enabled).length}
               </span>
             </div>
@@ -617,6 +686,30 @@ const AnalyticsDashboard: React.FC = () => {
             {tab.label}
           </button>
         ))}
+      </div>
+
+      {/* Date range picker */}
+      <div className="analytics-date-range">
+        <div className="analytics-range-btns">
+          {(['7d', '30d', '90d', 'year', 'custom'] as DateRange[]).map((r) => (
+            <button
+              key={r}
+              className={`btn-sm${dateRange === r ? ' active' : ''}`}
+              onClick={() => setDateRange(r)}
+            >
+              {t(
+                `admin.analytics.${r === '7d' ? 'last7Days' : r === '30d' ? 'last30Days' : r === '90d' ? 'last90Days' : r === 'year' ? 'thisYear' : 'custom'}`
+              )}
+            </button>
+          ))}
+        </div>
+        {dateRange === 'custom' && (
+          <div className="analytics-custom-dates">
+            <input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} />
+            <span>—</span>
+            <input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} />
+          </div>
+        )}
       </div>
 
       {/* Tab content */}

@@ -5,7 +5,7 @@
  * Creates a user with status='pending'. Must be approved by a super_admin.
  */
 
-import { getCorsHeaders, hashPassword } from '../_auth';
+import { getCorsHeaders, hashPasswordPBKDF2 } from '../_auth';
 
 interface AdminUser {
 	id: string;
@@ -73,9 +73,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 			);
 		}
 
-		if (body.password.length < 6) {
+		if (body.password.length < 8 || !/[A-Z]/.test(body.password) || !/[a-z]/.test(body.password) || !/[0-9]/.test(body.password)) {
 			return new Response(
-				JSON.stringify({ success: false, error: 'Password must be at least 6 characters' }),
+				JSON.stringify({ success: false, error: 'Password must be at least 8 characters with uppercase, lowercase, and number' }),
 				{ status: 400, headers: corsHeaders }
 			);
 		}
@@ -84,16 +84,17 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 		const users: AdminUser[] = usersJson ? JSON.parse(usersJson) : [];
 
 		if (users.some(u => u.username === username)) {
+			// Return same success response to prevent username enumeration
 			return new Response(
-				JSON.stringify({ success: false, error: 'Username already taken' }),
-				{ status: 409, headers: corsHeaders }
+				JSON.stringify({ success: true, message: 'Registration submitted. Please wait for admin approval.' }),
+				{ headers: corsHeaders }
 			);
 		}
 
 		const newUser: AdminUser = {
 			id: crypto.randomUUID(),
 			username,
-			passwordHash: await hashPassword(body.password, username),
+			passwordHash: await hashPasswordPBKDF2(body.password, username),
 			role: 'order_manager',
 			displayName: body.displayName.trim(),
 			enabled: true,

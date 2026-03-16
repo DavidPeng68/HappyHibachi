@@ -1,0 +1,123 @@
+/* ===== 图库管理 ===== */
+.gallery-page .card {
+  max-width: 1000px;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 20px;
+}
+
+.gallery-item {
+  position: relative;
+  border-radius: var(--admin-radius);
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.05);
+}
+
+.gallery-item-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 12px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.gallery-item:hover .gallery-item-overlay {
+  opacity: 1;
+}
+
+.caption-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--color-bg-card-hover);
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.caption-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.gallery-item-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+/* Gallery-specific btn-icon-sm overrides */
+.btn-icon-sm {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: all 0.15s ease;
+}
+
+.btn-icon-sm:hover {
+  background: white;
+  transform: scale(1.1);
+}
+
+.btn-icon-sm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-icon-sm.danger:hover {
+  background: var(--admin-danger);
+  color: white;
+}
+
+.btn-sm-success {
+  padding: 8px 16px;
+  background: var(--admin-success);
+  color: white;
+  border: none;
+  border-radius: var(--admin-radius);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-sm-success:hover {
+  background: var(--color-success);
+  transform: translateY(-1px);
+}
+
+.btn-icon-sm.danger {
+  color: var(--admin-danger);
+}
+
+.btn-icon-sm.danger:hover {
+  background: var(--admin-danger-soft);
+}

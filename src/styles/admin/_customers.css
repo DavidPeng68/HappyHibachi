@@ -1,0 +1,323 @@
+/* =============================================
+   Customer CRM
+   ============================================= */
+
+/* --- Page header --- */
+
+.customers-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.customers-page-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.customers-total-badge {
+  background: var(--admin-surface);
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+}
+
+/* --- Table cell helpers --- */
+
+.customer-name-cell {
+  font-weight: 600;
+}
+
+.customer-email-cell {
+  font-size: 0.8rem;
+  color: var(--admin-text-muted);
+}
+
+.customer-repeat-badge {
+  margin-left: 8px;
+  background: var(--admin-warning-soft);
+  color: var(--admin-warning);
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.customer-cell-sm {
+  font-size: 0.9rem;
+}
+
+.customer-cell-date {
+  font-size: 0.85rem;
+}
+
+.customer-tags-empty {
+  color: var(--admin-text-muted);
+  font-size: 0.8rem;
+}
+
+/* --- Detail panel --- */
+
+.customer-detail-panel {
+  background: var(--admin-surface);
+  border-radius: var(--admin-radius);
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.customer-detail-header {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.customer-detail-info {
+  font-size: 0.85rem;
+  color: var(--admin-text-secondary);
+  margin-bottom: 4px;
+}
+
+.customer-detail-info:last-of-type {
+  margin-bottom: 8px;
+}
+
+/* --- Contact action buttons --- */
+
+.customer-contact-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.customer-contact-btn {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+
+.customer-contact-btn--call {
+  background: var(--admin-info-soft);
+  color: var(--admin-info);
+}
+
+.customer-contact-btn--sms {
+  background: var(--admin-success-soft);
+  color: var(--admin-success);
+}
+
+.customer-contact-btn--email {
+  background: var(--admin-warning-soft);
+  color: var(--admin-warning);
+}
+
+/* --- Stats grid --- */
+
+.customer-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.customer-stats-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.customer-stat-card {
+  background: var(--admin-surface);
+  border-radius: var(--admin-radius);
+  padding: 10px;
+  text-align: center;
+}
+
+.customer-stat-card--success {
+  background: var(--admin-success-soft);
+}
+
+.customer-stat-card--danger {
+  background: var(--admin-danger-soft);
+}
+
+.customer-stat-card--info {
+  background: var(--admin-info-soft);
+}
+
+.customer-stat-card--left {
+  text-align: left;
+}
+
+.customer-stat-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.customer-stat-value--sm {
+  font-size: 1rem;
+}
+
+.customer-stat-value--date {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.customer-stat-label {
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+}
+
+.customer-stat-label--success {
+  color: var(--admin-success);
+}
+
+.customer-stat-label--danger {
+  color: var(--admin-danger);
+}
+
+/* --- Tag section --- */
+
+.customer-section {
+  margin-bottom: 16px;
+}
+
+.customer-section-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.customer-tag-btn {
+  padding: 4px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--admin-border);
+  background: transparent;
+  color: var(--admin-text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.customer-tag-btn--active {
+  border-color: var(--admin-info);
+  background: var(--admin-info-soft);
+  color: var(--admin-info);
+}
+
+.customer-tag-input-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.customer-tag-input {
+  flex: 1;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--admin-border);
+  background: transparent;
+  color: var(--admin-text);
+  font-size: 0.8rem;
+}
+
+.customer-tag-input::placeholder {
+  color: var(--admin-text-muted);
+}
+
+.customer-tag-add-btn {
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: none;
+  background: var(--admin-info);
+  color: #fff;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.customer-tag-add-btn:hover {
+  opacity: 0.85;
+}
+
+/* --- Notes --- */
+
+.customer-notes-status {
+  font-weight: 400;
+  color: var(--admin-text-muted);
+  margin-left: 8px;
+  font-size: 0.8rem;
+}
+
+.customer-notes-area {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: var(--admin-radius);
+  border: 1px solid var(--admin-border);
+  background: transparent;
+  color: var(--admin-text);
+  font-size: 0.85rem;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.customer-notes-area::placeholder {
+  color: var(--admin-text-muted);
+}
+
+/* --- Booking history --- */
+
+.customer-booking-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.customer-booking-item {
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  border-radius: var(--admin-radius);
+  background: var(--admin-surface);
+  border-left: 3px solid var(--admin-text-muted);
+}
+
+.customer-booking-item--completed {
+  border-left-color: var(--admin-success);
+}
+
+.customer-booking-item--confirmed {
+  border-left-color: var(--admin-info);
+}
+
+.customer-booking-item--pending {
+  border-left-color: var(--admin-warning);
+}
+
+.customer-booking-item--cancelled {
+  border-left-color: var(--admin-danger);
+}
+
+.customer-booking-info-title {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.customer-booking-info-sub {
+  font-size: 0.8rem;
+  color: var(--admin-text-muted);
+  margin-top: 2px;
+}
+
+.customer-booking-right {
+  text-align: right;
+}
+
+.customer-booking-amount {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 2px;
+}

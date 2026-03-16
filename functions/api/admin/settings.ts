@@ -4,6 +4,8 @@
  */
 
 import { validateToken, requireSuperAdmin, getCorsHeaders } from '../_auth';
+import { validateStringLength } from '../_validation';
+import { trackActivity } from '../_activity';
 
 interface Env {
 	BOOKINGS: KVNamespace;
@@ -133,6 +135,44 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
 				{ status: 400, headers: corsHeaders }
 			);
 		}
+		if (Array.isArray(updates.timeSlots)) {
+			if (updates.timeSlots.length > 20) {
+				return new Response(
+					JSON.stringify({ success: false, error: 'timeSlots must not exceed 20 items' }),
+					{ status: 400, headers: corsHeaders }
+				);
+			}
+			for (const slot of updates.timeSlots as Array<Record<string, unknown>>) {
+				if (slot.label && typeof slot.label === 'string' && slot.label.length > 50) {
+					return new Response(
+						JSON.stringify({ success: false, error: 'Time slot label must not exceed 50 characters' }),
+						{ status: 400, headers: corsHeaders }
+					);
+				}
+			}
+		}
+		if (updates.promoBanner && typeof updates.promoBanner === 'object') {
+			const banner = updates.promoBanner as Record<string, unknown>;
+			if (banner.text) {
+				const err = validateStringLength(banner.text, 'promoBanner.text', 200);
+				if (err) {
+					return new Response(
+						JSON.stringify({ success: false, error: err }),
+						{ status: 400, headers: corsHeaders }
+					);
+				}
+			}
+		}
+		if (updates.socialLinks && typeof updates.socialLinks === 'object') {
+			for (const [key, val] of Object.entries(updates.socialLinks as Record<string, unknown>)) {
+				if (typeof val === 'string' && val.length > 200) {
+					return new Response(
+						JSON.stringify({ success: false, error: `socialLinks.${key} must not exceed 200 characters` }),
+						{ status: 400, headers: corsHeaders }
+					);
+				}
+			}
+		}
 
 		const existingData = await context.env.BOOKINGS.get('app_settings', 'json');
 		const currentSettings: Settings = (existingData as Settings) || DEFAULT_SETTINGS;
@@ -143,6 +183,11 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
 		};
 
 		await context.env.BOOKINGS.put('app_settings', JSON.stringify(newSettings));
+
+		// Track specific action after successful settings update
+		if (auth.userId) {
+			context.waitUntil(trackActivity(context.env.BOOKINGS, auth.userId, 'settings_update'));
+		}
 
 		return new Response(
 			JSON.stringify({ success: true, settings: newSettings }),

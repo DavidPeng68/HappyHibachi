@@ -1,0 +1,248 @@
+/* =============================================
+   Analytics Dashboard
+   ============================================= */
+
+.analytics-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.analytics-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  padding: 4px;
+  overflow-x: auto;
+}
+
+.analytics-tab {
+  flex: 1;
+  min-width: 80px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--admin-radius-md, 8px);
+  background: transparent;
+  color: var(--admin-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.analytics-tab:hover {
+  color: var(--admin-text);
+  background: var(--admin-surface-hover);
+}
+
+.analytics-tab.active {
+  color: var(--admin-text);
+  background: var(--admin-surface-hover);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.analytics-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.analytics-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.analytics-period-btns {
+  display: flex;
+  gap: 4px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-md, 8px);
+  padding: 3px;
+}
+
+.analytics-period-btns .btn-sm {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--admin-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.analytics-period-btns .btn-sm:hover {
+  color: var(--admin-text);
+}
+
+.analytics-period-btns .btn-sm.active {
+  background: var(--admin-primary);
+  color: #fff;
+}
+
+.admin-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  overflow: hidden;
+}
+
+.analytics-chart-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--admin-text);
+  margin: 0 0 16px 0;
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.analytics-stat-large {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.analytics-stat-label {
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+  font-weight: 500;
+}
+
+.analytics-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--admin-text);
+  letter-spacing: -0.5px;
+}
+
+.analytics-empty {
+  text-align: center;
+  color: var(--admin-text-muted);
+  padding: 40px 20px;
+  font-size: 14px;
+}
+
+.analytics-source-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--admin-border);
+}
+
+.analytics-source-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+}
+
+.analytics-source-name {
+  font-size: 13px;
+  color: var(--admin-text);
+  font-weight: 500;
+}
+
+.analytics-source-stats {
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.analytics-coupon-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px 0;
+}
+
+.analytics-stat-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: center;
+}
+
+.analytics-stat-block .analytics-stat-value {
+  font-size: 32px;
+}
+
+/* Date Range Picker */
+.analytics-date-range {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.analytics-range-btns {
+  display: flex;
+  gap: 6px;
+}
+.analytics-custom-dates {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.analytics-custom-dates input[type='date'] {
+  padding: 6px 10px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  color: var(--admin-text);
+  font-size: 13px;
+}
+
+/* Tooltip */
+.analytics-tooltip {
+  background: var(--admin-card-bg, #1e1e2e);
+  border: 1px solid var(--admin-border, #333);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.analytics-tooltip-label {
+  margin: 0;
+  color: var(--admin-text-secondary, #999);
+  margin-bottom: 4px;
+}
+
+.analytics-tooltip-value {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Chart wrapper: padded card with top spacing */
+.analytics-chart-wrapper {
+  padding: 16px;
+}
+
+.analytics-chart-wrapper--mt {
+  padding: 16px;
+  margin-top: 16px;
+}
+
+/* Stat value color variants */
+.analytics-stat-value--danger {
+  color: #ef4444;
+}
+.analytics-stat-value--info {
+  color: #3b82f6;
+}
+.analytics-stat-value--success {
+  color: #22c55e;
+}

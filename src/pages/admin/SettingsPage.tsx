@@ -524,13 +524,11 @@ const SettingsPage: React.FC = () => {
             <span className="info-label">{t('admin.settings.tomorrowEvents')}</span>
             <span className="info-value">
               {reminderStatus.pending > 0 ? (
-                <span style={{ color: 'var(--admin-warning)' }}>
+                <span className="text-warning">
                   {reminderStatus.pending} {t('admin.settings.pendingLabel')}
                 </span>
               ) : (
-                <span style={{ color: 'var(--admin-text-muted)' }}>
-                  {t('admin.settings.noneLabel')}
-                </span>
+                <span className="text-muted">{t('admin.settings.noneLabel')}</span>
               )}
             </span>
           </div>
@@ -539,29 +537,18 @@ const SettingsPage: React.FC = () => {
             <span className="info-value">{reminderStatus.reminded}</span>
           </div>
         </div>
-        <div style={{ padding: '16px 20px', borderTop: '1px solid var(--admin-border)' }}>
+        <div className="settings-section">
           <button
-            className="btn-primary"
+            className="btn-primary w-full"
             onClick={handleSendReminders}
             disabled={reminderStatus.loading || reminderStatus.pending === 0}
-            style={{ width: '100%' }}
             type="button"
           >
             {reminderStatus.loading
               ? t('admin.settings.sending')
               : t('admin.settings.sendRemindersButton', { count: reminderStatus.pending })}
           </button>
-          <p
-            style={{
-              fontSize: '12px',
-              color: 'var(--admin-text-muted)',
-              marginTop: '12px',
-              marginBottom: 0,
-              textAlign: 'center',
-            }}
-          >
-            {t('admin.settings.reminderNote')}
-          </p>
+          <p className="settings-hint">{t('admin.settings.reminderNote')}</p>
         </div>
       </div>
 
@@ -586,7 +573,7 @@ const SettingsPage: React.FC = () => {
           <label>{t('admin.settings.promoEmoji')}</label>
           <input
             type="text"
-            className="input"
+            className="input settings-emoji-input"
             value={settings.promoBanner?.emoji ?? '🔥'}
             onChange={(e) =>
               setSettings((s) => ({
@@ -596,7 +583,6 @@ const SettingsPage: React.FC = () => {
             }
             onBlur={() => saveSettings({ promoBanner: settings.promoBanner })}
             placeholder="🔥"
-            style={{ width: '60px', textAlign: 'center' }}
           />
         </div>
         <div className="form-group">
@@ -757,47 +743,17 @@ const SettingsPage: React.FC = () => {
         <div className="card-header">
           <h2>{t('admin.settings.dataExport')}</h2>
         </div>
-        <div
-          style={{
-            padding: '16px 20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px',
-          }}
-        >
-          <button
-            className="btn-primary"
-            onClick={exportBookingsCSV}
-            style={{ width: '100%' }}
-            type="button"
-          >
+        <div className="settings-section--col">
+          <button className="btn-primary w-full" onClick={exportBookingsCSV} type="button">
             {t('admin.settings.exportCsv')}
           </button>
-          <button
-            className="btn-secondary"
-            onClick={copyBookingsToClipboard}
-            style={{ width: '100%' }}
-            type="button"
-          >
+          <button className="btn-secondary w-full" onClick={copyBookingsToClipboard} type="button">
             {t('admin.settings.copyAllData')}
           </button>
-          <button
-            className="btn-secondary"
-            onClick={exportBookingsAsImage}
-            style={{ width: '100%' }}
-            type="button"
-          >
+          <button className="btn-secondary w-full" onClick={exportBookingsAsImage} type="button">
             {t('admin.settings.saveAsImage')}
           </button>
-          <p
-            style={{
-              fontSize: '12px',
-              color: 'var(--admin-text-muted)',
-              marginTop: '4px',
-              marginBottom: 0,
-              textAlign: 'center',
-            }}
-          >
+          <p className="settings-hint--sm">
             {t('admin.settings.totalBookingsLabel', { count: bookings.length })}
           </p>
         </div>

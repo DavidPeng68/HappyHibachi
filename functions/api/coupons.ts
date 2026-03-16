@@ -1,9 +1,9 @@
 /**
- * Coupons API - 优惠码管理
- * GET /api/coupons - 获取所有优惠码（Admin）
- * POST /api/coupons - 创建优惠码（Admin）
- * PATCH /api/coupons - 更新优惠码（Admin）
- * DELETE /api/coupons - 删除优惠码（Admin）
+ * Coupons API - Coupon Management
+ * GET /api/coupons - Get coupons (public: validate code, admin: list all)
+ * POST /api/coupons - Create coupon (admin only)
+ * PATCH /api/coupons - Update coupon (admin only)
+ * DELETE /api/coupons - Delete coupon (admin only)
  */
 
 interface Coupon {
@@ -30,8 +30,10 @@ interface Env {
 import { validateToken, requireSuperAdmin, getCorsHeaders } from './_auth';
 import { checkRateLimit } from './_rateLimit';
 import { logAction } from './_auditLog';
+import { validateStringLength, validateDateRange } from './_validation';
+import { paginateArray, parsePaginationParams } from './_kvHelpers';
 
-// GET - 获取优惠码
+// GET - Get coupons
 export const onRequestGet: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 	const url = new URL(context.request.url);
@@ -53,7 +55,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
 			if (!coupon) {
 				return new Response(
-					JSON.stringify({ success: false, error: '优惠码无效' }),
+					JSON.stringify({ success: false, error: 'Invalid coupon code' }),
 					{ status: 404, headers: corsHeaders }
 				);
 			}
@@ -64,14 +66,14 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
 			if (now < validFrom || now > validUntil) {
 				return new Response(
-					JSON.stringify({ success: false, error: '优惠码已过期' }),
+					JSON.stringify({ success: false, error: 'Coupon code has expired' }),
 					{ status: 400, headers: corsHeaders }
 				);
 			}
 
 			if (coupon.maxUses > 0 && coupon.usedCount >= coupon.maxUses) {
 				return new Response(
-					JSON.stringify({ success: false, error: '优惠码已达使用上限' }),
+					JSON.stringify({ success: false, error: 'Coupon usage limit reached' }),
 					{ status: 400, headers: corsHeaders }
 				);
 			}
@@ -98,8 +100,30 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 			);
 		}
 
+		// Admin path: apply pagination and filters
+		const { page, pageSize, search } = parsePaginationParams(url);
+		const enabledParam = url.searchParams.get('enabled');
+
+		let filtered = coupons;
+		if (search) {
+			filtered = filtered.filter(c => c.code?.toLowerCase().includes(search));
+		}
+		if (enabledParam !== null && enabledParam !== '') {
+			const enabledVal = enabledParam === 'true';
+			filtered = filtered.filter(c => c.enabled === enabledVal);
+		}
+
+		const result = paginateArray(filtered, page, pageSize);
+
 		return new Response(
-			JSON.stringify({ success: true, coupons }),
+			JSON.stringify({
+				success: true,
+				coupons: result.data,
+				data: result.data,
+				total: result.total,
+				page: result.page,
+				pageSize: result.pageSize,
+			}),
 			{ headers: corsHeaders }
 		);
 	} catch (error) {
@@ -111,7 +135,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 	}
 };
 
-// POST - 创建优惠码
+// POST - Create coupon
 export const onRequestPost: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 	const authHeader = context.request.headers.get('Authorization');
@@ -129,12 +153,46 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 			);
 		}
 
+		// Validate code length
+		const codeErr = validateStringLength(body.code, 'code', 30, 1);
+		if (codeErr) {
+			return new Response(
+				JSON.stringify({ success: false, error: codeErr }),
+				{ status: 400, headers: corsHeaders }
+			);
+		}
+
+		// Validate value range
+		if (body.type === 'percentage' && (body.value < 0 || body.value > 100)) {
+			return new Response(
+				JSON.stringify({ success: false, error: 'Percentage value must be between 0 and 100' }),
+				{ status: 400, headers: corsHeaders }
+			);
+		}
+		if (body.type === 'fixed' && (body.value < 0 || body.value > 10000)) {
+			return new Response(
+				JSON.stringify({ success: false, error: 'Fixed value must be between 0 and 10000' }),
+				{ status: 400, headers: corsHeaders }
+			);
+		}
+
+		// Validate date range
+		if (body.validFrom && body.validUntil) {
+			const dateErr = validateDateRange(body.validFrom, body.validUntil);
+			if (dateErr) {
+				return new Response(
+					JSON.stringify({ success: false, error: dateErr }),
+					{ status: 400, headers: corsHeaders }
+				);
+			}
+		}
+
 		const couponsData = await context.env.BOOKINGS.get('coupons_list', 'json');
 		const coupons: Coupon[] = (couponsData as Coupon[]) || [];
 
 		if (coupons.some((c) => c.code.toLowerCase() === body.code!.toLowerCase())) {
 			return new Response(
-				JSON.stringify({ success: false, error: '优惠码已存在' }),
+				JSON.stringify({ success: false, error: 'Coupon code already exists' }),
 				{ status: 400, headers: corsHeaders }
 			);
 		}
@@ -179,7 +237,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 	}
 };
 
-// PATCH - 更新优惠码 (admin only)
+// PATCH - Update coupon (admin only)
 export const onRequestPatch: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 
@@ -245,7 +303,7 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 	}
 };
 
-// DELETE - 删除优惠码
+// DELETE - Delete coupon
 export const onRequestDelete: PagesFunction<Env> = async (context) => {
 	const corsHeaders = getCorsHeaders(context.request, context.env);
 	const authHeader = context.request.headers.get('Authorization');

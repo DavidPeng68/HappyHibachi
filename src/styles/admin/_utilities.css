@@ -1,0 +1,183 @@
+/* =============================================
+   Utility Classes
+   ============================================= */
+
+/* Text */
+.text-muted {
+  color: var(--admin-text-muted);
+}
+.text-secondary {
+  color: var(--admin-text-secondary);
+}
+.text-primary {
+  color: var(--admin-primary);
+}
+.text-success {
+  color: var(--admin-success);
+}
+.text-danger {
+  color: var(--admin-danger);
+}
+.text-warning {
+  color: var(--admin-warning);
+}
+.text-sm {
+  font-size: 13px;
+}
+.text-xs {
+  font-size: 12px;
+}
+.text-bold {
+  font-weight: 600;
+}
+.text-semibold {
+  font-weight: 500;
+}
+.text-center {
+  text-align: center;
+}
+
+/* Layout */
+.flex-row {
+  display: flex;
+  align-items: center;
+}
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.flex-wrap {
+  flex-wrap: wrap;
+}
+.flex-1 {
+  flex: 1;
+}
+
+/* Gap */
+.gap-2 {
+  gap: 4px;
+}
+.gap-3 {
+  gap: 6px;
+}
+.gap-4 {
+  gap: 8px;
+}
+.gap-6 {
+  gap: 12px;
+}
+.gap-8 {
+  gap: 16px;
+}
+.gap-12 {
+  gap: 24px;
+}
+
+/* Spacing */
+.mb-2 {
+  margin-bottom: 4px;
+}
+.mb-4 {
+  margin-bottom: 8px;
+}
+.mb-8 {
+  margin-bottom: 16px;
+}
+.mb-12 {
+  margin-bottom: 24px;
+}
+.mt-4 {
+  margin-top: 8px;
+}
+.mt-8 {
+  margin-top: 16px;
+}
+
+/* Sizing */
+.w-full {
+  width: 100%;
+}
+
+/* Page header pattern */
+.admin-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.admin-page-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.count-badge {
+  background: var(--admin-surface-hover);
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+}
+
+/* Card variants */
+.admin-card--padded {
+  padding: 16px;
+}
+
+/* Divider */
+.card-divider {
+  border-top: 1px solid var(--admin-border);
+  margin: 16px 0;
+  padding-top: 16px;
+}
+
+/* Badge variants for roles/status */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.role-badge--admin {
+  color: var(--admin-info);
+  background: var(--admin-info-soft);
+}
+
+.role-badge--manager {
+  color: var(--admin-warning);
+  background: var(--admin-warning-soft);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-pill--approved {
+  color: var(--admin-success);
+  background: var(--admin-success-soft);
+}
+
+.status-pill--rejected {
+  color: var(--admin-danger);
+  background: var(--admin-danger-soft);
+}
+
+.status-pill--pending {
+  color: var(--admin-warning);
+  background: var(--admin-warning-soft);
+}

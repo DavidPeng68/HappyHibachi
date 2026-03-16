@@ -160,4 +160,5 @@ export interface AppSettings {
   featureToggles: FeatureToggles;
   brandInfo: BrandInfo;
   seoDefaults: SEODefaults;
+  businessHours?: { open: string; close: string };
 }

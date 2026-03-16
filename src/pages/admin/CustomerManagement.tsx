@@ -1,70 +1,21 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAdmin } from './AdminLayout';
-import type { Customer, Booking } from '../../types/admin';
+import { useToast } from '../../contexts/ToastContext';
+import { useCustomersPaginated } from '../../hooks/useCustomers';
+import DataTable from '../../components/admin/DataTable';
+import type { Column } from '../../components/admin/DataTable';
+import FilterBar from '../../components/admin/FilterBar';
+import type { FilterConfig } from '../../components/admin/FilterBar';
+import SlideOverPanel from '../../components/admin/SlideOverPanel';
+import Tag from '../../components/admin/Tag';
+import Pagination from '../../components/admin/Pagination';
+import type { Customer } from '../../types/admin';
 import * as adminApi from '../../services/adminApi';
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-type CustomerSortField = 'totalBookings' | 'totalRevenue' | 'lastBookingDate';
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-function aggregateCustomers(bookings: Booking[]): Customer[] {
-  const map = new Map<string, { bookings: Booking[]; regions: Map<string, number> }>();
-
-  for (const b of bookings) {
-    const key = b.email.toLowerCase().trim();
-    if (!map.has(key)) {
-      map.set(key, { bookings: [], regions: new Map() });
-    }
-    const entry = map.get(key)!;
-    entry.bookings.push(b);
-    entry.regions.set(b.region, (entry.regions.get(b.region) || 0) + 1);
-  }
-
-  const customers: Customer[] = [];
-
-  for (const [, { bookings: cBookings, regions }] of map) {
-    cBookings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    const latest = cBookings[0];
-    const oldest = cBookings[cBookings.length - 1];
-
-    let topRegion = '';
-    let topCount = 0;
-    for (const [region, count] of regions) {
-      if (count > topCount) {
-        topRegion = region;
-        topCount = count;
-      }
-    }
-
-    const completed = cBookings.filter((b) => b.status === 'completed');
-    const cancelled = cBookings.filter((b) => b.status === 'cancelled');
-    const totalRevenue = completed.reduce((sum, b) => sum + (b.orderData?.estimatedTotal || 0), 0);
-
-    customers.push({
-      email: latest.email,
-      name: latest.name,
-      phone: latest.phone,
-      region: topRegion,
-      totalBookings: cBookings.length,
-      completedBookings: completed.length,
-      cancelledBookings: cancelled.length,
-      totalRevenue,
-      firstBookingDate: oldest.createdAt,
-      lastBookingDate: latest.createdAt,
-      notes: '',
-      tags: [],
-    });
-  }
-
-  return customers;
-}
 
 function formatDate(iso: string): string {
   try {
@@ -89,115 +40,203 @@ function formatCurrency(amount: number): string {
 const DEFAULT_TAGS = ['VIP', 'Corporate', 'First-Time'];
 
 // ---------------------------------------------------------------------------
+// Booking status → CSS modifier
+// ---------------------------------------------------------------------------
+
+const statusModifier = (status: string) => {
+  switch (status) {
+    case 'completed':
+    case 'confirmed':
+    case 'pending':
+    case 'cancelled':
+      return status;
+    default:
+      return '';
+  }
+};
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 const CustomerManagement: React.FC = () => {
   const { t } = useTranslation();
-  const { token, bookings, showToast } = useAdmin();
+  const { token, bookings } = useAdmin();
+  const { showToast } = useToast();
 
-  // State
-  const [search, setSearch] = useState('');
-  const [sortField, setSortField] = useState<CustomerSortField>('lastBookingDate');
-  const [sortAsc, setSortAsc] = useState(false);
-  const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
-  const [customerNotes, setCustomerNotes] = useState<Record<string, string>>({});
-  const [customerTags, setCustomerTags] = useState<Record<string, string[]>>({});
+  const {
+    data: customers,
+    total,
+    page,
+    pageSize,
+    loading,
+    setPage,
+    setParams,
+    refetch,
+  } = useCustomersPaginated();
+
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+
+  // Notes with debounced save
+  const [editNotes, setEditNotes] = useState('');
   const [savingNotes, setSavingNotes] = useState(false);
-  const [newTag, setNewTag] = useState('');
   const notesTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Fetch customer notes & tags from API on mount
+  // Cleanup timeout on unmount — fixes memory leak
   useEffect(() => {
-    let cancelled = false;
-    adminApi.fetchCustomers(token).then((res) => {
-      if (cancelled || !res.success) return;
-      const notes: Record<string, string> = {};
-      const tags: Record<string, string[]> = {};
-      for (const c of res.customers) {
-        const key = c.email.toLowerCase().trim();
-        if (c.notes) notes[key] = c.notes;
-        if (c.tags?.length) tags[key] = c.tags;
-      }
-      setCustomerNotes(notes);
-      setCustomerTags(tags);
-    });
     return () => {
-      cancelled = true;
+      if (notesTimeoutRef.current) clearTimeout(notesTimeoutRef.current);
     };
-  }, [token]);
+  }, []);
 
-  // Aggregate customers from bookings
-  const customers = useMemo(() => {
-    const base = aggregateCustomers(bookings);
-    // Merge notes & tags
-    return base.map((c) => {
-      const key = c.email.toLowerCase().trim();
-      return {
-        ...c,
-        notes: customerNotes[key] || '',
-        tags: customerTags[key] || [],
-      };
-    });
-  }, [bookings, customerNotes, customerTags]);
+  // Tag management
+  const [newTag, setNewTag] = useState('');
 
-  // Filter
-  const filtered = useMemo(() => {
-    if (!search.trim()) return customers;
-    const q = search.toLowerCase();
-    return customers.filter(
-      (c) =>
-        c.name.toLowerCase().includes(q) ||
-        c.email.toLowerCase().includes(q) ||
-        c.phone.toLowerCase().includes(q)
-    );
-  }, [customers, search]);
+  // Sync editNotes when selected customer changes
+  useEffect(() => {
+    setEditNotes(selectedCustomer?.notes || '');
+  }, [selectedCustomer?.email]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Sort
-  const sorted = useMemo(() => {
-    const arr = [...filtered];
-    arr.sort((a, b) => {
-      let diff = 0;
-      if (sortField === 'totalBookings') diff = a.totalBookings - b.totalBookings;
-      else if (sortField === 'totalRevenue') diff = a.totalRevenue - b.totalRevenue;
-      else diff = new Date(a.lastBookingDate).getTime() - new Date(b.lastBookingDate).getTime();
-      return sortAsc ? diff : -diff;
-    });
-    return arr;
-  }, [filtered, sortField, sortAsc]);
+  // Selected customer's bookings (for detail panel history)
+  const selectedBookings = useMemo(() => {
+    if (!selectedCustomer) return [];
+    const email = selectedCustomer.email.toLowerCase().trim();
+    return bookings
+      .filter((b) => b.email.toLowerCase().trim() === email)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [bookings, selectedCustomer]);
 
-  // Selected customer
-  const selectedCustomer = useMemo(
-    () => (selectedEmail ? customers.find((c) => c.email === selectedEmail) : null),
-    [customers, selectedEmail]
+  // ---------------------------------------------------------------------------
+  // Column definitions
+  // ---------------------------------------------------------------------------
+
+  const columns = useMemo<Column<Customer>[]>(
+    () => [
+      {
+        key: 'name',
+        header: t('admin.customers.name'),
+        render: (c) => (
+          <div>
+            <div className="customer-name-cell">
+              {c.name}
+              {c.completedBookings >= 2 && (
+                <span className="customer-repeat-badge">{t('admin.customers.repeatCustomer')}</span>
+              )}
+            </div>
+            <div className="customer-email-cell">{c.email}</div>
+          </div>
+        ),
+      },
+      {
+        key: 'phone',
+        header: t('admin.customers.phone'),
+        width: '130px',
+        render: (c) => <span className="customer-cell-sm">{c.phone}</span>,
+      },
+      {
+        key: 'region',
+        header: t('admin.customers.region'),
+        width: '110px',
+        render: (c) => <span className="customer-cell-sm">{c.region}</span>,
+      },
+      {
+        key: 'totalBookings',
+        header: t('admin.customers.totalBookings'),
+        sortable: true,
+        width: '100px',
+        render: (c) => <span className="text-bold">{c.totalBookings}</span>,
+      },
+      {
+        key: 'totalRevenue',
+        header: t('admin.customers.totalRevenue'),
+        sortable: true,
+        width: '110px',
+        render: (c) => <span className="text-bold">{formatCurrency(c.totalRevenue)}</span>,
+      },
+      {
+        key: 'lastBookingDate',
+        header: t('admin.customers.sortLastBooking'),
+        sortable: true,
+        width: '130px',
+        render: (c) => <span className="customer-cell-date">{formatDate(c.lastBookingDate)}</span>,
+      },
+      {
+        key: 'tags',
+        header: t('admin.customers.tags'),
+        render: (c) =>
+          c.tags.length > 0 ? (
+            <div className="flex-row flex-wrap gap-2">
+              {c.tags.map((tag) => (
+                <Tag key={tag} label={tag} />
+              ))}
+            </div>
+          ) : (
+            <span className="customer-tags-empty">&mdash;</span>
+          ),
+      },
+    ],
+    [t]
   );
 
-  // Customer's bookings
-  const selectedBookings = useMemo(() => {
-    if (!selectedEmail) return [];
-    return bookings
-      .filter((b) => b.email.toLowerCase().trim() === selectedEmail.toLowerCase().trim())
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [bookings, selectedEmail]);
+  // ---------------------------------------------------------------------------
+  // Filter configuration
+  // ---------------------------------------------------------------------------
 
-  // Sort toggle
+  const filterConfig = useMemo<FilterConfig[]>(
+    () => [
+      {
+        key: 'search',
+        label: t('admin.customers.search'),
+        type: 'search' as const,
+        placeholder: t('admin.customers.searchPlaceholder'),
+      },
+    ],
+    [t]
+  );
+
+  // ---------------------------------------------------------------------------
+  // Sort state (managed via DataTable onSort)
+  // ---------------------------------------------------------------------------
+
+  const [sortField, setSortField] = useState<string>('lastBookingDate');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+
   const handleSort = useCallback(
-    (field: CustomerSortField) => {
-      if (sortField === field) {
-        setSortAsc((prev) => !prev);
-      } else {
-        setSortField(field);
-        setSortAsc(false);
+    (field: string, dir: 'asc' | 'desc') => {
+      setSortField(field);
+      setSortDir(dir);
+      setParams({ sort: field, dir });
+    },
+    [setParams]
+  );
+
+  // ---------------------------------------------------------------------------
+  // Filter change handler
+  // ---------------------------------------------------------------------------
+
+  const handleFilterChange = useCallback(
+    (key: string, value: string) => {
+      setFilterValues((prev) => ({ ...prev, [key]: value }));
+      if (key === 'search') {
+        setParams({ search: value });
       }
     },
-    [sortField]
+    [setParams]
   );
 
+  const handleFilterClear = useCallback(() => {
+    setFilterValues({});
+    setParams({ search: '' });
+  }, [setParams]);
+
+  // ---------------------------------------------------------------------------
   // Notes save (debounced)
+  // ---------------------------------------------------------------------------
+
   const handleNotesChange = useCallback(
     (email: string, value: string) => {
-      const key = email.toLowerCase().trim();
-      setCustomerNotes((prev) => ({ ...prev, [key]: value }));
+      setEditNotes(value);
 
       if (notesTimeoutRef.current) clearTimeout(notesTimeoutRef.current);
       notesTimeoutRef.current = setTimeout(async () => {
@@ -206,26 +245,64 @@ const CustomerManagement: React.FC = () => {
         setSavingNotes(false);
         if (!res.success) {
           showToast(t('admin.toast.saveFailed'), 'error');
+        } else {
+          refetch();
         }
       }, 1000);
     },
-    [token, showToast, t]
+    [token, showToast, t, refetch]
   );
 
-  // Tags
-  const handleToggleTag = useCallback(
-    async (email: string, tag: string) => {
-      const key = email.toLowerCase().trim();
-      const current = customerTags[key] || [];
-      const next = current.includes(tag) ? current.filter((t) => t !== tag) : [...current, tag];
-      setCustomerTags((prev) => ({ ...prev, [key]: next }));
+  // ---------------------------------------------------------------------------
+  // Tag management
+  // ---------------------------------------------------------------------------
 
+  const handleAddTag = useCallback(
+    async (email: string, tag: string) => {
+      const currentTags = selectedCustomer?.tags || [];
+      if (currentTags.includes(tag)) return;
+      const next = [...currentTags, tag];
+      // Optimistic update
+      setSelectedCustomer((prev) => (prev ? { ...prev, tags: next } : prev));
       const res = await adminApi.updateCustomerTags(token, email, next);
       if (!res.success) {
         showToast(t('admin.toast.saveFailed'), 'error');
+        // Revert
+        setSelectedCustomer((prev) => (prev ? { ...prev, tags: currentTags } : prev));
+      } else {
+        refetch();
       }
     },
-    [token, customerTags, showToast, t]
+    [token, selectedCustomer, showToast, t, refetch]
+  );
+
+  const handleRemoveTag = useCallback(
+    async (email: string, tag: string) => {
+      const currentTags = selectedCustomer?.tags || [];
+      const next = currentTags.filter((tg) => tg !== tag);
+      // Optimistic update
+      setSelectedCustomer((prev) => (prev ? { ...prev, tags: next } : prev));
+      const res = await adminApi.updateCustomerTags(token, email, next);
+      if (!res.success) {
+        showToast(t('admin.toast.saveFailed'), 'error');
+        setSelectedCustomer((prev) => (prev ? { ...prev, tags: currentTags } : prev));
+      } else {
+        refetch();
+      }
+    },
+    [token, selectedCustomer, showToast, t, refetch]
+  );
+
+  const handleToggleTag = useCallback(
+    (email: string, tag: string) => {
+      const currentTags = selectedCustomer?.tags || [];
+      if (currentTags.includes(tag)) {
+        handleRemoveTag(email, tag);
+      } else {
+        handleAddTag(email, tag);
+      }
+    },
+    [selectedCustomer, handleAddTag, handleRemoveTag]
   );
 
   const handleAddCustomTag = useCallback(
@@ -233,312 +310,98 @@ const CustomerManagement: React.FC = () => {
       const tag = newTag.trim();
       if (!tag) return;
       setNewTag('');
-      handleToggleTag(email, tag);
+      handleAddTag(email, tag);
     },
-    [newTag, handleToggleTag]
+    [newTag, handleAddTag]
   );
 
-  // Status badge colors
-  const statusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return '#16a34a';
-      case 'confirmed':
-        return '#2563eb';
-      case 'pending':
-        return '#d97706';
-      case 'cancelled':
-        return '#dc2626';
-      default:
-        return '#6b7280';
-    }
-  };
+  // ---------------------------------------------------------------------------
+  // Row click handler
+  // ---------------------------------------------------------------------------
+
+  const handleRowClick = useCallback((customer: Customer) => {
+    setSelectedCustomer(customer);
+  }, []);
+
+  const handleClosePanel = useCallback(() => {
+    setSelectedCustomer(null);
+    setNewTag('');
+  }, []);
 
   // ---------------------------------------------------------------------------
   // Render
   // ---------------------------------------------------------------------------
 
   return (
-    <div style={{ padding: '0' }}>
-      {/* Header & Search */}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '12px',
-          alignItems: 'center',
-          marginBottom: '20px',
-        }}
-      >
-        <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700 }}>
-          {t('admin.customers.title')}
-        </h2>
-        <span
-          style={{
-            background: '#f1f5f9',
-            borderRadius: '12px',
-            padding: '2px 10px',
-            fontSize: '0.85rem',
-            color: '#64748b',
-          }}
-        >
-          {customers.length} {t('admin.customers.total')}
+    <div className="customers-page">
+      {/* Header */}
+      <div className="customers-page-header">
+        <h2 className="customers-page-title">{t('admin.customers.title')}</h2>
+        <span className="customers-total-badge">
+          {total} {t('admin.customers.total')}
         </span>
-        <div style={{ flex: 1, minWidth: '200px' }}>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t('admin.customers.searchPlaceholder')}
-            style={{
-              width: '100%',
-              padding: '8px 12px',
-              borderRadius: '8px',
-              border: '1px solid #e2e8f0',
-              fontSize: '0.9rem',
-            }}
-          />
-        </div>
       </div>
 
-      {/* Sort buttons */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
-        {(
-          [
-            ['lastBookingDate', t('admin.customers.sortLastBooking')],
-            ['totalBookings', t('admin.customers.sortTotalBookings')],
-            ['totalRevenue', t('admin.customers.sortRevenue')],
-          ] as [CustomerSortField, string][]
-        ).map(([field, label]) => (
-          <button
-            key={field}
-            onClick={() => handleSort(field)}
-            style={{
-              padding: '6px 14px',
-              borderRadius: '6px',
-              border: '1px solid',
-              borderColor: sortField === field ? '#3b82f6' : '#e2e8f0',
-              background: sortField === field ? '#eff6ff' : '#fff',
-              color: sortField === field ? '#2563eb' : '#64748b',
-              fontSize: '0.85rem',
-              cursor: 'pointer',
-              fontWeight: sortField === field ? 600 : 400,
-            }}
-          >
-            {label} {sortField === field ? (sortAsc ? '\u2191' : '\u2193') : ''}
-          </button>
-        ))}
-      </div>
+      {/* Search / Filters */}
+      <FilterBar
+        filters={filterConfig}
+        values={filterValues}
+        onChange={handleFilterChange}
+        onClear={handleFilterClear}
+      />
 
-      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-        {/* Customer list */}
-        <div style={{ flex: '1 1 340px', minWidth: 0 }}>
-          {sorted.length === 0 && (
-            <div
-              style={{
-                textAlign: 'center',
-                padding: '40px 20px',
-                color: '#94a3b8',
-              }}
-            >
-              {t('admin.customers.noCustomers')}
-            </div>
-          )}
-          {sorted.map((customer) => (
-            <div
-              key={customer.email}
-              onClick={() => setSelectedEmail(customer.email)}
-              style={{
-                padding: '14px 16px',
-                marginBottom: '8px',
-                borderRadius: '10px',
-                border: '1px solid',
-                borderColor: selectedEmail === customer.email ? '#3b82f6' : '#e2e8f0',
-                background: selectedEmail === customer.email ? '#eff6ff' : '#fff',
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                }}
-              >
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>
-                    {customer.name}
-                    {customer.completedBookings >= 2 && (
-                      <span
-                        style={{
-                          marginLeft: '8px',
-                          background: '#fef3c7',
-                          color: '#92400e',
-                          padding: '1px 8px',
-                          borderRadius: '10px',
-                          fontSize: '0.75rem',
-                          fontWeight: 500,
-                        }}
-                      >
-                        {t('admin.customers.repeatCustomer')}
-                      </span>
-                    )}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: '0.85rem',
-                      color: '#64748b',
-                      marginTop: '2px',
-                    }}
-                  >
-                    {customer.email}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: '0.8rem',
-                      color: '#94a3b8',
-                      marginTop: '2px',
-                    }}
-                  >
-                    {customer.phone} &middot; {customer.region}
-                  </div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>
-                    {formatCurrency(customer.totalRevenue)}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: '0.8rem',
-                      color: '#64748b',
-                      marginTop: '2px',
-                    }}
-                  >
-                    {customer.totalBookings} {t('admin.customers.bookings')}
-                  </div>
-                </div>
-              </div>
-              {/* Tags */}
-              {customer.tags.length > 0 && (
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: '4px',
-                    marginTop: '8px',
-                    flexWrap: 'wrap',
-                  }}
-                >
-                  {customer.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      style={{
-                        background: '#e0e7ff',
-                        color: '#4338ca',
-                        padding: '1px 8px',
-                        borderRadius: '8px',
-                        fontSize: '0.75rem',
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+      {/* Data Table */}
+      <DataTable
+        columns={columns}
+        data={customers}
+        loading={loading}
+        rowKey={(c) => c.email}
+        onRowClick={handleRowClick}
+        activeRowKey={selectedCustomer?.email}
+        sortField={sortField}
+        sortDir={sortDir}
+        onSort={handleSort}
+        emptyTitle={t('admin.customers.noCustomers')}
+      />
 
-        {/* Detail panel */}
+      {/* Pagination */}
+      <Pagination
+        currentPage={page}
+        totalItems={total}
+        pageSize={pageSize}
+        onPageChange={setPage}
+      />
+
+      {/* Customer Detail Slide-over Panel */}
+      <SlideOverPanel
+        open={!!selectedCustomer}
+        onClose={handleClosePanel}
+        title={selectedCustomer?.name || ''}
+      >
         {selectedCustomer && (
-          <div
-            style={{
-              flex: '1 1 400px',
-              minWidth: 0,
-              background: '#fff',
-              borderRadius: '12px',
-              border: '1px solid #e2e8f0',
-              padding: '20px',
-              alignSelf: 'flex-start',
-              position: 'sticky',
-              top: '20px',
-            }}
-          >
-            {/* Close button */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{selectedCustomer.name}</h3>
-              <button
-                onClick={() => setSelectedEmail(null)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '1.2rem',
-                  cursor: 'pointer',
-                  color: '#94a3b8',
-                }}
-              >
-                &times;
-              </button>
-            </div>
-
+          <div className="customer-detail">
             {/* Contact info */}
-            <div
-              style={{
-                background: '#f8fafc',
-                borderRadius: '8px',
-                padding: '12px',
-                marginBottom: '16px',
-              }}
-            >
-              <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px' }}>
-                {t('admin.customers.contactInfo')}
-              </div>
-              <div style={{ fontSize: '0.85rem', color: '#475569', marginBottom: '4px' }}>
-                {selectedCustomer.email}
-              </div>
-              <div style={{ fontSize: '0.85rem', color: '#475569', marginBottom: '4px' }}>
-                {selectedCustomer.phone}
-              </div>
-              <div style={{ fontSize: '0.85rem', color: '#475569', marginBottom: '8px' }}>
-                {selectedCustomer.region}
-              </div>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <div className="customer-detail-panel">
+              <div className="customer-detail-header">{t('admin.customers.contactInfo')}</div>
+              <div className="customer-detail-info">{selectedCustomer.email}</div>
+              <div className="customer-detail-info">{selectedCustomer.phone}</div>
+              <div className="customer-detail-info">{selectedCustomer.region}</div>
+              <div className="customer-contact-actions">
                 <a
                   href={`tel:${selectedCustomer.phone}`}
-                  style={{
-                    padding: '4px 12px',
-                    background: '#dbeafe',
-                    color: '#2563eb',
-                    borderRadius: '6px',
-                    fontSize: '0.8rem',
-                    textDecoration: 'none',
-                  }}
+                  className="customer-contact-btn customer-contact-btn--call"
                 >
                   {t('admin.customers.call')}
                 </a>
                 <a
                   href={`sms:${selectedCustomer.phone}`}
-                  style={{
-                    padding: '4px 12px',
-                    background: '#dcfce7',
-                    color: '#16a34a',
-                    borderRadius: '6px',
-                    fontSize: '0.8rem',
-                    textDecoration: 'none',
-                  }}
+                  className="customer-contact-btn customer-contact-btn--sms"
                 >
                   {t('admin.customers.sms')}
                 </a>
                 <a
                   href={`mailto:${selectedCustomer.email}`}
-                  style={{
-                    padding: '4px 12px',
-                    background: '#fef3c7',
-                    color: '#92400e',
-                    borderRadius: '6px',
-                    fontSize: '0.8rem',
-                    textDecoration: 'none',
-                  }}
+                  className="customer-contact-btn customer-contact-btn--email"
                 >
                   {t('admin.customers.emailAction')}
                 </a>
@@ -546,109 +409,52 @@ const CustomerManagement: React.FC = () => {
             </div>
 
             {/* Stats */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '8px',
-                marginBottom: '16px',
-              }}
-            >
-              <div
-                style={{
-                  background: '#f1f5f9',
-                  borderRadius: '8px',
-                  padding: '10px',
-                  textAlign: 'center',
-                }}
-              >
-                <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>
-                  {selectedCustomer.totalBookings}
-                </div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                  {t('admin.customers.totalBookings')}
-                </div>
+            <div className="customer-stats-grid">
+              <div className="customer-stat-card">
+                <div className="customer-stat-value">{selectedCustomer.totalBookings}</div>
+                <div className="customer-stat-label">{t('admin.customers.totalBookings')}</div>
               </div>
-              <div
-                style={{
-                  background: '#dcfce7',
-                  borderRadius: '8px',
-                  padding: '10px',
-                  textAlign: 'center',
-                }}
-              >
-                <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>
-                  {selectedCustomer.completedBookings}
-                </div>
-                <div style={{ fontSize: '0.75rem', color: '#16a34a' }}>
+              <div className="customer-stat-card customer-stat-card--success">
+                <div className="customer-stat-value">{selectedCustomer.completedBookings}</div>
+                <div className="customer-stat-label customer-stat-label--success">
                   {t('admin.customers.completed')}
                 </div>
               </div>
-              <div
-                style={{
-                  background: '#fef2f2',
-                  borderRadius: '8px',
-                  padding: '10px',
-                  textAlign: 'center',
-                }}
-              >
-                <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>
-                  {selectedCustomer.cancelledBookings}
-                </div>
-                <div style={{ fontSize: '0.75rem', color: '#dc2626' }}>
+              <div className="customer-stat-card customer-stat-card--danger">
+                <div className="customer-stat-value">{selectedCustomer.cancelledBookings}</div>
+                <div className="customer-stat-label customer-stat-label--danger">
                   {t('admin.customers.cancelled')}
                 </div>
               </div>
             </div>
 
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '8px',
-                marginBottom: '16px',
-              }}
-            >
-              <div style={{ background: '#f1f5f9', borderRadius: '8px', padding: '10px' }}>
-                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                  {t('admin.customers.totalRevenue')}
-                </div>
-                <div style={{ fontSize: '1rem', fontWeight: 700 }}>
+            <div className="customer-stats-grid-2col">
+              <div className="customer-stat-card customer-stat-card--left">
+                <div className="customer-stat-label">{t('admin.customers.totalRevenue')}</div>
+                <div className="customer-stat-value customer-stat-value--sm">
                   {formatCurrency(selectedCustomer.totalRevenue)}
                 </div>
               </div>
-              <div style={{ background: '#f1f5f9', borderRadius: '8px', padding: '10px' }}>
-                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                  {t('admin.customers.firstBooking')}
-                </div>
-                <div style={{ fontSize: '0.85rem', fontWeight: 500 }}>
+              <div className="customer-stat-card customer-stat-card--left">
+                <div className="customer-stat-label">{t('admin.customers.firstBooking')}</div>
+                <div className="customer-stat-value customer-stat-value--date">
                   {formatDate(selectedCustomer.firstBookingDate)}
                 </div>
               </div>
             </div>
 
             {/* Tags */}
-            <div style={{ marginBottom: '16px' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px' }}>
-                {t('admin.customers.tags')}
-              </div>
-              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            <div className="customer-section">
+              <div className="customer-section-title">{t('admin.customers.tags')}</div>
+              <div className="flex-row flex-wrap gap-3">
                 {DEFAULT_TAGS.map((tag) => {
                   const active = selectedCustomer.tags.includes(tag);
                   return (
                     <button
                       key={tag}
                       onClick={() => handleToggleTag(selectedCustomer.email, tag)}
-                      style={{
-                        padding: '4px 12px',
-                        borderRadius: '14px',
-                        border: '1px solid',
-                        borderColor: active ? '#4338ca' : '#e2e8f0',
-                        background: active ? '#e0e7ff' : '#fff',
-                        color: active ? '#4338ca' : '#64748b',
-                        fontSize: '0.8rem',
-                        cursor: 'pointer',
-                      }}
+                      type="button"
+                      className={`customer-tag-btn${active ? ' customer-tag-btn--active' : ''}`}
                     >
                       {tag}
                     </button>
@@ -656,26 +462,16 @@ const CustomerManagement: React.FC = () => {
                 })}
                 {/* Custom tags not in defaults */}
                 {selectedCustomer.tags
-                  .filter((t) => !DEFAULT_TAGS.includes(t))
+                  .filter((tg) => !DEFAULT_TAGS.includes(tg))
                   .map((tag) => (
-                    <button
+                    <Tag
                       key={tag}
-                      onClick={() => handleToggleTag(selectedCustomer.email, tag)}
-                      style={{
-                        padding: '4px 12px',
-                        borderRadius: '14px',
-                        border: '1px solid #4338ca',
-                        background: '#e0e7ff',
-                        color: '#4338ca',
-                        fontSize: '0.8rem',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      {tag} &times;
-                    </button>
+                      label={tag}
+                      onRemove={() => handleRemoveTag(selectedCustomer.email, tag)}
+                    />
                   ))}
               </div>
-              <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+              <div className="customer-tag-input-row">
                 <input
                   type="text"
                   value={newTag}
@@ -684,25 +480,12 @@ const CustomerManagement: React.FC = () => {
                     if (e.key === 'Enter') handleAddCustomTag(selectedCustomer.email);
                   }}
                   placeholder={t('admin.customers.addTagPlaceholder')}
-                  style={{
-                    flex: 1,
-                    padding: '4px 10px',
-                    borderRadius: '6px',
-                    border: '1px solid #e2e8f0',
-                    fontSize: '0.8rem',
-                  }}
+                  className="customer-tag-input"
                 />
                 <button
                   onClick={() => handleAddCustomTag(selectedCustomer.email)}
-                  style={{
-                    padding: '4px 12px',
-                    borderRadius: '6px',
-                    border: 'none',
-                    background: '#3b82f6',
-                    color: '#fff',
-                    fontSize: '0.8rem',
-                    cursor: 'pointer',
-                  }}
+                  type="button"
+                  className="customer-tag-add-btn"
                 >
                   +
                 </button>
@@ -710,107 +493,64 @@ const CustomerManagement: React.FC = () => {
             </div>
 
             {/* Notes */}
-            <div style={{ marginBottom: '16px' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px' }}>
+            <div className="customer-section">
+              <div className="customer-section-title">
                 {t('admin.customers.notes')}
                 {savingNotes && (
-                  <span
-                    style={{
-                      fontWeight: 400,
-                      color: '#94a3b8',
-                      marginLeft: '8px',
-                      fontSize: '0.8rem',
-                    }}
-                  >
-                    {t('admin.customers.saving')}
-                  </span>
+                  <span className="customer-notes-status">{t('admin.customers.saving')}</span>
                 )}
               </div>
               <textarea
-                value={selectedCustomer.notes}
+                value={editNotes}
                 onChange={(e) => handleNotesChange(selectedCustomer.email, e.target.value)}
                 placeholder={t('admin.customers.notesPlaceholder')}
                 rows={3}
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  borderRadius: '8px',
-                  border: '1px solid #e2e8f0',
-                  fontSize: '0.85rem',
-                  resize: 'vertical',
-                  boxSizing: 'border-box',
-                }}
+                className="customer-notes-area"
               />
             </div>
 
             {/* Booking history */}
             <div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px' }}>
+              <div className="customer-section-title">
                 {t('admin.customers.bookingHistory')} ({selectedBookings.length})
               </div>
-              <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                {selectedBookings.map((b) => (
-                  <div
-                    key={b.id}
-                    style={{
-                      padding: '10px 12px',
-                      marginBottom: '6px',
-                      borderRadius: '8px',
-                      background: '#f8fafc',
-                      borderLeft: `3px solid ${statusColor(b.status)}`,
-                    }}
-                  >
+              <div className="customer-booking-list">
+                {selectedBookings.map((b) => {
+                  const mod = statusModifier(b.status);
+                  return (
                     <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
+                      key={b.id}
+                      className={`customer-booking-item${mod ? ` customer-booking-item--${mod}` : ''}`}
                     >
-                      <div>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 500 }}>
-                          {b.date} &middot; {b.time || t('admin.booking.notSpecified')}
-                        </div>
-                        <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '2px' }}>
-                          {b.orderData?.packageName || b.formType} &middot; {b.guestCount}{' '}
-                          {t('admin.booking.guests')}
-                        </div>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <span
-                          style={{
-                            display: 'inline-block',
-                            padding: '2px 8px',
-                            borderRadius: '10px',
-                            fontSize: '0.75rem',
-                            fontWeight: 500,
-                            color: statusColor(b.status),
-                            background:
-                              b.status === 'completed'
-                                ? '#dcfce7'
-                                : b.status === 'confirmed'
-                                  ? '#dbeafe'
-                                  : b.status === 'pending'
-                                    ? '#fef3c7'
-                                    : '#fef2f2',
-                          }}
-                        >
-                          {b.status}
-                        </span>
-                        {b.orderData?.estimatedTotal ? (
-                          <div style={{ fontSize: '0.8rem', fontWeight: 600, marginTop: '2px' }}>
-                            {formatCurrency(b.orderData.estimatedTotal)}
+                      <div className="flex-between">
+                        <div>
+                          <div className="customer-booking-info-title">
+                            {b.date} &middot; {b.time || t('admin.booking.notSpecified')}
                           </div>
-                        ) : null}
+                          <div className="customer-booking-info-sub">
+                            {b.orderData?.packageName || b.formType} &middot; {b.guestCount}{' '}
+                            {t('admin.booking.guests')}
+                          </div>
+                        </div>
+                        <div className="customer-booking-right">
+                          <span className={`status-badge${mod ? ` status-badge--${mod}` : ''}`}>
+                            {b.status}
+                          </span>
+                          {b.orderData?.estimatedTotal ? (
+                            <div className="customer-booking-amount">
+                              {formatCurrency(b.orderData.estimatedTotal)}
+                            </div>
+                          ) : null}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
         )}
-      </div>
+      </SlideOverPanel>
     </div>
   );
 };

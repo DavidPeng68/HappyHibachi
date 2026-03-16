@@ -1,0 +1,307 @@
+/* =============================================
+   优惠码管理
+   ============================================= */
+
+.coupons-page .card {
+  max-width: 800px;
+}
+
+/* 优惠码表单 */
+.coupon-form {
+  padding: 20px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.coupon-form .form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.coupon-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.coupon-form label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--admin-text-muted);
+}
+
+.coupon-form input,
+.coupon-form select {
+  padding: 10px 12px;
+  font-size: 14px;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  color: var(--admin-text);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.coupon-form input:focus,
+.coupon-form select:focus {
+  border-color: var(--admin-primary);
+}
+
+.coupon-form .input-with-suffix {
+  display: flex;
+  align-items: center;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  overflow: hidden;
+}
+
+.coupon-form .input-with-suffix input {
+  flex: 1;
+  border: none;
+  background: transparent;
+}
+
+.coupon-form .input-with-suffix span {
+  padding: 10px 12px;
+  color: var(--admin-text-muted);
+  font-weight: 500;
+}
+
+.coupon-form .date-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.coupon-form .date-range input {
+  flex: 1;
+  min-width: 0;
+}
+
+.coupon-form .date-range span {
+  color: var(--admin-text-muted);
+  font-size: 13px;
+}
+
+/* 优惠码列表 */
+.coupons-list {
+  padding: 0;
+}
+
+.coupon-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--admin-border);
+  transition: background var(--transition-fast);
+}
+
+.coupon-item:last-child {
+  border-bottom: none;
+}
+
+.coupon-item:hover {
+  background: var(--admin-surface-hover);
+}
+
+.coupon-item.disabled {
+  opacity: 0.5;
+}
+
+.coupon-main {
+  min-width: 140px;
+}
+
+.coupon-code {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: monospace;
+  color: var(--admin-primary);
+  letter-spacing: 1px;
+}
+
+.coupon-value {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  margin-top: 4px;
+}
+
+.coupon-details {
+  flex: 1;
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--admin-text-muted);
+}
+
+.coupon-status {
+  min-width: 70px;
+}
+
+.coupon-status .status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 20px;
+}
+
+.coupon-status .status-badge.active {
+  background: var(--admin-success-soft);
+  color: var(--admin-success);
+}
+
+.coupon-status .status-badge.inactive {
+  background: var(--admin-surface);
+  color: var(--admin-text-muted);
+}
+
+.coupon-status .status-badge.expired {
+  background: var(--admin-danger-soft);
+  color: var(--admin-danger);
+}
+
+.coupon-status .status-badge.maxed {
+  background: var(--admin-warning-soft);
+  color: var(--admin-warning);
+}
+
+.coupon-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* 推荐来源统计 */
+.referral-stats {
+  padding: 16px 20px;
+}
+
+.referral-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--admin-border);
+  position: relative;
+}
+
+.referral-item:last-child {
+  border-bottom: none;
+}
+
+.referral-rank {
+  width: 32px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--admin-text-muted);
+}
+
+.referral-source {
+  flex: 1;
+  font-size: 14px;
+  color: var(--admin-text);
+  font-weight: 500;
+}
+
+.referral-count {
+  font-size: 13px;
+  color: var(--admin-primary);
+  font-weight: 600;
+}
+
+.referral-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--admin-primary);
+  opacity: 0.3;
+  transition: width var(--transition-normal);
+}
+
+/* Coupon inline edit form */
+.coupon-edit-form {
+  width: 100%;
+}
+
+.coupon-edit-form .form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.coupon-edit-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.coupon-edit-form label {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  font-weight: 500;
+}
+
+.coupon-edit-form input,
+.coupon-edit-form select {
+  padding: 8px 12px;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  color: var(--admin-text);
+  font-size: 14px;
+}
+
+.coupon-edit-form input:focus,
+.coupon-edit-form select:focus {
+  border-color: var(--admin-primary);
+  outline: none;
+}
+
+.coupon-edit-form .input-with-suffix {
+  display: flex;
+  align-items: center;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  overflow: hidden;
+}
+
+.coupon-edit-form .input-with-suffix input {
+  border: none;
+  flex: 1;
+}
+
+.coupon-edit-form .input-with-suffix span {
+  padding: 0 12px;
+  color: var(--admin-text-muted);
+  font-size: 14px;
+}
+
+.coupon-edit-form .date-range {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.coupon-edit-form .date-range input {
+  flex: 1;
+}
+
+.coupon-edit-form .date-range span {
+  color: var(--admin-text-muted);
+  font-size: 13px;
+}
+
+/* Coupon usage stats */
+.coupon-usage-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  padding: 4px 0;
+}

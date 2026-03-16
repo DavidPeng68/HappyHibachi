@@ -1,0 +1,276 @@
+/* =============================================
+   评价管理
+   ============================================= */
+
+.reviews-page .card {
+  max-width: 800px;
+}
+
+/* 添加评价表单 */
+.add-review-form {
+  padding: 20px;
+}
+
+.add-review-form .form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.add-review-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.add-review-form label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--admin-text-muted);
+}
+
+.add-review-form input,
+.add-review-form select,
+.add-review-form textarea {
+  padding: 10px 12px;
+  font-size: 14px;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  color: var(--admin-text);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.add-review-form input:focus,
+.add-review-form select:focus,
+.add-review-form textarea:focus {
+  border-color: var(--admin-primary);
+}
+
+.add-review-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.add-review-form .btn-primary {
+  margin-top: 16px;
+}
+
+/* 评价列表 */
+.reviews-list {
+  padding: 0;
+}
+
+.review-item {
+  padding: 20px;
+  border-bottom: 1px solid var(--admin-border);
+  transition: background var(--transition-fast);
+}
+
+.review-item:last-child {
+  border-bottom: none;
+}
+
+.review-item:hover {
+  background: var(--admin-surface-hover);
+}
+
+.review-item.hidden {
+  opacity: 0.5;
+  background: var(--admin-bg);
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.review-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.review-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+
+.review-location {
+  font-size: 13px;
+  color: var(--admin-text-muted);
+}
+
+.review-rating {
+  font-size: 14px;
+}
+
+.review-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--admin-text);
+  margin: 0 0 12px;
+}
+
+.review-footer {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  margin-bottom: 12px;
+}
+
+.review-event {
+  color: var(--admin-primary);
+}
+
+.review-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Review filters & search */
+.review-filters {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--admin-border);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.review-search {
+  flex: 1;
+  min-width: 200px;
+}
+
+.review-search .input {
+  width: 100%;
+}
+
+.review-filter-group {
+  display: flex;
+  gap: 8px;
+}
+
+.review-filter-group .input {
+  min-width: 130px;
+}
+
+/* Review bulk actions */
+.review-bulk-actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--admin-primary-soft);
+  border-bottom: 1px solid var(--admin-border);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.bulk-count {
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+  margin-right: 8px;
+}
+
+/* Review select all */
+.review-select-all {
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--admin-border);
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+}
+
+/* Review checkbox */
+.review-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--admin-text-secondary);
+}
+
+.review-checkbox-label input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--admin-primary);
+  cursor: pointer;
+}
+
+/* Review item layout with checkbox */
+.review-item-top {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.review-content-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Review visibility badge */
+.review-visibility-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: var(--admin-warning-soft);
+  color: var(--admin-warning);
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+/* Review inline edit form */
+.review-edit-form {
+  flex: 1;
+  min-width: 0;
+}
+
+.review-edit-form .form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.review-edit-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.review-edit-form label {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  font-weight: 500;
+}
+
+.review-edit-form input,
+.review-edit-form select,
+.review-edit-form textarea {
+  padding: 8px 12px;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  color: var(--admin-text);
+  font-size: 14px;
+}
+
+.review-edit-form input:focus,
+.review-edit-form select:focus,
+.review-edit-form textarea:focus {
+  border-color: var(--admin-primary);
+  outline: none;
+}
+
+.review-edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}

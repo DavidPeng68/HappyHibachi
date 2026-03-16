@@ -1,0 +1,175 @@
+/* =============================================
+   Activity Log
+   ============================================= */
+
+.activity-loading,
+.activity-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--admin-text-muted);
+}
+
+.activity-loading--full {
+  padding: 60px 20px;
+}
+
+/* Filters */
+.activity-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.activity-filter-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  color: var(--admin-text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-weight: 400;
+  transition: all var(--transition-fast);
+}
+
+.activity-filter-btn:hover {
+  background: var(--admin-surface-hover);
+  color: var(--admin-text-secondary);
+}
+
+.activity-filter-btn--active {
+  border-color: var(--admin-info);
+  background: var(--admin-info-soft);
+  color: var(--admin-info);
+  font-weight: 600;
+}
+
+/* Timeline */
+.activity-timeline {
+  position: relative;
+  padding-left: 28px;
+}
+
+.activity-timeline-line {
+  position: absolute;
+  left: 10px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--admin-border);
+}
+
+/* Entry */
+.activity-entry {
+  position: relative;
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  background: var(--admin-surface);
+  border-radius: 10px;
+  border: 1px solid var(--admin-border);
+}
+
+.activity-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.activity-entry-body {
+  flex: 1;
+}
+
+.activity-entry-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.activity-entry-icon {
+  font-size: 1rem;
+}
+
+/* Dot */
+.activity-dot {
+  position: absolute;
+  left: -23px;
+  top: 16px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--admin-surface);
+}
+
+.activity-dot--created {
+  background: var(--admin-success);
+  box-shadow: 0 0 0 2px var(--admin-success);
+}
+
+.activity-dot--updated {
+  background: var(--admin-info);
+  box-shadow: 0 0 0 2px var(--admin-info);
+}
+
+.activity-dot--deleted {
+  background: var(--admin-danger);
+  box-shadow: 0 0 0 2px var(--admin-danger);
+}
+
+.activity-dot--default {
+  background: var(--admin-text-muted);
+  box-shadow: 0 0 0 2px var(--admin-text-muted);
+}
+
+/* Action badge */
+.activity-action-badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.activity-action-badge--created {
+  color: var(--admin-success);
+  background: var(--admin-success-soft);
+}
+
+.activity-action-badge--updated {
+  color: var(--admin-info);
+  background: var(--admin-info-soft);
+}
+
+.activity-action-badge--deleted {
+  color: var(--admin-danger);
+  background: var(--admin-danger-soft);
+}
+
+.activity-action-badge--default {
+  color: var(--admin-text-muted);
+  background: var(--admin-surface-hover);
+}
+
+/* Entity */
+.activity-entity {
+  font-size: 0.8rem;
+  color: var(--admin-text-muted);
+  text-transform: capitalize;
+}
+
+/* Details */
+.activity-details {
+  font-size: 0.85rem;
+  color: var(--admin-text-secondary);
+}
+
+/* Timestamp */
+.activity-timestamp {
+  font-size: 0.8rem;
+  color: var(--admin-text-muted);
+  white-space: nowrap;
+  margin-top: 2px;
+}

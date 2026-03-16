@@ -14,6 +14,7 @@ interface EmailOptions {
 interface Env {
 	RESEND_API_KEY?: string;
 	ADMIN_EMAIL?: string;
+	BOOKINGS?: KVNamespace;
 }
 
 interface BookingOrderData {
@@ -33,7 +34,7 @@ interface BookingOrderData {
  */
 export async function sendEmail(env: Env, options: EmailOptions): Promise<boolean> {
 	const apiKey = env.RESEND_API_KEY;
-	
+
 	if (!apiKey) {
 		console.log('RESEND_API_KEY not configured, skipping email');
 		return false;
@@ -57,14 +58,44 @@ export async function sendEmail(env: Env, options: EmailOptions): Promise<boolea
 		if (!response.ok) {
 			const error = await response.text();
 			console.error('Email send failed:', error);
+			logEmailFailure(env, options, `HTTP ${response.status}: ${error}`);
 			return false;
 		}
 
 		return true;
 	} catch (error) {
 		console.error('Email error:', error);
+		logEmailFailure(env, options, error instanceof Error ? error.message : 'Unknown error');
 		return false;
 	}
+}
+
+/**
+ * Log email failure to KV for monitoring and retry
+ */
+function logEmailFailure(env: Env, options: EmailOptions, errorMsg: string): void {
+	if (!env.BOOKINGS) return;
+
+	const failure = {
+		id: crypto.randomUUID(),
+		to: options.to,
+		subject: options.subject,
+		error: errorMsg,
+		failedAt: new Date().toISOString(),
+		retryCount: 0,
+	};
+
+	env.BOOKINGS.get('email_failures', 'json').then((data) => {
+		const failures: typeof failure[] = (data as typeof failure[]) || [];
+		// Keep last 200 failures, remove oldest
+		if (failures.length >= 200) {
+			failures.splice(0, failures.length - 199);
+		}
+		failures.push(failure);
+		return env.BOOKINGS!.put('email_failures', JSON.stringify(failures));
+	}).catch(() => {
+		// Fire-and-forget — don't let failure logging break the main flow
+	});
 }
 
 /**

@@ -8,7 +8,9 @@
 import type {
   AdminRole,
   AdminUser,
+  AdminNotification,
   Booking,
+  BookingComment,
   BookingStatus,
   BlockedDate,
   Review,
@@ -17,11 +19,75 @@ import type {
   AuditLogEntry,
   InstagramPost,
   InstagramSettings,
+  PaginatedResponse,
+  PaginationParams,
 } from '../types/admin';
 import type { AppSettings } from '../types';
 
 const API_BASE = '/api';
 const REQUEST_TIMEOUT_MS = 15_000;
+
+function buildPaginationQuery(params: Record<string, unknown>): string {
+  const searchParams = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== '') {
+      searchParams.set(key, String(value));
+    }
+  }
+  return searchParams.toString();
+}
+
+// ---------------------------------------------------------------------------
+// Token refresh + session expiry handling
+// ---------------------------------------------------------------------------
+
+type SessionExpiredHandler = () => void;
+type TokenRefreshedHandler = (newToken: string) => void;
+
+let _onSessionExpired: SessionExpiredHandler | null = null;
+let _onTokenRefreshed: TokenRefreshedHandler | null = null;
+let _refreshInProgress: Promise<string | null> | null = null;
+
+/** Register a callback for when the session expires and cannot be refreshed. */
+export function onSessionExpired(handler: SessionExpiredHandler): void {
+  _onSessionExpired = handler;
+}
+
+/** Register a callback for when the token is successfully refreshed. */
+export function onTokenRefreshed(handler: TokenRefreshedHandler): void {
+  _onTokenRefreshed = handler;
+}
+
+/** Attempt to refresh the current token. Returns new token or null. */
+async function tryRefreshToken(currentToken: string): Promise<string | null> {
+  // Deduplicate concurrent refresh attempts
+  if (_refreshInProgress) return _refreshInProgress;
+
+  _refreshInProgress = (async () => {
+    try {
+      const response = await fetch(`${API_BASE}/admin/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${currentToken}`,
+        },
+      });
+      if (!response.ok) return null;
+      const data = await response.json();
+      if (data.success && data.token) {
+        _onTokenRefreshed?.(data.token);
+        return data.token as string;
+      }
+      return null;
+    } catch {
+      return null;
+    } finally {
+      _refreshInProgress = null;
+    }
+  })();
+
+  return _refreshInProgress;
+}
 
 // ---------------------------------------------------------------------------
 // Internal helpers
@@ -40,6 +106,16 @@ function authHeaders(token: string): HeadersInit {
   };
 }
 
+function extractTokenFromOptions(options: RequestInit): string | null {
+  const authHeader =
+    (options.headers as Record<string, string>)?.Authorization ||
+    (options.headers as Record<string, string>)?.authorization;
+  if (authHeader?.startsWith('Bearer ')) {
+    return authHeader.slice(7);
+  }
+  return null;
+}
+
 async function adminRequest<T extends AdminApiResponse>(
   url: string,
   options: RequestInit = {}
@@ -54,6 +130,36 @@ async function adminRequest<T extends AdminApiResponse>(
     });
 
     if (!response.ok) {
+      // Auto-refresh on 401
+      if (response.status === 401) {
+        const currentToken = extractTokenFromOptions(options);
+        if (currentToken) {
+          const newToken = await tryRefreshToken(currentToken);
+          if (newToken) {
+            // Retry the request with the new token
+            clearTimeout(timeout);
+            const retryController = new AbortController();
+            const retryTimeout = setTimeout(() => retryController.abort(), REQUEST_TIMEOUT_MS);
+            try {
+              const retryHeaders = { ...(options.headers as Record<string, string>) };
+              retryHeaders.Authorization = `Bearer ${newToken}`;
+              const retryResponse = await fetch(url, {
+                ...options,
+                headers: retryHeaders,
+                signal: retryController.signal,
+              });
+              if (retryResponse.ok) {
+                return (await retryResponse.json()) as T;
+              }
+            } finally {
+              clearTimeout(retryTimeout);
+            }
+          }
+          // Refresh failed — session expired
+          _onSessionExpired?.();
+        }
+      }
+
       try {
         const body = await response.json();
         if (body.error) {
@@ -123,6 +229,16 @@ export async function fetchBookings(
   });
 }
 
+export async function fetchBookingsPaginated(
+  token: string,
+  params: PaginationParams = {}
+): Promise<PaginatedResponse<Booking>> {
+  const query = buildPaginationQuery(params as unknown as Record<string, unknown>);
+  return adminRequest(`${API_BASE}/admin/bookings?${query}`, {
+    headers: authHeaders(token),
+  }) as unknown as Promise<PaginatedResponse<Booking>>;
+}
+
 export async function updateBooking(
   token: string,
   data: {
@@ -138,10 +254,13 @@ export async function updateBooking(
     adminNotes?: string;
     message?: string;
     assignedTo?: string;
+    _version?: number;
+    dietaryRestrictions?: string[];
+    allergens?: string[];
   }
-): Promise<{ success: boolean; booking?: Booking }> {
+): Promise<{ success: boolean; booking?: Booking; error?: string; code?: string }> {
   return adminRequest(`${API_BASE}/admin/bookings`, {
-    method: 'PUT',
+    method: 'PATCH',
     headers: authHeaders(token),
     body: JSON.stringify(data),
   });
@@ -171,12 +290,13 @@ export async function fetchCalendar(region?: string): Promise<{
 export async function addBlockedDate(
   token: string,
   date: string,
-  reason?: string
+  reason?: string,
+  region?: string
 ): Promise<{ success: boolean; blockedDates: BlockedDate[] }> {
   return adminRequest(`${API_BASE}/calendar`, {
     method: 'POST',
     headers: authHeaders(token),
-    body: JSON.stringify({ date, reason }),
+    body: JSON.stringify({ date, reason, ...(region && { region }) }),
   });
 }
 
@@ -203,6 +323,23 @@ export async function fetchReviews(
   });
 }
 
+export async function fetchReviewsPaginated(
+  token: string,
+  params: PaginationParams & { rating?: number; visible?: boolean } = {}
+): Promise<PaginatedResponse<Review>> {
+  const searchParams = new URLSearchParams();
+  if (params.page) searchParams.set('page', String(params.page));
+  if (params.pageSize) searchParams.set('pageSize', String(params.pageSize));
+  if (params.search) searchParams.set('search', params.search);
+  if (params.rating !== undefined) searchParams.set('rating', String(params.rating));
+  if (params.visible !== undefined) searchParams.set('visible', String(params.visible));
+  if (params.sort) searchParams.set('sort', params.sort);
+  if (params.dir) searchParams.set('dir', params.dir);
+  return adminRequest(`${API_BASE}/reviews?${searchParams.toString()}`, {
+    headers: authHeaders(token),
+  }) as unknown as Promise<PaginatedResponse<Review>>;
+}
+
 export async function addReview(
   token: string,
   data: Omit<Review, 'id' | 'createdAt'>
@@ -219,7 +356,7 @@ export async function updateReview(
   data: { id: string } & Partial<Review>
 ): Promise<{ success: boolean; review?: Review }> {
   return adminRequest(`${API_BASE}/reviews`, {
-    method: 'PUT',
+    method: 'PATCH',
     headers: authHeaders(token),
     body: JSON.stringify(data),
   });
@@ -243,6 +380,19 @@ export async function fetchCoupons(
   return adminRequest(`${API_BASE}/coupons`, {
     headers: authHeaders(token),
   });
+}
+
+export async function fetchCouponsPaginated(
+  token: string,
+  params: PaginationParams & { enabled?: boolean } = {}
+): Promise<PaginatedResponse<Coupon>> {
+  const query = buildPaginationQuery({
+    ...params,
+    ...(params.enabled !== undefined && { enabled: String(params.enabled) }),
+  } as unknown as Record<string, unknown>);
+  return adminRequest(`${API_BASE}/coupons?${query}`, {
+    headers: authHeaders(token),
+  }) as unknown as Promise<PaginatedResponse<Coupon>>;
 }
 
 export async function createCoupon(
@@ -384,6 +534,18 @@ export async function deleteInstagramPost(
   });
 }
 
+export async function updateInstagramPost(
+  token: string,
+  postId: string,
+  data: Partial<InstagramPost>
+): Promise<{ success: boolean; settings?: InstagramSettings }> {
+  return adminRequest(`${API_BASE}/instagram`, {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: JSON.stringify({ action: 'update', postId, post: data }),
+  });
+}
+
 export async function reorderInstagramPosts(
   token: string,
   posts: InstagramPost[]
@@ -428,6 +590,16 @@ export async function fetchCustomers(
   });
 }
 
+export async function fetchCustomersPaginated(
+  token: string,
+  params: PaginationParams = {}
+): Promise<PaginatedResponse<Customer>> {
+  const query = buildPaginationQuery(params as unknown as Record<string, unknown>);
+  return adminRequest(`${API_BASE}/admin/customers?${query}`, {
+    headers: authHeaders(token),
+  }) as unknown as Promise<PaginatedResponse<Customer>>;
+}
+
 export async function updateCustomerNotes(
   token: string,
   email: string,
@@ -464,6 +636,16 @@ export async function fetchAuditLog(
   });
 }
 
+export async function fetchAuditLogPaginated(
+  token: string,
+  params: PaginationParams & { entity?: string } = {}
+): Promise<PaginatedResponse<AuditLogEntry>> {
+  const query = buildPaginationQuery(params as unknown as Record<string, unknown>);
+  return adminRequest(`${API_BASE}/admin/audit-log?${query}`, {
+    headers: authHeaders(token),
+  }) as unknown as Promise<PaginatedResponse<AuditLogEntry>>;
+}
+
 // ---------------------------------------------------------------------------
 // User Management
 // ---------------------------------------------------------------------------
@@ -498,6 +680,7 @@ export async function updateUser(
     enabled?: boolean;
     status?: 'approved' | 'rejected';
     role?: AdminRole;
+    visibility?: 'full' | 'standard' | 'minimal';
   }
 ): Promise<{ success: boolean; user?: Omit<AdminUser, 'passwordHash'>; error?: string }> {
   return adminRequest(`${API_BASE}/admin/users`, {
@@ -507,12 +690,94 @@ export async function updateUser(
   });
 }
 
+// ---------------------------------------------------------------------------
+// Comments
+// ---------------------------------------------------------------------------
+
+export async function fetchComments(
+  token: string,
+  bookingId: string
+): Promise<{ success: boolean; comments: BookingComment[] }> {
+  return adminRequest(`${API_BASE}/admin/comments?bookingId=${encodeURIComponent(bookingId)}`, {
+    headers: authHeaders(token),
+  });
+}
+
+export async function addComment(
+  token: string,
+  bookingId: string,
+  content: string,
+  displayName: string,
+  mentions?: string[]
+): Promise<{ success: boolean; comment?: BookingComment }> {
+  return adminRequest(`${API_BASE}/admin/comments`, {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: JSON.stringify({ bookingId, content, displayName, mentions }),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// User Management
+// ---------------------------------------------------------------------------
+
 export async function deleteUser(
   token: string,
   id: string
 ): Promise<{ success: boolean; error?: string }> {
   return adminRequest(`${API_BASE}/admin/users?id=${encodeURIComponent(id)}`, {
     method: 'DELETE',
+    headers: authHeaders(token),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Notifications
+// ---------------------------------------------------------------------------
+
+export async function fetchNotifications(
+  token: string
+): Promise<{ success: boolean; notifications: AdminNotification[] }> {
+  return adminRequest(`${API_BASE}/admin/notifications`, {
+    headers: authHeaders(token),
+  });
+}
+
+export async function markNotificationsRead(
+  token: string,
+  ids: string[]
+): Promise<{ success: boolean }> {
+  return adminRequest(`${API_BASE}/admin/notifications`, {
+    method: 'PATCH',
+    headers: authHeaders(token),
+    body: JSON.stringify({ ids }),
+  });
+}
+
+export async function markAllNotificationsRead(token: string): Promise<{ success: boolean }> {
+  return adminRequest(`${API_BASE}/admin/notifications`, {
+    method: 'PATCH',
+    headers: authHeaders(token),
+    body: JSON.stringify({ markAllRead: true }),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Team Status
+// ---------------------------------------------------------------------------
+
+export interface TeamMemberStatus {
+  id: string;
+  displayName: string;
+  role: string;
+  lastSeenAt: string | null;
+  isOnline: boolean;
+}
+
+export async function fetchTeamStatus(
+  token: string
+): Promise<{ success: boolean; users: TeamMemberStatus[] }> {
+  return adminRequest(`${API_BASE}/admin/team/status`, {
     headers: authHeaders(token),
   });
 }
