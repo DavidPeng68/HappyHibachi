@@ -353,9 +353,19 @@
   .gallery-item-overlay {
     opacity: 1;
   }
+
+  .gallery-admin-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    padding: 12px;
+  }
 }
 
 @media (max-width: 480px) {
+  .gallery-admin-grid {
+    grid-template-columns: 1fr;
+  }
+
   .stats-grid {
     grid-template-columns: 1fr 1fr;
   }

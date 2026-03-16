@@ -1,7 +1,14 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAdmin } from './AdminLayout';
-import { ConfirmDialog, ImageLightbox } from '../../components/admin';
+import {
+  ConfirmDialog,
+  ImageLightbox,
+  EmptyState,
+  PageHeader,
+  Breadcrumb,
+} from '../../components/admin';
+import { NoDataIcon } from '../../components/admin/EmptyStateIcons';
 import { ImageUploader } from '../../components/ui';
 import { GALLERY_PRESET, compressImage } from '../../utils/imageCompression';
 import * as adminApi from '../../services/adminApi';
@@ -73,6 +80,22 @@ const TrashIcon = () => (
   </svg>
 );
 
+const CopyIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+  </svg>
+);
+
 function base64ToBlob(base64: string): Blob {
   const [header, data] = base64.split(',');
   const mime = header.match(/:(.*?);/)?.[1] || 'image/webp';
@@ -91,11 +114,24 @@ const GalleryManagement: React.FC = () => {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [singleDeleteId, setSingleDeleteId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(
+    null
+  );
 
   const galleryImages = useMemo(
     () => [...(settings.galleryImages || [])].sort((a, b) => a.order - b.order),
     [settings.galleryImages]
+  );
+
+  const filteredImages = useMemo(
+    () =>
+      searchQuery.trim()
+        ? galleryImages.filter((img) =>
+            img.caption.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        : galleryImages,
+    [galleryImages, searchQuery]
   );
 
   // -------------------------------------------------------------------
@@ -141,17 +177,17 @@ const GalleryManagement: React.FC = () => {
   const handleUploadMultiple = useCallback(
     async (images: string[]) => {
       setUploading(true);
+      setUploadProgress({ current: 0, total: images.length });
       try {
         const currentImages = settings.galleryImages || [];
         const maxOrder =
           currentImages.length > 0 ? Math.max(...currentImages.map((img) => img.order)) : 0;
 
-        const results = await Promise.all(images.map((base64) => uploadToR2(base64)));
-
         const newImages: GalleryImageApi[] = [];
         let failCount = 0;
 
-        results.forEach((result, i) => {
+        for (let i = 0; i < images.length; i++) {
+          const result = await uploadToR2(images[i]);
           if (result) {
             newImages.push({
               id: `gallery_${Date.now()}_${i}`,
@@ -163,7 +199,8 @@ const GalleryManagement: React.FC = () => {
           } else {
             failCount++;
           }
-        });
+          setUploadProgress((prev) => (prev ? { ...prev, current: prev.current + 1 } : null));
+        }
 
         if (failCount > 0) {
           showToast(t('admin.gallery.uploadFailed'), 'error');
@@ -176,6 +213,7 @@ const GalleryManagement: React.FC = () => {
         showToast(t('admin.gallery.uploadFailed'), 'error');
       } finally {
         setUploading(false);
+        setUploadProgress(null);
       }
     },
     [settings.galleryImages, uploadToR2, saveGalleryImages, showToast, t]
@@ -282,6 +320,7 @@ const GalleryManagement: React.FC = () => {
   }, [selectedImageIds.size]);
 
   const confirmBulkDelete = useCallback(async () => {
+    const deleteCount = selectedImageIds.size;
     setSaving(true);
     try {
       const imagesToDelete = (settings.galleryImages || []).filter((img) =>
@@ -293,6 +332,7 @@ const GalleryManagement: React.FC = () => {
       }
       const updated = (settings.galleryImages || []).filter((img) => !selectedImageIds.has(img.id));
       await saveGalleryImages(updated);
+      showToast(t('admin.gallery.deletedCount', { count: deleteCount }), 'success');
       setSelectedImageIds(new Set());
       setDeleteConfirmOpen(false);
     } catch {
@@ -354,6 +394,22 @@ const GalleryManagement: React.FC = () => {
   );
 
   // -------------------------------------------------------------------
+  // Copy URL
+  // -------------------------------------------------------------------
+
+  const handleCopyUrl = useCallback(
+    async (url: string) => {
+      try {
+        await navigator.clipboard.writeText(url);
+        showToast(t('admin.gallery.urlCopied'), 'success');
+      } catch {
+        showToast(t('admin.gallery.urlCopied'), 'info');
+      }
+    },
+    [showToast, t]
+  );
+
+  // -------------------------------------------------------------------
   // Lightbox
   // -------------------------------------------------------------------
 
@@ -376,15 +432,17 @@ const GalleryManagement: React.FC = () => {
   // -------------------------------------------------------------------
 
   return (
-    <div className="settings-page">
+    <div>
+      <Breadcrumb
+        items={[
+          { label: t('admin.nav.dashboard'), onClick: () => {} },
+          { label: t('admin.gallery.title') },
+        ]}
+      />
+      <PageHeader title={t('admin.gallery.title')} count={galleryImages.length} />
+
       {/* Upload card */}
       <div className="card">
-        <div className="card-header">
-          <h2>{t('admin.gallery.title')}</h2>
-          <span className="badge">
-            {t('admin.gallery.imageCount', { count: galleryImages.length })}
-          </span>
-        </div>
         <div className="gallery-upload-area">
           <ImageUploader
             preset={GALLERY_PRESET}
@@ -393,14 +451,46 @@ const GalleryManagement: React.FC = () => {
             onMultipleChange={handleUploadMultiple}
             label={t('admin.gallery.uploadLabel')}
           />
-          {uploading && <p className="text-primary mt-2">{t('admin.gallery.uploading')}</p>}
+          {uploadProgress && (
+            <div className="gallery-upload-progress">
+              <span>
+                {t('admin.gallery.uploadProgress', {
+                  current: uploadProgress.current,
+                  total: uploadProgress.total,
+                })}
+              </span>
+              <div className="gallery-upload-progress-bar">
+                <div
+                  className="gallery-upload-progress-fill"
+                  style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Empty state */}
+      {galleryImages.length === 0 && (
+        <EmptyState
+          svgIcon={<NoDataIcon />}
+          title={t('admin.gallery.noImages')}
+          description={t('admin.gallery.noImagesDescription')}
+        />
+      )}
 
       {/* Bulk actions */}
       {galleryImages.length > 0 && (
         <div className="card">
           <div className="card-header">
+            <input
+              type="text"
+              className="admin-input"
+              placeholder={t('admin.gallery.searchPlaceholder')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ maxWidth: 240 }}
+            />
             <button className="admin-btn" onClick={handleSelectAll} type="button">
               {selectedImageIds.size === galleryImages.length
                 ? t('admin.gallery.deselectAll')
@@ -423,100 +513,131 @@ const GalleryManagement: React.FC = () => {
       {/* Gallery grid */}
       {galleryImages.length > 0 && (
         <div className="card">
-          <div className="gallery-admin-grid">
-            {galleryImages.map((image, idx) => (
-              <div
-                key={image.id}
-                className={`gallery-admin-item${selectedImageIds.has(image.id) ? ' selected' : ''}`}
-              >
-                {/* Checkbox */}
-                <label className="gallery-admin-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={selectedImageIds.has(image.id)}
-                    onChange={() => toggleSelectImage(image.id)}
-                  />
-                </label>
-
-                {/* Image */}
+          {filteredImages.length === 0 ? (
+            <div className="gallery-no-results">{t('admin.gallery.noResults')}</div>
+          ) : (
+            <div className="gallery-admin-grid">
+              {filteredImages.map((image, idx) => (
                 <div
-                  className="gallery-admin-image"
-                  onClick={() => setLightboxIndex(idx)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      setLightboxIndex(idx);
-                    }
-                  }}
-                  aria-label={t('admin.gallery.viewFullSize')}
+                  key={image.id}
+                  className={`gallery-admin-item${selectedImageIds.has(image.id) ? ' selected' : ''}`}
                 >
-                  <img src={image.url} alt={image.caption || `Gallery ${idx + 1}`} />
-                </div>
-
-                {/* Caption */}
-                <input
-                  type="text"
-                  className="admin-input gallery-admin-caption"
-                  value={image.caption}
-                  onChange={(e) => handleCaptionChange(image.id, e.target.value)}
-                  onBlur={handleCaptionBlur}
-                  placeholder={t('admin.gallery.captionPlaceholder')}
-                />
-
-                {/* Actions */}
-                <div className="gallery-admin-actions">
-                  <button
-                    className="gallery-action-btn"
-                    onClick={() => handleMoveImage(image.id, 'up')}
-                    disabled={idx === 0 || saving}
-                    title={t('admin.gallery.moveUp')}
-                    type="button"
-                  >
-                    <ChevronUpIcon />
-                  </button>
-                  <button
-                    className="gallery-action-btn"
-                    onClick={() => handleMoveImage(image.id, 'down')}
-                    disabled={idx === galleryImages.length - 1 || saving}
-                    title={t('admin.gallery.moveDown')}
-                    type="button"
-                  >
-                    <ChevronDownIcon />
-                  </button>
-
-                  <label
-                    className="gallery-action-btn gallery-replace-btn"
-                    title={t('admin.gallery.replace')}
-                  >
-                    <RefreshIcon />
+                  {/* Checkbox */}
+                  <label className="gallery-admin-checkbox" htmlFor={`gallery-cb-${image.id}`}>
                     <input
-                      type="file"
-                      accept="image/*"
-                      style={{ display: 'none' }}
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        handleReplaceFile(image.id, file);
-                        e.target.value = '';
-                      }}
+                      id={`gallery-cb-${image.id}`}
+                      type="checkbox"
+                      checked={selectedImageIds.has(image.id)}
+                      onChange={() => toggleSelectImage(image.id)}
                     />
                   </label>
 
-                  <button
-                    className="gallery-action-btn gallery-action-btn--danger"
-                    onClick={() => handleDeleteSingle(image.id)}
-                    disabled={saving}
-                    title={t('admin.gallery.delete')}
-                    type="button"
+                  {/* Image */}
+                  <div
+                    className="gallery-admin-image"
+                    onClick={() => {
+                      const originalIdx = galleryImages.findIndex((g) => g.id === image.id);
+                      setLightboxIndex(originalIdx);
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        const originalIdx = galleryImages.findIndex((g) => g.id === image.id);
+                        setLightboxIndex(originalIdx);
+                      }
+                    }}
+                    aria-label={t('admin.gallery.viewFullSize')}
                   >
-                    <TrashIcon />
-                  </button>
+                    <img src={image.url} alt={image.caption || `Gallery ${idx + 1}`} />
+                  </div>
+
+                  {/* Caption */}
+                  <div className="gallery-caption-wrapper">
+                    <input
+                      type="text"
+                      className="admin-input gallery-admin-caption"
+                      value={image.caption}
+                      onChange={(e) => handleCaptionChange(image.id, e.target.value)}
+                      onBlur={handleCaptionBlur}
+                      placeholder={t('admin.gallery.captionPlaceholder')}
+                      maxLength={120}
+                    />
+                    <span className="gallery-caption-count">{image.caption.length}/120</span>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="gallery-admin-actions">
+                    <button
+                      className="gallery-action-btn"
+                      onClick={() => handleMoveImage(image.id, 'up')}
+                      disabled={idx === 0 || saving}
+                      title={t('admin.gallery.moveUp')}
+                      type="button"
+                    >
+                      <ChevronUpIcon />
+                    </button>
+                    <button
+                      className="gallery-action-btn"
+                      onClick={() => handleMoveImage(image.id, 'down')}
+                      disabled={idx === filteredImages.length - 1 || saving}
+                      title={t('admin.gallery.moveDown')}
+                      type="button"
+                    >
+                      <ChevronDownIcon />
+                    </button>
+
+                    <label
+                      className="gallery-action-btn gallery-replace-btn"
+                      title={t('admin.gallery.replace')}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          (e.currentTarget.querySelector('input') as HTMLInputElement)?.click();
+                        }
+                      }}
+                    >
+                      <RefreshIcon />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        aria-hidden="true"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          handleReplaceFile(image.id, file);
+                          e.target.value = '';
+                        }}
+                      />
+                    </label>
+
+                    <button
+                      className="gallery-action-btn"
+                      onClick={() => handleCopyUrl(image.url)}
+                      title={t('admin.gallery.copyUrl')}
+                      type="button"
+                    >
+                      <CopyIcon />
+                    </button>
+
+                    <button
+                      className="gallery-action-btn gallery-action-btn--danger"
+                      onClick={() => handleDeleteSingle(image.id)}
+                      disabled={saving}
+                      title={t('admin.gallery.delete')}
+                      type="button"
+                    >
+                      <TrashIcon />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

@@ -216,3 +216,32 @@
 .empty-state-action {
   margin-top: 16px;
 }
+
+/* Lightbox responsive */
+@media (max-width: 600px) {
+  .lightbox-close {
+    width: 32px;
+    height: 32px;
+    top: 8px;
+    right: 8px;
+    font-size: 20px;
+  }
+
+  .lightbox-nav {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .lightbox-image {
+    max-width: 95vw;
+    max-height: 80vh;
+  }
+}
+
+/* Lightbox focus states */
+.lightbox-close:focus-visible,
+.lightbox-nav:focus-visible {
+  outline: 2px solid var(--admin-primary, #ff6b35);
+  outline-offset: 2px;
+}

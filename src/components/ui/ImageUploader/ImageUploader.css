@@ -21,7 +21,7 @@
   gap: 0.75rem;
   min-height: 160px;
   padding: 2rem 1.5rem;
-  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border: 2px dashed var(--admin-border, rgba(255, 255, 255, 0.15));
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.03);
   cursor: pointer;
@@ -36,7 +36,7 @@
 }
 
 .image-uploader__dropzone--active {
-  border-color: #f05e2a;
+  border-color: var(--admin-primary, #f05e2a);
   background: rgba(240, 94, 42, 0.1);
   transform: scale(1.01);
 }
@@ -50,12 +50,12 @@
 .image-uploader__icon {
   width: 40px;
   height: 40px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--admin-text-muted, rgba(255, 255, 255, 0.4));
   transition: color 0.2s;
 }
 
 .image-uploader__dropzone:hover .image-uploader__icon {
-  color: #f05e2a;
+  color: var(--admin-primary, #f05e2a);
 }
 
 .image-uploader__icon svg {
@@ -94,7 +94,7 @@
   width: 32px;
   height: 32px;
   border: 3px solid rgba(255, 255, 255, 0.1);
-  border-top-color: #f05e2a;
+  border-top-color: var(--admin-primary, #f05e2a);
   border-radius: 50%;
   animation: uploader-spin 0.8s linear infinite;
 }
@@ -178,7 +178,7 @@
 }
 
 .image-uploader__btn-replace {
-  background: #f05e2a;
+  background: var(--admin-primary, #f05e2a);
   color: #fff;
 }
 
@@ -192,7 +192,7 @@
 }
 
 .image-uploader__btn-remove:hover {
-  background: #ff4444;
+  background: var(--admin-danger, #ff4444);
 }
 
 /* Compression info bar */
@@ -232,7 +232,7 @@
 .image-uploader__btn-camera {
   flex: 1;
   padding: 0.75rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--admin-border, rgba(255, 255, 255, 0.15));
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.8);
@@ -245,7 +245,7 @@
 }
 
 .image-uploader__btn-camera:hover {
-  border-color: #f05e2a;
+  border-color: var(--admin-primary, #f05e2a);
   background: rgba(240, 94, 42, 0.1);
 }
 

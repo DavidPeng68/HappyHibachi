@@ -159,3 +159,61 @@
 .gallery-upload-area {
   padding: 16px 20px;
 }
+
+/* Focus states */
+.gallery-action-btn:focus-visible {
+  outline: 2px solid var(--admin-primary);
+  outline-offset: 2px;
+}
+
+.gallery-admin-image:focus-visible {
+  outline: 2px solid var(--admin-primary);
+  outline-offset: -2px;
+}
+
+/* Upload progress */
+.gallery-upload-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  color: var(--admin-primary);
+  font-size: 14px;
+}
+
+.gallery-upload-progress-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--admin-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.gallery-upload-progress-fill {
+  height: 100%;
+  background: var(--admin-primary);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Caption character count */
+.gallery-caption-wrapper {
+  position: relative;
+}
+
+.gallery-caption-count {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  font-size: 11px;
+  color: var(--admin-text-muted);
+  pointer-events: none;
+}
+
+/* Search results empty */
+.gallery-no-results {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--admin-text-muted);
+  font-size: 14px;
+}
