@@ -370,6 +370,26 @@ const CustomerManagement: React.FC = () => {
         sortDir={sortDir}
         onSort={handleSort}
         emptyTitle={t('admin.customers.noCustomers')}
+        mobileCardRender={(c) => (
+          <>
+            <div className="card-row">
+              <div>
+                <div className="card-title">{c.name}</div>
+                <div className="card-subtitle">{c.email}</div>
+              </div>
+              {c.completedBookings >= 2 && (
+                <span className="customer-repeat-badge">{t('admin.customers.repeatCustomer')}</span>
+              )}
+            </div>
+            <div className="card-meta">
+              <span className="card-meta-item">
+                {c.totalBookings} {t('admin.customers.bookings')}
+              </span>
+              <span className="card-meta-item">{c.region}</span>
+              {c.tags.length > 0 && <span className="card-meta-item">{c.tags[0]}</span>}
+            </div>
+          </>
+        )}
       />
 
       {/* Pagination */}

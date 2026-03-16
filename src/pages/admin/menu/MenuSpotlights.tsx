@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { MenuSpotlight, MenuItem } from '../../../types/menu';
 import { MENU_ITEM_PRESET } from '../../../utils/imageCompression';
+import { useConfirmDialog } from '../../../hooks/useConfirmDialog';
+import ConfirmDialog from '../../../components/admin/ConfirmDialog';
 import ImageUploader from '../../../components/ui/ImageUploader';
 import TranslatableField from '../TranslatableField';
 import { uid, emptyText } from './menuHelpers';
@@ -28,6 +30,7 @@ const SpotlightsTab: React.FC<SpotlightsTabProps> = ({
   onImageUpload,
 }) => {
   const { t } = useTranslation();
+  const { dialogProps, confirm } = useConfirmDialog();
   const sorted = [...spotlights].sort((a, b) => a.sortOrder - b.sortOrder);
 
   const handleNew = () => {
@@ -54,8 +57,14 @@ const SpotlightsTab: React.FC<SpotlightsTabProps> = ({
   };
 
   const handleDelete = (id: string) => {
-    if (!window.confirm(t('admin.menu.deleteSpotlightConfirm'))) return;
-    onChange(spotlights.filter((s) => s.id !== id));
+    confirm(
+      {
+        title: t('admin.menu.deleteSpotlightConfirm'),
+        message: t('admin.menu.deleteSpotlightConfirm'),
+        variant: 'danger',
+      },
+      () => onChange(spotlights.filter((s) => s.id !== id))
+    );
   };
 
   const getItemName = (itemId: string) =>
@@ -63,6 +72,7 @@ const SpotlightsTab: React.FC<SpotlightsTabProps> = ({
 
   return (
     <>
+      <ConfirmDialog {...dialogProps} />
       <div className="menu-mgmt__section-header">
         <h3 className="menu-mgmt__section-title">
           {t('admin.menu.spotlightsCount', { count: spotlights.length })}

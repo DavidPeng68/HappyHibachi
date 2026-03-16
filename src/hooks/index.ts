@@ -11,3 +11,6 @@ export { useAnimatedCounter } from './useAnimatedCounter';
 export { useTheme } from './useTheme';
 export { useFormValidation } from './useFormValidation';
 export { useAutoSave } from './useAutoSave';
+export { useBreakpoint, BREAKPOINTS } from './useBreakpoint';
+export type { Breakpoint } from './useBreakpoint';
+export { useTouchDevice } from './useTouchDevice';

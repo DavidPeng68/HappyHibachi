@@ -782,6 +782,7 @@ const ja = {
       errorNetwork: '接続できません。インターネットを確認して再試行してください。',
       needHelp: 'ヘルプが必要ですか？管理者に連絡してください',
       registerSuccessBackSoon: '承認後にアクセスできるようになります。',
+      rememberMe: 'ログイン状態を保持',
     },
     nav: {
       dashboard: 'ダッシュボード',
@@ -811,6 +812,7 @@ const ja = {
       navigation: '管理ナビゲーション',
     },
     roles: {
+      admin: '管理者',
       superAdmin: 'スーパー管理者',
       orderManager: '注文管理者',
     },
@@ -1482,6 +1484,14 @@ const ja = {
       title: '問題が発生しました',
       description: 'このセクションの読み込み中にエラーが発生しました。もう一度お試しください。',
       retry: '再試行',
+    },
+    errors: {
+      requestTimeout: 'リクエストがタイムアウトしました。もう一度お試しください。',
+      networkError: 'ネットワークエラー。接続を確認してください。',
+      uploadTimeout: 'アップロードがタイムアウトしました。もう一度お試しください。',
+      unknownError: '不明なエラー。',
+      deleteFailed: '削除に失敗しました。もう一度お試しください。',
+      permissionDenied: '権限がありません。',
     },
     time: {
       justNow: 'たった今',

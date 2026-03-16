@@ -1,22 +1,40 @@
 import React, { ReactNode } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import type { AdminRole, Permission } from '../../types/admin';
+import { hasPermission } from '../../types/admin';
 
 interface ProtectedRouteProps {
   children: ReactNode;
   requireAuth?: boolean;
   requireAdmin?: boolean;
+  requiredPermission?: Permission;
 }
 
-/**
- * Route protection component
- * Redirects to home if user doesn't have required permissions
- */
+function getStoredAuth() {
+  const token = sessionStorage.getItem('admin_token');
+  const role = sessionStorage.getItem('admin_role') as AdminRole | null;
+  return { token, role };
+}
+
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   requireAuth: _requireAuth = false,
-  requireAdmin: _requireAdmin = false,
+  requireAdmin = false,
+  requiredPermission,
 }) => {
-  // Admin routes are protected by the login form in AdminDashboard itself,
-  // so no environment variable gate is needed here.
+  const location = useLocation();
+
+  if (requireAdmin) {
+    const { token, role } = getStoredAuth();
+
+    if (!token) {
+      return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    }
+
+    if (requiredPermission && role && !hasPermission(role, requiredPermission)) {
+      return <Navigate to="/admin/dashboard" replace />;
+    }
+  }
 
   return <>{children}</>;
 };

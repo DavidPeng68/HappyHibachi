@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { MenuCategory } from '../../../types/menu';
+import { useConfirmDialog } from '../../../hooks/useConfirmDialog';
+import ConfirmDialog from '../../../components/admin/ConfirmDialog';
 import TranslatableField from '../TranslatableField';
 import { uid, emptyText } from './menuHelpers';
 
@@ -22,6 +24,7 @@ const CategoriesTab: React.FC<CategoriesTabProps> = ({
   setEditingId,
 }) => {
   const { t } = useTranslation();
+  const { dialogProps, confirm } = useConfirmDialog();
   const sorted = [...categories].sort((a, b) => a.sortOrder - b.sortOrder);
 
   const [draft, setDraft] = useState<MenuCategory | null>(null);
@@ -60,13 +63,22 @@ const CategoriesTab: React.FC<CategoriesTabProps> = ({
   };
 
   const handleDelete = (id: string) => {
-    if (!window.confirm(t('admin.menu.deleteCategoryConfirm'))) return;
-    onChange(categories.filter((c) => c.id !== id));
-    if (editingId === id) setEditingId(null);
+    confirm(
+      {
+        title: t('admin.menu.deleteCategoryConfirm'),
+        message: t('admin.menu.deleteCategoryConfirm'),
+        variant: 'danger',
+      },
+      () => {
+        onChange(categories.filter((c) => c.id !== id));
+        if (editingId === id) setEditingId(null);
+      }
+    );
   };
 
   return (
     <>
+      <ConfirmDialog {...dialogProps} />
       <div className="menu-mgmt__section-header">
         <h3 className="menu-mgmt__section-title">
           {t('admin.menu.categoriesCount', { count: categories.length })}

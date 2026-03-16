@@ -785,6 +785,7 @@ const en = {
       errorNetwork: 'Unable to connect. Check your internet and try again.',
       needHelp: 'Need help? Contact your administrator',
       registerSuccessBackSoon: 'You will receive access once approved.',
+      rememberMe: 'Remember me',
     },
     nav: {
       dashboard: 'Dashboard',
@@ -814,6 +815,7 @@ const en = {
       navigation: 'Admin navigation',
     },
     roles: {
+      admin: 'Admin',
       superAdmin: 'Super Admin',
       orderManager: 'Order Manager',
     },
@@ -1489,6 +1491,14 @@ const en = {
       title: 'Something went wrong',
       description: 'An error occurred while loading this section. Please try again.',
       retry: 'Try again',
+    },
+    errors: {
+      requestTimeout: 'Request timed out. Please try again.',
+      networkError: 'Network error. Please check your connection.',
+      uploadTimeout: 'Upload timed out. Please try again.',
+      unknownError: 'An unknown error occurred.',
+      deleteFailed: 'Delete failed. Please try again.',
+      permissionDenied: 'You do not have permission to perform this action.',
     },
     time: {
       justNow: 'just now',

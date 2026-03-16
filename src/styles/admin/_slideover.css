@@ -73,8 +73,26 @@
   padding: 24px;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .slideover-panel {
     width: 100% !important;
+  }
+
+  .slideover-header {
+    padding: 14px 16px;
+    padding-top: max(14px, env(safe-area-inset-top));
+  }
+
+  .slideover-body {
+    padding: 16px;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+
+  .slideover-close {
+    min-width: var(--admin-touch-target, 44px);
+    min-height: var(--admin-touch-target, 44px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }

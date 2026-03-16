@@ -272,6 +272,50 @@
 }
 
 /* =============================================
+   Sidebar mobile drawer
+   ============================================= */
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 199;
+  animation: fade-in 0.2s ease;
+}
+
+.sidebar--mobile-drawer {
+  display: flex !important;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 280px;
+  max-width: 85vw;
+  z-index: 200;
+  animation: slide-in-left 0.25s ease;
+  box-shadow: var(--admin-shadow-overlay);
+}
+
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Topbar hamburger */
+.topbar-hamburger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-right: 4px;
+}
+
+/* =============================================
    移动端底部导航
    ============================================= */
 

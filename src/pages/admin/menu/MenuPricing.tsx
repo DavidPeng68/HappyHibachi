@@ -1,6 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import type { PricingConfig, CouponTier } from '../../../types/menu';
+import { useConfirmDialog } from '../../../hooks/useConfirmDialog';
+import ConfirmDialog from '../../../components/admin/ConfirmDialog';
 import TranslatableField from '../TranslatableField';
 import { uid, emptyText } from './menuHelpers';
 
@@ -22,6 +24,7 @@ const PricingTab: React.FC<PricingTabProps> = ({
   onTiersChange,
 }) => {
   const { t } = useTranslation();
+  const { dialogProps, confirm } = useConfirmDialog();
   const upP = (partial: Partial<PricingConfig>) => onPricingChange({ ...pricing, ...partial });
 
   const sorted = [...couponTiers].sort((a, b) => a.sortOrder - b.sortOrder);
@@ -43,12 +46,19 @@ const PricingTab: React.FC<PricingTabProps> = ({
   };
 
   const removeTier = (id: string) => {
-    if (!window.confirm(t('admin.menu.removeTierConfirm'))) return;
-    onTiersChange(couponTiers.filter((t) => t.id !== id));
+    confirm(
+      {
+        title: t('admin.menu.removeTierConfirm'),
+        message: t('admin.menu.removeTierConfirm'),
+        variant: 'danger',
+      },
+      () => onTiersChange(couponTiers.filter((t) => t.id !== id))
+    );
   };
 
   return (
     <>
+      <ConfirmDialog {...dialogProps} />
       <div className="menu-mgmt__section-header">
         <h3 className="menu-mgmt__section-title">{t('admin.menu.pricingConfig')}</h3>
       </div>

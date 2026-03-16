@@ -791,6 +791,7 @@ const vi = {
       errorNetwork: 'Không thể kết nối. Kiểm tra internet và thử lại.',
       needHelp: 'Cần giúp đỡ? Liên hệ quản trị viên',
       registerSuccessBackSoon: 'Bạn sẽ được truy cập sau khi được phê duyệt.',
+      rememberMe: 'Ghi nhớ đăng nhập',
     },
     nav: {
       dashboard: 'Bảng Điều Khiển',
@@ -820,6 +821,7 @@ const vi = {
       navigation: 'Điều hướng quản trị',
     },
     roles: {
+      admin: 'Quản trị viên',
       superAdmin: 'Quản Trị Viên Cao Cấp',
       orderManager: 'Quản Lý Đơn Hàng',
     },
@@ -1492,6 +1494,14 @@ const vi = {
       title: 'Đã xảy ra lỗi',
       description: 'Đã xảy ra lỗi khi tải phần này. Vui lòng thử lại.',
       retry: 'Thử lại',
+    },
+    errors: {
+      requestTimeout: 'Yêu cầu hết thời gian. Vui lòng thử lại.',
+      networkError: 'Lỗi mạng. Vui lòng kiểm tra kết nối.',
+      uploadTimeout: 'Tải lên hết thời gian. Vui lòng thử lại.',
+      unknownError: 'Lỗi không xác định.',
+      deleteFailed: 'Xóa thất bại. Vui lòng thử lại.',
+      permissionDenied: 'Bạn không có quyền thực hiện hành động này.',
     },
     time: {
       justNow: 'vừa xong',

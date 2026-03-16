@@ -10,13 +10,32 @@ import { OrderProvider } from './contexts/OrderContext';
 import './App.css';
 
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const AdminLoginPage = React.lazy(() =>
+  import('./pages/AdminDashboard').then((m) => ({ default: m.AdminLoginPage }))
+);
 const FreeEstimate = React.lazy(() => import('./pages/FreeEstimate'));
 const OrderPage = React.lazy(() => import('./pages/OrderPage'));
 const MyBooking = React.lazy(() => import('./pages/MyBooking'));
 const Privacy = React.lazy(() => import('./pages/Privacy'));
 const Terms = React.lazy(() => import('./pages/Terms'));
 
-// 动态更新 HTML lang 属性
+const DashboardOverview = React.lazy(() => import('./pages/admin/DashboardOverview'));
+const ManagerDashboard = React.lazy(() => import('./pages/admin/ManagerDashboard'));
+const AnalyticsDashboard = React.lazy(() => import('./pages/admin/AnalyticsDashboard'));
+const BookingManagement = React.lazy(() => import('./pages/admin/bookings/BookingManagement'));
+const CalendarManagement = React.lazy(() => import('./pages/admin/CalendarManagement'));
+const ReviewManagement = React.lazy(() => import('./pages/admin/ReviewManagement'));
+const CouponManagement = React.lazy(() => import('./pages/admin/CouponManagement'));
+const GalleryManagement = React.lazy(() => import('./pages/admin/GalleryManagement'));
+const InstagramManagement = React.lazy(() => import('./pages/admin/InstagramManagement'));
+const SettingsPage = React.lazy(() => import('./pages/admin/settings/SettingsPage'));
+const MenuManagement = React.lazy(() => import('./pages/admin/menu/MenuManagement'));
+const CustomerManagement = React.lazy(() => import('./pages/admin/CustomerManagement'));
+const ActivityLog = React.lazy(() => import('./pages/admin/ActivityLog'));
+const UserManagement = React.lazy(() => import('./pages/admin/UserManagement'));
+const TeamDashboard = React.lazy(() => import('./pages/admin/TeamDashboard'));
+const DispatchCenter = React.lazy(() => import('./pages/admin/DispatchCenter'));
+
 const LanguageUpdater: React.FC = () => {
   const { i18n } = useTranslation();
 
@@ -27,7 +46,46 @@ const LanguageUpdater: React.FC = () => {
   return null;
 };
 
-// 内部路由组件
+/**
+ * Choose default dashboard component based on role stored in session.
+ */
+const DashboardIndex: React.FC = () => {
+  const role = sessionStorage.getItem('admin_role');
+  return role === 'order_manager' ? <ManagerDashboard /> : <DashboardOverview />;
+};
+
+/**
+ * Redirect legacy /admin hash URLs and bare /admin to /admin/dashboard.
+ */
+const AdminHashRedirect: React.FC = () => {
+  const hash = window.location.hash.replace('#', '');
+  const routeMap: Record<string, string> = {
+    dashboard: '/admin/dashboard',
+    analytics: '/admin/analytics',
+    bookings: '/admin/bookings',
+    calendar: '/admin/calendar',
+    reviews: '/admin/reviews',
+    coupons: '/admin/coupons',
+    gallery: '/admin/gallery',
+    menu: '/admin/menu',
+    instagram: '/admin/instagram',
+    customers: '/admin/customers',
+    activity: '/admin/activity',
+    settings: '/admin/settings',
+    users: '/admin/users',
+    team: '/admin/team',
+    dispatch: '/admin/dispatch',
+  };
+  const target = (hash && routeMap[hash]) || '/admin/dashboard';
+  return <Navigate to={target} replace />;
+};
+
+const AdminLoadingScreen: React.FC = () => (
+  <div className="admin-page-loader">
+    <div className="admin-page-loader-spinner" />
+  </div>
+);
+
 const AppRoutes: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
@@ -35,8 +93,12 @@ const AppRoutes: React.FC = () => {
 
   if (isAdmin) {
     return (
-      <Suspense fallback={<div className="loading-screen">Loading...</div>}>
+      <Suspense fallback={<AdminLoadingScreen />}>
         <Routes>
+          {/* Login (public) */}
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+
+          {/* Protected admin routes */}
           <Route
             path="/admin"
             element={
@@ -44,7 +106,25 @@ const AppRoutes: React.FC = () => {
                 <AdminDashboard />
               </ProtectedRoute>
             }
-          />
+          >
+            <Route index element={<AdminHashRedirect />} />
+            <Route path="dashboard" element={<DashboardIndex />} />
+            <Route path="analytics" element={<AnalyticsDashboard />} />
+            <Route path="bookings" element={<BookingManagement />} />
+            <Route path="calendar" element={<CalendarManagement />} />
+            <Route path="reviews" element={<ReviewManagement />} />
+            <Route path="coupons" element={<CouponManagement />} />
+            <Route path="gallery" element={<GalleryManagement />} />
+            <Route path="menu" element={<MenuManagement />} />
+            <Route path="instagram" element={<InstagramManagement />} />
+            <Route path="customers" element={<CustomerManagement />} />
+            <Route path="activity" element={<ActivityLog />} />
+            <Route path="settings" element={<SettingsPage />} />
+            <Route path="users" element={<UserManagement />} />
+            <Route path="team" element={<TeamDashboard />} />
+            <Route path="dispatch" element={<DispatchCenter />} />
+            <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+          </Route>
         </Routes>
       </Suspense>
     );
@@ -58,7 +138,13 @@ const AppRoutes: React.FC = () => {
       <TopBar />
       <Navigation />
       <main id="main-content" className="main-content">
-        <Suspense fallback={<div className="loading-screen">Loading...</div>}>
+        <Suspense
+          fallback={
+            <div className="loading-screen">
+              <div className="admin-page-loader-spinner" />
+            </div>
+          }
+        >
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/order" element={<OrderPage />} />

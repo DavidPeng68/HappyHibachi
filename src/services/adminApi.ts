@@ -59,6 +59,7 @@ function deduplicatedGet<T>(cacheKey: string, fn: () => Promise<T>): Promise<T> 
 // Exponential backoff retry for retryable errors
 // ---------------------------------------------------------------------------
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function withRetry<T>(
   fn: () => Promise<T>,
   maxRetries = 2,
@@ -232,10 +233,10 @@ async function adminRequest<T extends AdminApiResponse>(
     return (await response.json()) as T;
   } catch (error: unknown) {
     if (error instanceof DOMException && error.name === 'AbortError') {
-      return { success: false, error: 'Request timed out' } as T;
+      return { success: false, error: 'admin.errors.requestTimeout' } as T;
     }
     console.error('Admin API request error:', error);
-    return { success: false, error: 'Network error' } as T;
+    return { success: false, error: 'admin.errors.networkError' } as T;
   } finally {
     clearTimeout(timeout);
   }
@@ -528,9 +529,9 @@ export async function uploadGalleryImage(
     return await response.json();
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
-      return { success: false, error: 'Upload timed out' };
+      return { success: false, error: 'admin.errors.uploadTimeout' };
     }
-    return { success: false, error: 'Network error' };
+    return { success: false, error: 'admin.errors.networkError' };
   } finally {
     clearTimeout(timeout);
   }
@@ -845,7 +846,7 @@ export async function batchUpdateBookings(
       const error =
         result.status === 'rejected'
           ? String(result.reason)
-          : result.value.error || 'Unknown error';
+          : result.value.error || 'admin.errors.unknownError';
       failed.push({ id, error });
     }
   });
@@ -864,7 +865,8 @@ export async function batchDeleteBookings(token: string, ids: string[]): Promise
     if (result.status === 'fulfilled' && result.value.success) {
       succeeded.push({ id, result: null });
     } else {
-      const error = result.status === 'rejected' ? String(result.reason) : 'Delete failed';
+      const error =
+        result.status === 'rejected' ? String(result.reason) : 'admin.errors.deleteFailed';
       failed.push({ id, error });
     }
   });

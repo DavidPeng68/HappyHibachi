@@ -182,3 +182,42 @@ const HTML_ESCAPE_MAP: Record<string, string> = {
 export function escapeHtml(str: string): string {
 	return str.replace(/[&<>"']/g, (ch) => HTML_ESCAPE_MAP[ch] || ch);
 }
+
+// ---------------------------------------------------------------------------
+// Audit Logging
+// ---------------------------------------------------------------------------
+
+export type AuditAction =
+	| 'login_success'
+	| 'login_failure'
+	| 'login_rate_limited'
+	| 'user_created'
+	| 'user_updated'
+	| 'user_deleted'
+	| 'booking_deleted'
+	| 'settings_changed'
+	| 'bulk_operation';
+
+export interface AuditEntry {
+	action: AuditAction;
+	performedBy: string;
+	ip?: string;
+	details?: Record<string, unknown>;
+	timestamp: string;
+}
+
+export function logAuditEvent(
+	action: AuditAction,
+	performedBy: string,
+	request?: Request,
+	details?: Record<string, unknown>
+): void {
+	const entry: AuditEntry = {
+		action,
+		performedBy,
+		ip: request?.headers.get('CF-Connecting-IP') || request?.headers.get('X-Forwarded-For') || 'unknown',
+		details,
+		timestamp: new Date().toISOString(),
+	};
+	console.log(`[AUDIT] ${JSON.stringify(entry)}`);
+}

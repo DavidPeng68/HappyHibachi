@@ -19,7 +19,7 @@ const Navigation: React.FC = () => {
   const { settings } = useSettings();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [activeSection, setActiveSection] = useState('');
+  const [, setActiveSection] = useState('');
 
   // Scroll-aware shrinking header + active section detection
   useEffect(() => {

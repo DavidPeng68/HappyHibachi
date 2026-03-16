@@ -153,6 +153,28 @@ const BookingDataTable: React.FC<BookingDataTableProps> = ({
     [t, isSuperAdmin, orderManagers]
   );
 
+  const mobileCardRender = (b: Booking) => (
+    <>
+      <div className="card-row">
+        <div>
+          <div className="card-title">{b.name}</div>
+          <div className="card-subtitle">{b.email}</div>
+        </div>
+        <StatusBadge status={b.status} />
+      </div>
+      <div className="card-meta">
+        <span className="card-meta-item">
+          {formatDate(b.date)}
+          {b.time ? ` ${b.time}` : ''}
+        </span>
+        <span className="card-meta-item">
+          {b.guestCount} {t('admin.booking.guestCount')}
+        </span>
+        <span className="card-meta-item">{b.region}</span>
+      </div>
+    </>
+  );
+
   return (
     <>
       <DataTable<Booking>
@@ -171,6 +193,7 @@ const BookingDataTable: React.FC<BookingDataTableProps> = ({
         emptyIcon="&#128203;"
         emptyTitle={t('admin.booking.noBookings')}
         emptyDescription={t('admin.booking.noBookingsHint')}
+        mobileCardRender={mobileCardRender}
       />
 
       <Pagination

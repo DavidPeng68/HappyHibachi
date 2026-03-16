@@ -5,6 +5,7 @@ import { useScrollReveal, useSettings } from '../../hooks';
 import { validateEmail } from '../../utils/validation';
 import './PhotoShare.css';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const PHOTO_REWARD = 25;
 
 /**
@@ -15,6 +16,7 @@ const PhotoShare: React.FC = () => {
   const { t } = useTranslation();
   const { settings } = useSettings();
   const { ref, isVisible } = useScrollReveal({ threshold: 0.2 });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const HASHTAG = settings.brandInfo.hashtag;
   const [dragActive, setDragActive] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);

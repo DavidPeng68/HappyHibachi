@@ -17,6 +17,7 @@ export interface DatePickerProps {
   className?: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = [
   'January',

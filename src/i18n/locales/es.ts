@@ -805,6 +805,7 @@ const es = {
       errorNetwork: 'No se puede conectar. Verifique su internet e inténtelo de nuevo.',
       needHelp: '¿Necesita ayuda? Contacte a su administrador',
       registerSuccessBackSoon: 'Recibirá acceso una vez aprobado.',
+      rememberMe: 'Recordarme',
     },
     nav: {
       dashboard: 'Panel',
@@ -834,6 +835,7 @@ const es = {
       navigation: 'Navegación de administración',
     },
     roles: {
+      admin: 'Administrador',
       superAdmin: 'Super Administrador',
       orderManager: 'Gestor de Pedidos',
     },
@@ -1514,6 +1516,14 @@ const es = {
       title: 'Algo salió mal',
       description: 'Ocurrió un error al cargar esta sección. Inténtalo de nuevo.',
       retry: 'Reintentar',
+    },
+    errors: {
+      requestTimeout: 'Solicitud agotada. Por favor intente de nuevo.',
+      networkError: 'Error de red. Por favor verifique su conexión.',
+      uploadTimeout: 'Carga agotada. Por favor intente de nuevo.',
+      unknownError: 'Error desconocido.',
+      deleteFailed: 'Eliminación fallida. Por favor intente de nuevo.',
+      permissionDenied: 'No tiene permiso para realizar esta acción.',
     },
     time: {
       justNow: 'justo ahora',

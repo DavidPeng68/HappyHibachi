@@ -12,6 +12,106 @@ export type AdminRole = 'super_admin' | 'order_manager';
 export type AccountStatus = 'pending' | 'approved' | 'rejected';
 export type FieldVisibility = 'full' | 'standard' | 'minimal';
 
+export type Permission =
+  | 'dashboard.view'
+  | 'analytics.view'
+  | 'bookings.view'
+  | 'bookings.edit'
+  | 'bookings.delete'
+  | 'calendar.view'
+  | 'calendar.edit'
+  | 'reviews.view'
+  | 'reviews.edit'
+  | 'coupons.view'
+  | 'coupons.edit'
+  | 'gallery.view'
+  | 'gallery.edit'
+  | 'menu.view'
+  | 'menu.edit'
+  | 'instagram.view'
+  | 'instagram.edit'
+  | 'customers.view'
+  | 'customers.edit'
+  | 'activity.view'
+  | 'settings.view'
+  | 'settings.edit'
+  | 'users.view'
+  | 'users.edit'
+  | 'team.view'
+  | 'dispatch.view';
+
+export const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
+  super_admin: [
+    'dashboard.view',
+    'analytics.view',
+    'bookings.view',
+    'bookings.edit',
+    'bookings.delete',
+    'calendar.view',
+    'calendar.edit',
+    'reviews.view',
+    'reviews.edit',
+    'coupons.view',
+    'coupons.edit',
+    'gallery.view',
+    'gallery.edit',
+    'menu.view',
+    'menu.edit',
+    'instagram.view',
+    'instagram.edit',
+    'customers.view',
+    'customers.edit',
+    'activity.view',
+    'settings.view',
+    'settings.edit',
+    'users.view',
+    'users.edit',
+    'team.view',
+    'dispatch.view',
+  ],
+  order_manager: [
+    'dashboard.view',
+    'bookings.view',
+    'bookings.edit',
+    'calendar.view',
+    'calendar.edit',
+  ],
+};
+
+export const MENU_ROUTE_MAP: Record<AdminMenuType, string> = {
+  dashboard: '/admin/dashboard',
+  analytics: '/admin/analytics',
+  bookings: '/admin/bookings',
+  calendar: '/admin/calendar',
+  reviews: '/admin/reviews',
+  coupons: '/admin/coupons',
+  gallery: '/admin/gallery',
+  menu: '/admin/menu',
+  instagram: '/admin/instagram',
+  customers: '/admin/customers',
+  activity: '/admin/activity',
+  settings: '/admin/settings',
+  users: '/admin/users',
+  team: '/admin/team',
+  dispatch: '/admin/dispatch',
+};
+
+export const ROUTE_MENU_MAP: Record<string, AdminMenuType> = Object.fromEntries(
+  Object.entries(MENU_ROUTE_MAP).map(([k, v]) => [v, k as AdminMenuType])
+) as Record<string, AdminMenuType>;
+
+export function hasPermission(role: AdminRole, permission: Permission): boolean {
+  return ROLE_PERMISSIONS[role].includes(permission);
+}
+
+export function getDefaultRoute(_role: AdminRole): string {
+  return '/admin/dashboard';
+}
+
+export function getMenuPermission(menu: AdminMenuType): Permission {
+  return `${menu}.view` as Permission;
+}
+
 export interface AdminUser {
   id: string;
   username: string;

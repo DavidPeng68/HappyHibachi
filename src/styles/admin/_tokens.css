@@ -3,6 +3,14 @@
    参考: Linear, Vercel, Notion
    ============================================= */
 
+/*
+  Breakpoint reference (used in media queries & JS hooks):
+    --bp-mobile:  480px   (small phones)
+    --bp-tablet:  768px   (tablets / large phones)
+    --bp-desktop: 1024px  (small desktops)
+    --bp-wide:    1280px  (large desktops)
+*/
+
 .admin-layout {
   /* 核心颜色 */
   --admin-bg: #09090b;
@@ -40,6 +48,22 @@
   --admin-radius: 8px;
   --admin-radius-lg: 12px;
   --admin-radius-xl: 16px;
+
+  /* 触摸与交互 */
+  --admin-touch-target: 44px;
+  --admin-focus-ring: 0 0 0 2px var(--admin-bg), 0 0 0 4px var(--admin-primary);
+
+  /* 移动端间距 */
+  --admin-space-mobile-xs: 4px;
+  --admin-space-mobile-sm: 8px;
+  --admin-space-mobile-md: 12px;
+  --admin-space-mobile-lg: 16px;
+  --admin-space-mobile-xl: 24px;
+
+  /* 卡片阴影 */
+  --admin-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --admin-shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --admin-shadow-overlay: 0 16px 48px rgba(0, 0, 0, 0.5);
 
   /* 过渡 */
   --transition-fast: 0.15s ease;

@@ -120,3 +120,44 @@
   border: none;
   cursor: pointer;
 }
+
+/* =============================================
+   Notifications — Mobile Responsive
+   ============================================= */
+
+@media (max-width: 768px) {
+  .notification-panel {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    border: none;
+    margin-top: 0;
+    z-index: 300;
+    animation: slide-in-right 0.25s ease;
+  }
+
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  .notification-header {
+    padding: 16px;
+    padding-top: max(16px, env(safe-area-inset-top));
+  }
+
+  .notification-item {
+    padding: 14px 16px;
+    min-height: var(--admin-touch-target, 44px);
+  }
+
+  .notification-empty {
+    padding: 48px 24px;
+  }
+}

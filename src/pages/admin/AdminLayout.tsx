@@ -71,6 +71,7 @@ const AdminLayoutInner: React.FC<AdminLayoutProps> = ({ onLogout, children }) =>
 
   // Local UI state
   const [sidebarCollapsed, setSidebarCollapsed] = useLocalStorage('admin:sidebar-collapsed', false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [cmdkOpen, setCmdkOpen] = useState(false);
   const [pendingUsersCount, setPendingUsersCount] = useState(0);
 
@@ -176,6 +177,8 @@ const AdminLayoutInner: React.FC<AdminLayoutProps> = ({ onLogout, children }) =>
           onNavigate={setActiveMenu}
           onLogout={onLogout}
           getBadgeCount={getBadgeCount}
+          mobileOpen={mobileSidebarOpen}
+          onMobileClose={() => setMobileSidebarOpen(false)}
         />
 
         <div className="main-content">
@@ -188,6 +191,7 @@ const AdminLayoutInner: React.FC<AdminLayoutProps> = ({ onLogout, children }) =>
             onMarkAllRead={markAllRead}
             onRefresh={data.refreshAll}
             onLogout={onLogout}
+            onMobileMenuToggle={() => setMobileSidebarOpen(true)}
           />
 
           <main className="content-area">

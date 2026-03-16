@@ -779,6 +779,7 @@ const ko = {
       errorNetwork: '연결할 수 없습니다. 인터넷을 확인하고 다시 시도하세요.',
       needHelp: '도움이 필요하신가요? 관리자에게 문의하세요',
       registerSuccessBackSoon: '승인 후 접근 가능합니다.',
+      rememberMe: '로그인 상태 유지',
     },
     nav: {
       dashboard: '대시보드',
@@ -808,6 +809,7 @@ const ko = {
       navigation: '관리자 내비게이션',
     },
     roles: {
+      admin: '관리자',
       superAdmin: '최고 관리자',
       orderManager: '주문 관리자',
     },
@@ -1479,6 +1481,14 @@ const ko = {
       title: '문제가 발생했습니다',
       description: '이 섹션을 로드하는 중 오류가 발생했습니다. 다시 시도해 주세요.',
       retry: '다시 시도',
+    },
+    errors: {
+      requestTimeout: '요청 시간 초과. 다시 시도해 주세요.',
+      networkError: '네트워크 오류. 연결을 확인해 주세요.',
+      uploadTimeout: '업로드 시간 초과. 다시 시도해 주세요.',
+      unknownError: '알 수 없는 오류.',
+      deleteFailed: '삭제 실패. 다시 시도해 주세요.',
+      permissionDenied: '권한이 없습니다.',
     },
     time: {
       justNow: '방금',

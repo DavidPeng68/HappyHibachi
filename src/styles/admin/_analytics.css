@@ -246,3 +246,58 @@
 .analytics-stat-value--success {
   color: #22c55e;
 }
+
+/* =============================================
+   ChartCard — Reusable chart wrapper
+   ============================================= */
+
+.chart-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  overflow: hidden;
+}
+
+.chart-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 20px 12px;
+}
+
+.chart-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--admin-text);
+}
+
+.chart-card-subtitle {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  margin: 4px 0 0;
+}
+
+.chart-card-action {
+  flex-shrink: 0;
+}
+
+.chart-card-body {
+  padding: 0 16px 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .chart-card-header {
+    padding: 12px 16px 8px;
+  }
+
+  .chart-card-title {
+    font-size: 14px;
+  }
+
+  .chart-card-body {
+    padding: 0 12px 12px;
+  }
+}

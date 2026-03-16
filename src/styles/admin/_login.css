@@ -379,3 +379,137 @@
 .login-footer p + p {
   margin-top: 12px;
 }
+
+/* Remember me checkbox */
+.login-remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+  cursor: pointer;
+  margin-top: -8px;
+}
+
+.login-remember input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--admin-primary);
+  cursor: pointer;
+}
+
+/* Loading spinner on button */
+.btn-primary .login-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* =============================================
+   Login — Mobile Responsive
+   ============================================= */
+
+@media (max-width: 768px) {
+  .admin-login-page {
+    padding: 16px;
+    align-items: flex-start;
+    padding-top: 10vh;
+  }
+
+  .login-container {
+    padding: 32px 24px;
+    max-width: 100%;
+    border-radius: var(--admin-radius-lg);
+  }
+
+  .login-brand {
+    margin-bottom: 28px;
+  }
+
+  .brand-icon svg {
+    width: 48px;
+    height: 48px;
+  }
+
+  .login-brand h1 {
+    font-size: 22px;
+  }
+
+  .login-brand p {
+    font-size: 12px;
+  }
+
+  .login-form {
+    gap: 20px;
+  }
+
+  .form-group input {
+    padding: 14px 16px;
+    font-size: 16px; /* Prevents iOS zoom */
+  }
+
+  .btn-primary {
+    min-height: 44px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-login-page {
+    padding: 12px;
+    padding-top: 6vh;
+  }
+
+  .login-container {
+    padding: 24px 20px;
+    box-shadow: none;
+    border-color: transparent;
+    background: var(--admin-bg-elevated);
+  }
+
+  .login-brand {
+    margin-bottom: 24px;
+  }
+
+  .brand-icon svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .login-brand h1 {
+    font-size: 20px;
+  }
+
+  .form-group label {
+    font-size: 12px;
+  }
+
+  .login-footer {
+    margin-top: 24px;
+  }
+}
+
+@media (max-height: 640px) {
+  .admin-login-page {
+    padding-top: 4vh;
+  }
+
+  .login-brand {
+    margin-bottom: 20px;
+  }
+
+  .brand-icon {
+    margin-bottom: 12px;
+  }
+
+  .brand-icon svg {
+    width: 36px;
+    height: 36px;
+  }
+}

@@ -1,5 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import type { AdminMenuType } from '../types/admin';
+import { MENU_ROUTE_MAP, ROUTE_MENU_MAP } from '../types/admin';
 
 export interface NavigationContextValue {
   activeMenu: AdminMenuType;
@@ -16,52 +18,42 @@ export function useAdminNavigation(): NavigationContextValue {
   return ctx;
 }
 
-const ALL_MENUS: AdminMenuType[] = [
-  'dashboard',
-  'analytics',
-  'bookings',
-  'calendar',
-  'reviews',
-  'coupons',
-  'gallery',
-  'menu',
-  'instagram',
-  'customers',
-  'activity',
-  'settings',
-  'users',
-];
+function getMenuFromPath(pathname: string): AdminMenuType {
+  const match = ROUTE_MENU_MAP[pathname];
+  if (match) return match;
 
-function getMenuFromHash(): AdminMenuType | null {
-  const hash = window.location.hash.replace('#', '');
-  if (hash && ALL_MENUS.includes(hash as AdminMenuType)) {
-    return hash as AdminMenuType;
+  for (const [route, menu] of Object.entries(ROUTE_MENU_MAP)) {
+    if (pathname.startsWith(route + '/')) return menu;
   }
-  return null;
+
+  return 'dashboard';
 }
 
 export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [activeMenu, setActiveMenuState] = useState<AdminMenuType>(
-    () => getMenuFromHash() || 'dashboard'
-  );
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const activeMenu = useMemo(() => getMenuFromPath(location.pathname), [location.pathname]);
   const [navigationPayload, setNavigationPayload] = useState<Record<string, string> | null>(null);
 
-  const setActiveMenu = useCallback((menu: AdminMenuType, payload?: Record<string, string>) => {
-    setActiveMenuState(menu);
-    setNavigationPayload(payload || null);
-    window.location.hash = menu === 'dashboard' ? '' : menu;
-  }, []);
+  const setActiveMenu = useCallback(
+    (menu: AdminMenuType, payload?: Record<string, string>) => {
+      setNavigationPayload(payload || null);
+      const route = MENU_ROUTE_MAP[menu] || '/admin/dashboard';
+      navigate(route);
+    },
+    [navigate]
+  );
 
   const clearNavigationPayload = useCallback(() => setNavigationPayload(null), []);
 
+  // Handle legacy hash navigation — redirect to route
   useEffect(() => {
-    const onHashChange = () => {
-      const menu = getMenuFromHash();
-      setActiveMenuState(menu || 'dashboard');
-    };
-    window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
-  }, []);
+    const hash = window.location.hash.replace('#', '');
+    if (hash && MENU_ROUTE_MAP[hash as AdminMenuType]) {
+      navigate(MENU_ROUTE_MAP[hash as AdminMenuType], { replace: true });
+    }
+  }, [navigate]);
 
   const value = useMemo(
     () => ({ activeMenu, setActiveMenu, navigationPayload, clearNavigationPayload }),

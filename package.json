@@ -71,6 +71,9 @@
       "last 1 safari version"
     ]
   },
+  "overrides": {
+    "typescript": "$typescript"
+  },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx}": [
       "eslint --fix",

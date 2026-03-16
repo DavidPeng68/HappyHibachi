@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import EmptyState from './EmptyState';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { useBreakpoint } from '../../hooks/useBreakpoint';
 
 export interface Column<T> {
   key: string;
@@ -32,23 +33,7 @@ export interface DataTableProps<T> {
   expandable?: boolean;
   renderExpanded?: (item: T) => React.ReactNode;
   mobileCardRender?: (item: T) => React.ReactNode;
-}
-
-function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    return window.matchMedia(query).matches;
-  });
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mql = window.matchMedia(query);
-    const handler = (e: MediaQueryListEvent) => setMatches(e.matches);
-    mql.addEventListener('change', handler);
-    return () => mql.removeEventListener('change', handler);
-  }, [query]);
-
-  return matches;
+  mobileLoadingCount?: number;
 }
 
 function DataTable<T>({
@@ -71,9 +56,10 @@ function DataTable<T>({
   expandable = false,
   renderExpanded,
   mobileCardRender,
+  mobileLoadingCount = 4,
 }: DataTableProps<T>) {
   const { t } = useTranslation();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const { isMobile } = useBreakpoint();
 
   // Column visibility — always call both hooks to satisfy rules-of-hooks,
   // but only use the localStorage-backed one when a key is provided.
@@ -223,14 +209,36 @@ function DataTable<T>({
   }
 
   // Mobile card view
-  if (isMobile && mobileCardRender && !loading) {
+  if (isMobile && mobileCardRender) {
+    if (loading) {
+      return (
+        <div className="data-table-cards">
+          {Array.from({ length: mobileLoadingCount }).map((_, i) => (
+            <div key={`skeleton-card-${i}`} className="data-table-card data-table-card--skeleton">
+              <div className="skeleton skeleton-text skeleton-text--lg" />
+              <div className="skeleton skeleton-text skeleton-text--md" />
+              <div className="skeleton skeleton-text skeleton-text--sm" />
+            </div>
+          ))}
+        </div>
+      );
+    }
     return (
       <div className="data-table-cards">
-        {data.map((item) => (
-          <div key={rowKey(item)} className="data-table-card">
-            {mobileCardRender(item)}
-          </div>
-        ))}
+        {data.map((item) => {
+          const key = rowKey(item);
+          return (
+            <div
+              key={key}
+              className={`data-table-card${onRowClick ? ' data-table-card--clickable' : ''}${activeRowKey === key ? ' data-table-card--active' : ''}`}
+              onClick={() => onRowClick?.(item)}
+              role={onRowClick ? 'button' : undefined}
+              tabIndex={onRowClick ? 0 : undefined}
+            >
+              {mobileCardRender(item)}
+            </div>
+          );
+        })}
       </div>
     );
   }

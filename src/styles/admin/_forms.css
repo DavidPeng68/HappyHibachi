@@ -80,3 +80,39 @@
   color: var(--admin-danger);
   margin-top: 4px;
 }
+
+/* =============================================
+   Forms — Mobile Responsive
+   ============================================= */
+
+@media (max-width: 768px) {
+  .admin-input,
+  .admin-select,
+  .admin-textarea {
+    padding: 12px;
+    font-size: 16px; /* Prevents iOS zoom */
+    min-height: var(--admin-touch-target, 44px);
+  }
+
+  .admin-form-group {
+    margin-bottom: 14px;
+  }
+
+  .form-row-2,
+  .form-row-3 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-input,
+  .admin-select,
+  .admin-textarea {
+    padding: 12px 10px;
+    border-radius: 6px;
+  }
+
+  .admin-form-group label {
+    font-size: 12px;
+  }
+}

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { MenuPackage, MenuCategory, TranslatableText } from '../../../types/menu';
+import { useConfirmDialog } from '../../../hooks/useConfirmDialog';
+import ConfirmDialog from '../../../components/admin/ConfirmDialog';
 import TranslatableField from '../TranslatableField';
 import { uid, emptyText } from './menuHelpers';
 
@@ -24,6 +26,7 @@ const PackagesTab: React.FC<PackagesTabProps> = ({
   setEditing,
 }) => {
   const { t } = useTranslation();
+  const { dialogProps, confirm } = useConfirmDialog();
   const sorted = [...packages].sort((a, b) => a.sortOrder - b.sortOrder);
 
   const handleNew = () => {
@@ -58,8 +61,14 @@ const PackagesTab: React.FC<PackagesTabProps> = ({
   };
 
   const handleDelete = (id: string) => {
-    if (!window.confirm(t('admin.menu.deletePackageConfirm'))) return;
-    onChange(packages.filter((p) => p.id !== id));
+    confirm(
+      {
+        title: t('admin.menu.deletePackageConfirm'),
+        message: t('admin.menu.deletePackageConfirm'),
+        variant: 'danger',
+      },
+      () => onChange(packages.filter((p) => p.id !== id))
+    );
   };
 
   return (
@@ -143,6 +152,8 @@ const PackagesTab: React.FC<PackagesTabProps> = ({
           </div>
         ))}
       </div>
+
+      <ConfirmDialog {...dialogProps} />
 
       {/* Package edit modal */}
       {editing && (

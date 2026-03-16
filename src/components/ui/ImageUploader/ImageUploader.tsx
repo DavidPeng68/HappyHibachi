@@ -68,7 +68,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       }
       return null;
     },
-    [maxRawSizeMB]
+    [maxRawSizeMB, t]
   );
 
   const processFile = useCallback(
@@ -94,7 +94,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         return null;
       }
     },
-    [validateFile, preset]
+    [validateFile, preset, t]
   );
 
   const handleFiles = useCallback(

@@ -182,6 +182,9 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(
+    () => localStorage.getItem('admin_remember') === 'true'
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<LoginError | null>(null);
 
@@ -209,11 +212,16 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
       try {
         const result = await adminApi.login(password, username.trim() || undefined);
         if (result.success && result.token) {
+          if (rememberMe) {
+            localStorage.setItem('admin_remember', 'true');
+          } else {
+            localStorage.removeItem('admin_remember');
+          }
           onLogin({
             token: result.token,
             role: result.role || 'super_admin',
             userId: result.userId || '__env__',
-            displayName: result.displayName || 'Admin',
+            displayName: result.displayName || t('admin.roles.admin'),
           });
         } else {
           const apiError = result.error || '';
@@ -229,7 +237,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
         setLoading(false);
       }
     },
-    [username, password, loading, onLogin, t]
+    [username, password, loading, rememberMe, onLogin, t]
   );
 
   const switchMode = () => {
@@ -322,9 +330,19 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
                 </div>
               </div>
 
+              <label className="login-remember">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                {t('admin.login.rememberMe')}
+              </label>
+
               {renderError()}
 
               <button type="submit" className="btn-primary" disabled={loading || !password.trim()}>
+                {loading && <span className="login-spinner" />}
                 {loading ? t('admin.login.loggingIn') : t('admin.login.loginButton')}
               </button>
             </form>

@@ -120,3 +120,56 @@
   background: var(--admin-primary);
   border-radius: 9px;
 }
+
+/* =============================================
+   Filter Bar — Mobile Responsive
+   ============================================= */
+
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .filter-search-wrapper {
+    width: 100%;
+  }
+
+  .filter-search-wrapper .filter-input {
+    width: 100%;
+    min-width: 0;
+    min-height: var(--admin-touch-target, 44px);
+    font-size: 16px;
+  }
+
+  .filter-select {
+    width: 100%;
+    min-height: var(--admin-touch-target, 44px);
+    font-size: 14px;
+  }
+
+  .filter-date-range {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .filter-date {
+    width: 100%;
+    min-height: var(--admin-touch-target, 44px);
+  }
+
+  .filter-date-separator {
+    display: none;
+  }
+
+  .filter-clear-btn {
+    min-height: var(--admin-touch-target, 44px);
+    justify-content: center;
+  }
+
+  .filter-input {
+    min-height: var(--admin-touch-target, 44px);
+    font-size: 14px;
+  }
+}

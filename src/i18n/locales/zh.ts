@@ -788,6 +788,7 @@ const zh = {
       errorNetwork: '无法连接，请检查网络后重试。',
       needHelp: '需要帮助？请联系管理员',
       registerSuccessBackSoon: '审批通过后即可登录。',
+      rememberMe: '记住我',
     },
     nav: {
       dashboard: '仪表盘',
@@ -817,6 +818,7 @@ const zh = {
       navigation: '管理导航',
     },
     roles: {
+      admin: '管理员',
       superAdmin: '超级管理员',
       orderManager: '订单管理员',
     },
@@ -1488,6 +1490,14 @@ const zh = {
       title: '出错了',
       description: '加载此部分时出错。请重试。',
       retry: '重试',
+    },
+    errors: {
+      requestTimeout: '请求超时。请重试。',
+      networkError: '网络错误。请检查网络连接。',
+      uploadTimeout: '上传超时。请重试。',
+      unknownError: '未知错误。',
+      deleteFailed: '删除失败。请重试。',
+      permissionDenied: '您没有权限执行此操作。',
     },
     time: {
       justNow: '刚刚',

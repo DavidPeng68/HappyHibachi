@@ -22,5 +22,6 @@ export { default as Sparkline } from './Sparkline';
 export { default as InsightCard } from './InsightCard';
 export { default as SkeletonCard } from './SkeletonCard';
 export { default as SkeletonStatCard } from './SkeletonStatCard';
+export { default as ChartCard } from './ChartCard';
 
 import './AdminComponents.css';

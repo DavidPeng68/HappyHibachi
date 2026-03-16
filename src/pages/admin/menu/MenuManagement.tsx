@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import type { MenuData, MenuPackage, MenuItem, MenuSpotlight } from '../../../types/menu';
 import { fetchMenu, updateMenu, uploadMenuImage } from '../../../services/menuApi';
 import { usePersistedTab } from '../../../hooks/usePersistedTab';
+import { useConfirmDialog } from '../../../hooks/useConfirmDialog';
+import ConfirmDialog from '../../../components/admin/ConfirmDialog';
 import PackagesTab from './MenuPackages';
 import CategoriesTab from './MenuCategories';
 import ItemsTab from './MenuItems';
@@ -18,6 +20,7 @@ import './MenuManagement.css';
 
 const MenuManagement: React.FC = () => {
   const { t } = useTranslation();
+  const { dialogProps, confirm } = useConfirmDialog();
   // --- state -----------------------------------------------------------------
   const [data, setData] = useState<MenuData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -54,6 +57,7 @@ const MenuManagement: React.FC = () => {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // helper to mutate data & mark dirty
@@ -82,18 +86,26 @@ const MenuManagement: React.FC = () => {
   };
 
   // --- reset -----------------------------------------------------------------
-  const handleReset = async () => {
-    if (!window.confirm(t('admin.menu.resetConfirm'))) return;
-    setLoading(true);
-    setDirty(false);
-    try {
-      const menu = await fetchMenu();
-      setData(menu);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('admin.menu.failedToReload'));
-    } finally {
-      setLoading(false);
-    }
+  const handleReset = () => {
+    confirm(
+      {
+        title: t('admin.menu.resetConfirm'),
+        message: t('admin.menu.resetConfirm'),
+        variant: 'danger',
+      },
+      async () => {
+        setLoading(true);
+        setDirty(false);
+        try {
+          const menu = await fetchMenu();
+          setData(menu);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : t('admin.menu.failedToReload'));
+        } finally {
+          setLoading(false);
+        }
+      }
+    );
   };
 
   // --- image upload helper ---------------------------------------------------
@@ -135,6 +147,7 @@ const MenuManagement: React.FC = () => {
 
   return (
     <div className="menu-mgmt">
+      <ConfirmDialog {...dialogProps} />
       {/* Header */}
       <div className="menu-mgmt__header">
         <h2 className="menu-mgmt__title">{t('admin.menu.title')}</h2>

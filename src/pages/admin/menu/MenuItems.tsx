@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { MenuItem, MenuCategory } from '../../../types/menu';
 import { MENU_ITEM_PRESET } from '../../../utils/imageCompression';
+import { useConfirmDialog } from '../../../hooks/useConfirmDialog';
+import ConfirmDialog from '../../../components/admin/ConfirmDialog';
 import ImageUploader from '../../../components/ui/ImageUploader';
 import TranslatableField from '../TranslatableField';
 import { uid, emptyText } from './menuHelpers';
@@ -28,6 +30,7 @@ const ItemsTab: React.FC<ItemsTabProps> = ({
   onImageUpload,
 }) => {
   const { t } = useTranslation();
+  const { dialogProps, confirm } = useConfirmDialog();
   const sorted = [...items].sort((a, b) => a.sortOrder - b.sortOrder);
 
   const handleNew = () => {
@@ -57,12 +60,19 @@ const ItemsTab: React.FC<ItemsTabProps> = ({
   };
 
   const handleDelete = (id: string) => {
-    if (!window.confirm(t('admin.menu.deleteItemConfirm'))) return;
-    onChange(items.filter((i) => i.id !== id));
+    confirm(
+      {
+        title: t('admin.menu.deleteItemConfirm'),
+        message: t('admin.menu.deleteItemConfirm'),
+        variant: 'danger',
+      },
+      () => onChange(items.filter((i) => i.id !== id))
+    );
   };
 
   return (
     <>
+      <ConfirmDialog {...dialogProps} />
       <div className="menu-mgmt__section-header">
         <h3 className="menu-mgmt__section-title">
           {t('admin.menu.itemsCount', { count: items.length })}

@@ -796,6 +796,7 @@ const tl = {
       errorNetwork: 'Hindi makakonekta. Suriin ang iyong internet at subukan muli.',
       needHelp: 'Kailangan ng tulong? Makipag-ugnayan sa iyong administrator',
       registerSuccessBackSoon: 'Makakatanggap ka ng access kapag na-aprubahan.',
+      rememberMe: 'Tandaan ako',
     },
     nav: {
       dashboard: 'Dashboard',
@@ -825,6 +826,7 @@ const tl = {
       navigation: 'Nabigasyon ng admin',
     },
     roles: {
+      admin: 'Admin',
       superAdmin: 'Super Admin',
       orderManager: 'Order Manager',
     },
@@ -1505,6 +1507,14 @@ const tl = {
       title: 'May nangyaring mali',
       description: 'May error sa pag-load ng seksyong ito. Subukan muli.',
       retry: 'Subukan muli',
+    },
+    errors: {
+      requestTimeout: 'Nag-timeout ang request. Pakisubukan muli.',
+      networkError: 'Error sa network. Pakisuri ang iyong koneksyon.',
+      uploadTimeout: 'Nag-timeout ang upload. Pakisubukan muli.',
+      unknownError: 'Hindi kilalang error.',
+      deleteFailed: 'Nabigong mag-delete. Pakisubukan muli.',
+      permissionDenied: 'Walang pahintulot.',
     },
     time: {
       justNow: 'ngayon lang',

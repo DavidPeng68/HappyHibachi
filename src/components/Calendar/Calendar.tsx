@@ -57,6 +57,7 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelect, region 
 
   useEffect(() => {
     fetchCalendarData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [region, currentMonth, t]);
 
   // 获取月份名称

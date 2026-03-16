@@ -51,3 +51,29 @@
 .admin-tab.active .admin-tab-count {
   color: var(--admin-text-secondary);
 }
+
+/* =============================================
+   Tabs — Mobile Responsive
+   ============================================= */
+
+@media (max-width: 768px) {
+  .admin-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    gap: 0;
+    padding-bottom: 0;
+  }
+
+  .admin-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .admin-tab {
+    padding: 10px 14px;
+    font-size: 13px;
+    flex-shrink: 0;
+    min-height: var(--admin-touch-target, 44px);
+  }
+}

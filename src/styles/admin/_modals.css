@@ -54,3 +54,41 @@
 .modal-actions button {
   flex: 1;
 }
+
+/* =============================================
+   Modal — Mobile Responsive
+   ============================================= */
+
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal {
+    max-width: 100%;
+    border-radius: var(--admin-radius-xl) var(--admin-radius-xl) 0 0;
+    padding: 24px 20px;
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+    animation: slide-up 0.25s ease;
+  }
+
+  .modal h3 {
+    font-size: 16px;
+    text-align: left;
+  }
+
+  .modal p {
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions button {
+    min-height: var(--admin-touch-target, 44px);
+  }
+}

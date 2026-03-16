@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import Icon from '../ui/Icon/Icon';
 
 export interface FilterConfig {
   key: string;
@@ -29,7 +30,9 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, values, onChange, onClea
             return (
               <div key={filter.key} className="filter-field">
                 <div className="filter-search-wrapper">
-                  <span className="filter-search-icon">&#128269;</span>
+                  <span className="filter-search-icon">
+                    <Icon name="search" size={16} />
+                  </span>
                   <input
                     type="text"
                     className="filter-input"

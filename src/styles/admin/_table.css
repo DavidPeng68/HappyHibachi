@@ -234,19 +234,77 @@
 .data-table-card {
   background: var(--admin-surface);
   border: 1px solid var(--admin-border);
-  border-radius: 8px;
-  padding: 12px;
-  cursor: pointer;
-  transition: border-color var(--transition-fast);
+  border-radius: var(--admin-radius-lg);
+  padding: 14px 16px;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
-.data-table-card:hover {
+.data-table-card--clickable {
+  cursor: pointer;
+}
+
+.data-table-card--clickable:hover,
+.data-table-card--clickable:focus-visible {
+  border-color: var(--admin-border-hover);
+  box-shadow: var(--admin-shadow-card-hover);
+}
+
+.data-table-card--active {
   border-color: var(--admin-primary);
+  background: var(--admin-primary-soft);
+}
+
+.data-table-card--skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
 }
 
 .data-table-card.card-selected {
   border-color: var(--admin-primary);
   background: var(--admin-primary-soft);
+}
+
+/* Card layout helpers */
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-row + .card-row {
+  margin-top: 8px;
+}
+
+.card-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--admin-text);
+}
+
+.card-subtitle {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  margin-top: 2px;
+}
+
+.card-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--admin-text-secondary);
+}
+
+.card-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* Skeleton in checkbox cell */

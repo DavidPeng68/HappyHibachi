@@ -7,7 +7,7 @@
  * 2. Username + password → checks admin_users in KV → role from user record
  */
 
-import { createToken, getCorsHeaders, hashPassword, hashPasswordPBKDF2, verifyPasswordPBKDF2, isLegacyHash } from '../_auth';
+import { createToken, getCorsHeaders, hashPassword, hashPasswordPBKDF2, verifyPasswordPBKDF2, isLegacyHash, logAuditEvent } from '../_auth';
 import { checkRateLimit, checkLoginLockout, recordFailedLogin, clearLoginLockout } from '../_rateLimit';
 
 interface AdminUser {
@@ -54,6 +54,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 			if (password === adminPassword) {
 				await clearLoginLockout(context.request, context.env.BOOKINGS);
 				const token = await createToken(adminPassword, 'super_admin', '__env__');
+				logAuditEvent('login_success', '__env__', context.request, { method: 'env_password' });
 				return new Response(
 					JSON.stringify({
 						success: true,
@@ -67,6 +68,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 			}
 
 			await recordFailedLogin(context.request, context.env.BOOKINGS);
+			logAuditEvent('login_failure', 'anonymous', context.request, { method: 'env_password' });
 			return new Response(
 				JSON.stringify({ success: false, error: 'Invalid password' }),
 				{ status: 401, headers: corsHeaders }
@@ -80,6 +82,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
 		if (!user) {
 			await recordFailedLogin(context.request, context.env.BOOKINGS);
+			logAuditEvent('login_failure', username.trim(), context.request, { reason: 'user_not_found' });
 			return new Response(
 				JSON.stringify({ success: false, error: 'Invalid username or password' }),
 				{ status: 401, headers: corsHeaders }
@@ -107,6 +110,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
 		if (!passwordValid) {
 			await recordFailedLogin(context.request, context.env.BOOKINGS);
+			logAuditEvent('login_failure', username.trim(), context.request, { reason: 'invalid_password' });
 			return new Response(
 				JSON.stringify({ success: false, error: 'Invalid username or password' }),
 				{ status: 401, headers: corsHeaders }
@@ -137,6 +141,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
 		await clearLoginLockout(context.request, context.env.BOOKINGS);
 		const token = await createToken(adminPassword, user.role, user.id);
+		logAuditEvent('login_success', user.id, context.request, { role: user.role, username: user.username });
 		return new Response(
 			JSON.stringify({
 				success: true,

@@ -66,7 +66,11 @@ export type IconName =
   | 'alert-triangle'
   | 'trending-up'
   | 'trending-down'
-  | 'bell';
+  | 'bell'
+  | 'menu'
+  | 'refresh'
+  | 'filter'
+  | 'x-circle';
 
 interface IconProps {
   name: IconName;
@@ -735,6 +739,94 @@ const iconPaths: Record<IconName, React.ReactNode> = {
         fill="none"
       />
       <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth="2" />
+    </>
+  ),
+  menu: (
+    <>
+      <line
+        x1="3"
+        y1="6"
+        x2="21"
+        y2="6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <line
+        x1="3"
+        y1="12"
+        x2="21"
+        y2="12"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <line
+        x1="3"
+        y1="18"
+        x2="21"
+        y2="18"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </>
+  ),
+  refresh: (
+    <>
+      <path
+        d="M23 4v6h-6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M1 20v-6h6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </>
+  ),
+  filter: (
+    <path
+      d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  ),
+  'x-circle': (
+    <>
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+      <line
+        x1="15"
+        y1="9"
+        x2="9"
+        y2="15"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <line
+        x1="9"
+        y1="9"
+        x2="15"
+        y2="15"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
     </>
   ),
 };
