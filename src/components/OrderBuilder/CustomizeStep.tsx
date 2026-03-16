@@ -13,6 +13,7 @@ interface CustomizeStepProps {
   onAddAddon: (menuItemId: string) => void;
   onRemoveAddon: (menuItemId: string) => void;
   getLocalizedText: (text: TranslatableText) => string;
+  onBack?: () => void;
 }
 
 const CustomizeStep: React.FC<CustomizeStepProps> = ({
@@ -25,6 +26,7 @@ const CustomizeStep: React.FC<CustomizeStepProps> = ({
   onAddAddon,
   onRemoveAddon,
   getLocalizedText,
+  onBack,
 }) => {
   const { t } = useTranslation();
   const [chefsChoice, setChefsChoice] = useState(false);
@@ -61,6 +63,11 @@ const CustomizeStep: React.FC<CustomizeStepProps> = ({
 
   return (
     <div className="step-section">
+      {onBack && (
+        <button type="button" className="step-back-btn" onClick={onBack}>
+          ← {t('order.back')}
+        </button>
+      )}
       <h3 className="step-title">{t('order.step2.title')}</h3>
 
       {/* Protein Selection */}

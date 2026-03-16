@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { TranslatableText, LocaleCode } from '../../types/menu';
 import './TranslatableField.css';
 
@@ -28,6 +29,7 @@ const TranslatableField: React.FC<TranslatableFieldProps> = ({
   label,
   placeholder,
 }) => {
+  const { t } = useTranslation();
   const [activeLocale, setActiveLocale] = useState<LocaleCode>('en');
 
   const handleTextChange = (text: string) => {
@@ -45,7 +47,9 @@ const TranslatableField: React.FC<TranslatableFieldProps> = ({
   const currentValue = value[activeLocale] ?? '';
   const localeInfo = LOCALES.find((l) => l.code === activeLocale)!;
   const isRequired = localeInfo.required;
-  const placeholderText = isRequired ? placeholder || '' : 'Leave empty to show English';
+  const placeholderText = isRequired
+    ? placeholder || ''
+    : t('admin.translatableField.leaveEmptyHint');
 
   return (
     <div className="translatable-field">

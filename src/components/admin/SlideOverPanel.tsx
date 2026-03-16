@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface SlideOverPanelProps {
   open: boolean;
@@ -18,6 +19,7 @@ const SlideOverPanel: React.FC<SlideOverPanelProps> = ({
   children,
   width = 480,
 }) => {
+  const { t } = useTranslation();
   const panelRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const titleId = 'slideover-panel-title';
@@ -102,7 +104,12 @@ const SlideOverPanel: React.FC<SlideOverPanelProps> = ({
           <h2 id={titleId} className="slideover-title">
             {title}
           </h2>
-          <button className="slideover-close" onClick={onClose} aria-label="Close" type="button">
+          <button
+            className="slideover-close"
+            onClick={onClose}
+            aria-label={t('common.close')}
+            type="button"
+          >
             &times;
           </button>
         </div>

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { REGIONS, PRICING } from '../../constants';
 import type { MenuPackage, TranslatableText } from '../../types';
@@ -17,6 +17,7 @@ interface PartyStepProps {
   selectedRegion: string;
   onRegionSelect: (region: string) => void;
   onSkipToBooking: () => void;
+  regionHighlight?: boolean;
 }
 
 const PartyStep: React.FC<PartyStepProps> = ({
@@ -31,11 +32,20 @@ const PartyStep: React.FC<PartyStepProps> = ({
   selectedRegion,
   onRegionSelect,
   onSkipToBooking,
+  regionHighlight,
 }) => {
   const { t } = useTranslation();
   const totalGuests = guestCount + kidsCount;
   const minGuests = Math.ceil(PRICING.MINIMUM_ORDER / PRICING.PER_PERSON);
   const belowMinimum = totalGuests < minGuests;
+  const [guestAdjustedMsg, setGuestAdjustedMsg] = useState('');
+
+  // Clear message on unmount or after timeout
+  useEffect(() => {
+    if (!guestAdjustedMsg) return;
+    const timer = setTimeout(() => setGuestAdjustedMsg(''), 3000);
+    return () => clearTimeout(timer);
+  }, [guestAdjustedMsg]);
 
   // Real-time price estimate
   const selectedPkg = useMemo(
@@ -62,7 +72,7 @@ const PartyStep: React.FC<PartyStepProps> = ({
       <h3 className="step-title">{t('order.step1.title')}</h3>
 
       {/* Region Dropdown */}
-      <div className="region-select-wrapper">
+      <div className={`region-select-wrapper ${regionHighlight ? 'region-select-highlight' : ''}`}>
         <Select
           label={t('form.region') + ' *'}
           name="region"
@@ -71,6 +81,12 @@ const PartyStep: React.FC<PartyStepProps> = ({
           options={regionOptions}
           required
         />
+        {regionHighlight && (
+          <div className="region-hint">
+            <Icon name="warning" size={14} />
+            {t('order.regionRequired')}
+          </div>
+        )}
       </div>
 
       {/* Guest Count Steppers */}
@@ -189,10 +205,27 @@ const PartyStep: React.FC<PartyStepProps> = ({
 
       {/* Package Selection */}
       <h4 className="step-subtitle">{t('order.choosePackage')}</h4>
+      {guestAdjustedMsg && (
+        <div className="guest-adjusted-msg">
+          <Icon name="check" size={14} />
+          {guestAdjustedMsg}
+        </div>
+      )}
       <div className="package-grid">
         {packages.map((pkg) => {
           const withinRange =
             totalGuests >= pkg.minGuests && (pkg.maxGuests == null || totalGuests <= pkg.maxGuests);
+
+          const handleSelect = () => {
+            if (withinRange) {
+              onSelectPackage(pkg.id);
+            } else {
+              const target = totalGuests < pkg.minGuests ? pkg.minGuests : pkg.maxGuests!;
+              onGuestCountChange(target);
+              onSelectPackage(pkg.id);
+              setGuestAdjustedMsg(t('order.guestAdjustedTo', { count: target }));
+            }
+          };
 
           return (
             <div
@@ -202,9 +235,7 @@ const PartyStep: React.FC<PartyStepProps> = ({
               <MenuPackageCard
                 pkg={pkg}
                 isSelected={selectedPackageId === pkg.id}
-                onSelect={() => {
-                  if (withinRange) onSelectPackage(pkg.id);
-                }}
+                onSelect={handleSelect}
                 getLocalizedText={getLocalizedText}
               />
               {!withinRange && (
@@ -212,6 +243,9 @@ const PartyStep: React.FC<PartyStepProps> = ({
                   {pkg.maxGuests
                     ? t('order.guestRange', { min: pkg.minGuests, max: pkg.maxGuests })
                     : t('order.guestMin', { min: pkg.minGuests })}
+                  <button type="button" className="package-adjust-btn" onClick={handleSelect}>
+                    {t('order.adjustGuests')}
+                  </button>
                 </div>
               )}
               {pkg.serviceDuration > 0 && (

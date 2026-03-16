@@ -46,7 +46,7 @@ const SettingsSEO: React.FC = () => {
             }))
           }
           onBlur={() => saveSettings({ seoDefaults: settings.seoDefaults })}
-          placeholder="Family Friends Hibachi - At Home Hibachi Experience"
+          placeholder={t('admin.settings.defaults.seoTitle')}
         />
       </div>
       <div className="form-group">
@@ -62,7 +62,7 @@ const SettingsSEO: React.FC = () => {
             }))
           }
           onBlur={() => saveSettings({ seoDefaults: settings.seoDefaults })}
-          placeholder="Top Rated Hibachi At Home Experience..."
+          placeholder={t('admin.settings.defaults.seoDescription')}
         />
       </div>
       <div className="form-group">
@@ -78,7 +78,7 @@ const SettingsSEO: React.FC = () => {
             }))
           }
           onBlur={() => saveSettings({ seoDefaults: settings.seoDefaults })}
-          placeholder="hibachi, at home hibachi, hibachi catering..."
+          placeholder={t('admin.settings.defaults.seoKeywords')}
         />
       </div>
     </div>

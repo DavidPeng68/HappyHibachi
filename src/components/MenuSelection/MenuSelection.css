@@ -462,6 +462,10 @@
 }
 
 @media (max-width: 480px) {
+  .menu-selection {
+    padding: var(--space-2xl) var(--space-md);
+  }
+
   .menu-items-grid {
     grid-template-columns: 1fr;
   }
@@ -472,6 +476,14 @@
 
   .menu-option {
     padding: var(--space-lg);
+  }
+
+  .menu-packages-grid {
+    gap: var(--space-md);
+  }
+
+  .menu-section-title {
+    font-size: var(--text-2xl);
   }
 }
 

@@ -7,7 +7,11 @@ import type { FilterConfig } from '../../../components/admin/FilterBar';
 // Constants
 // ---------------------------------------------------------------------------
 
-const REGIONS = ['California', 'Texas', 'Florida'] as const;
+const REGIONS = [
+  { value: 'California', key: 'california' },
+  { value: 'Texas', key: 'texas' },
+  { value: 'Florida', key: 'florida' },
+] as const;
 
 // ---------------------------------------------------------------------------
 // Props
@@ -44,7 +48,7 @@ const BookingFilterBar: React.FC<BookingFilterBarProps> = ({
         key: 'region',
         label: t('admin.booking.allRegions'),
         type: 'select' as const,
-        options: REGIONS.map((r) => ({ value: r, label: r })),
+        options: REGIONS.map((r) => ({ value: r.value, label: t(`booking.${r.key}`) })),
       },
       {
         key: 'date',

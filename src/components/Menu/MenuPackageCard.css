@@ -155,6 +155,25 @@
   }
 }
 
+@media (max-width: 480px) {
+  .package-card {
+    padding: var(--space-md);
+  }
+
+  .package-name {
+    font-size: var(--text-xl);
+  }
+
+  .package-price .amount {
+    font-size: var(--text-3xl);
+  }
+
+  .package-select-btn {
+    min-height: 48px;
+    font-size: var(--text-base);
+  }
+}
+
 /* =============================================
    LIGHT MODE OVERRIDES
    ============================================= */

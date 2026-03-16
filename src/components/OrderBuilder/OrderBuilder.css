@@ -269,21 +269,61 @@
 }
 
 .package-disabled {
-  opacity: 0.5;
-  pointer-events: none;
+  opacity: 0.65;
+  cursor: pointer;
+}
+
+.package-disabled .package-select-btn {
+  border-style: dashed;
 }
 
 .package-range-hint {
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
   font-size: var(--text-xs);
   color: var(--color-warning);
-  background: var(--color-bg-dark);
-  padding: 2px 8px;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.15);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-sm);
+}
+
+.package-adjust-btn {
+  background: none;
+  border: 1px solid var(--color-primary);
   border-radius: var(--radius-sm);
+  color: var(--color-primary);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: var(--space-xs) var(--space-sm);
+  min-height: 32px;
+  cursor: pointer;
+  transition: all 0.2s ease;
   white-space: nowrap;
+}
+
+.package-adjust-btn:hover {
+  background: var(--color-primary);
+  color: white;
+}
+
+.guest-adjusted-msg {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: var(--radius-md);
+  color: var(--color-success);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  margin-bottom: var(--space-md);
+  animation: fadeIn 0.3s ease;
 }
 
 .package-service-info {
@@ -521,6 +561,48 @@
 .region-select-wrapper {
   margin-bottom: var(--space-xl);
   max-width: 400px;
+}
+
+.region-select-highlight select {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.3);
+  animation: region-pulse 1.5s ease-in-out 2;
+}
+
+@keyframes region-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(255, 107, 53, 0.15);
+  }
+}
+
+.region-hint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(255, 107, 53, 0.1);
+  border: 1px solid rgba(255, 107, 53, 0.3);
+  border-radius: var(--radius-md);
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* =============================================
@@ -937,6 +1019,40 @@
 }
 
 /* =============================================
+   STEP BACK BUTTON
+   ============================================= */
+
+.step-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  min-height: 44px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  margin-bottom: var(--space-md);
+  transition: all 0.2s ease;
+}
+
+.step-back-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: rgba(255, 107, 53, 0.05);
+}
+
+.theme-light .step-back-btn {
+  border-color: var(--color-border);
+}
+
+.theme-light .step-back-btn:hover {
+  border-color: var(--color-primary);
+}
+
+/* =============================================
    RESPONSIVE
    ============================================= */
 
@@ -980,8 +1096,67 @@
     display: none;
   }
 
+  .step-indicator.active .step-label {
+    display: block;
+    font-size: var(--text-xs);
+  }
+
+  .step-dot {
+    width: 40px;
+    height: 40px;
+  }
+
+  .step-indicator.complete .step-dot {
+    cursor: pointer;
+  }
+
   .step-connector {
     width: 24px;
+  }
+
+  /* Sticky protein counter on mobile */
+  .customize-header {
+    position: sticky;
+    top: calc(var(--nav-height) + var(--space-sm));
+    z-index: 5;
+    background: var(--color-bg-card);
+    padding: var(--space-sm) var(--space-md);
+    margin: 0 calc(-1 * var(--space-lg));
+    padding-left: var(--space-lg);
+    padding-right: var(--space-lg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .theme-light .customize-header {
+    border-bottom-color: var(--color-border-light);
+  }
+
+  /* Review rows stack on mobile */
+  .review-row {
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .review-edit-btn {
+    min-height: 36px;
+    padding: var(--space-xs) var(--space-md);
+  }
+
+  /* Booking submit sticky */
+  .booking-submit-wrapper {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    background: var(--color-bg-card);
+    padding: var(--space-md);
+    padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    margin: var(--space-md) calc(-1 * var(--space-lg));
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .theme-light .booking-submit-wrapper {
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   }
 
   .chefs-choice-toggle {
@@ -1020,6 +1195,44 @@
 
   .step-title {
     font-size: var(--text-xl);
+  }
+
+  /* Review layout on small screens */
+  .review-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .review-row .review-value {
+    align-self: flex-end;
+  }
+
+  .review-edit-btn {
+    min-height: 44px;
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .review-total .review-value {
+    font-size: var(--text-xl);
+  }
+
+  /* Calendar sidebar compact */
+  .calendar-sidebar {
+    padding: var(--space-sm);
+  }
+
+  .calendar-sidebar h4 {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-sm);
+  }
+
+  .booking-form .form-row {
+    gap: var(--space-md);
+  }
+
+  /* Sticky submit on small mobile */
+  .booking-submit-wrapper {
+    margin: var(--space-md) calc(-1 * var(--space-md));
   }
 
   .success-content {

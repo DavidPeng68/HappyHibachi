@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export interface BreadcrumbItem {
   label: string;
@@ -10,10 +11,11 @@ interface BreadcrumbProps {
 }
 
 const Breadcrumb: React.FC<BreadcrumbProps> = ({ items }) => {
+  const { t } = useTranslation();
   if (items.length <= 1) return null;
 
   return (
-    <nav className="admin-breadcrumb" aria-label="Breadcrumb">
+    <nav className="admin-breadcrumb" aria-label={t('admin.a11y.breadcrumb')}>
       {items.map((item, i) => {
         const isLast = i === items.length - 1;
         return (

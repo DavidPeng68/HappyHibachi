@@ -34,14 +34,14 @@ const SettingsTimeSlots: React.FC = () => {
   const addTimeSlot = useCallback(() => {
     const newSlot: TimeSlot = {
       id: `custom_${Date.now()}`,
-      label: 'New slot',
+      label: t('admin.settings.newSlotLabel'),
       startTime: '12:00',
       endTime: '14:00',
       enabled: true,
     };
     const newTimeSlots = [...settings.timeSlots, newSlot];
     saveSettings({ timeSlots: newTimeSlots });
-  }, [settings.timeSlots, saveSettings]);
+  }, [settings.timeSlots, saveSettings, t]);
 
   const toggleTimeSlot = useCallback(
     (slotId: string) => {

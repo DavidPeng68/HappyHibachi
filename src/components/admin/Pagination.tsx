@@ -91,7 +91,7 @@ const Pagination: React.FC<PaginationProps> = ({
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1}
           type="button"
-          aria-label="Previous page"
+          aria-label={t('admin.a11y.previousPage')}
         >
           {t('admin.pagination.prev')}
         </button>
@@ -117,7 +117,7 @@ const Pagination: React.FC<PaginationProps> = ({
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
           type="button"
-          aria-label="Next page"
+          aria-label={t('admin.a11y.nextPage')}
         >
           {t('admin.pagination.next')}
         </button>

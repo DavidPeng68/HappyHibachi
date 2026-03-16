@@ -18,6 +18,7 @@ interface BookingStepProps {
   orderData?: BookingOrderData;
   orderMessage?: string;
   onSuccess: (formData: BookingFormData) => void;
+  onBack?: () => void;
 }
 
 const STORAGE_KEY = 'happyhibachi_booking_form';
@@ -29,6 +30,7 @@ const BookingStep: React.FC<BookingStepProps> = ({
   orderData,
   orderMessage,
   onSuccess,
+  onBack,
 }) => {
   const { t, i18n } = useTranslation();
   const { settings } = useSettings();
@@ -232,15 +234,36 @@ const BookingStep: React.FC<BookingStepProps> = ({
     [t]
   );
 
-  const isFormDisabled = !formData.date || !!validationErrors.email || !!validationErrors.phone;
+  const isFormDisabled =
+    !formData.name.trim() ||
+    !formData.email.trim() ||
+    !formData.phone.trim() ||
+    !formData.date ||
+    !formData.time ||
+    !!validationErrors.email ||
+    !!validationErrors.phone ||
+    isSubmitting;
 
   // Compute reason why submit is disabled
   const disabledReason = useMemo((): string | null => {
+    if (!formData.name.trim()) return t('form.nameRequired');
+    if (!formData.email.trim()) return t('form.emailRequired');
+    if (!formData.phone.trim()) return t('form.phoneRequired');
     if (!formData.date) return t('form.selectDate');
+    if (!formData.time) return t('form.selectTime');
     if (validationErrors.email) return validationErrors.email;
     if (validationErrors.phone) return validationErrors.phone;
     return null;
-  }, [formData.date, validationErrors.email, validationErrors.phone, t]);
+  }, [
+    formData.name,
+    formData.email,
+    formData.phone,
+    formData.date,
+    formData.time,
+    validationErrors.email,
+    validationErrors.phone,
+    t,
+  ]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -281,6 +304,11 @@ const BookingStep: React.FC<BookingStepProps> = ({
 
   return (
     <div className="step-section booking-step">
+      {onBack && (
+        <button type="button" className="step-back-btn" onClick={onBack}>
+          ← {t('order.back')}
+        </button>
+      )}
       <h3 className="step-title">{t('order.step.book')}</h3>
 
       <div className="booking-step-info">
@@ -507,22 +535,24 @@ const BookingStep: React.FC<BookingStepProps> = ({
 
           {errorMessage && <div className="form-error">{errorMessage}</div>}
 
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            loading={isSubmitting}
-            disabled={isFormDisabled}
-            className="submit-btn"
-          >
-            {isSubmitting ? t('form.submitting') : t('form.submitReservation')}
-          </Button>
+          <div className="booking-submit-wrapper">
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              loading={isSubmitting}
+              disabled={isFormDisabled}
+              className="submit-btn"
+            >
+              {isSubmitting ? t('form.submitting') : t('form.submitReservation')}
+            </Button>
 
-          {isFormDisabled && disabledReason && !isSubmitting && (
-            <div className="submit-disabled-reason">{disabledReason}</div>
-          )}
+            {isFormDisabled && disabledReason && !isSubmitting && (
+              <div className="submit-disabled-reason">{disabledReason}</div>
+            )}
 
-          <p className="no-payment-note">{t('form.noPaymentRequired')}</p>
+            <p className="no-payment-note">{t('form.noPaymentRequired')}</p>
+          </div>
         </form>
       </div>
     </div>

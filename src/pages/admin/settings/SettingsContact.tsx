@@ -152,7 +152,7 @@ const SettingsContact: React.FC = () => {
           <input
             type="text"
             className="input"
-            value={settings.promoBanner?.text ?? 'Book Today & Get $30 OFF!'}
+            value={settings.promoBanner?.text ?? t('admin.settings.defaults.promoText')}
             onChange={(e) =>
               setSettings((s) => ({
                 ...s,
@@ -160,7 +160,7 @@ const SettingsContact: React.FC = () => {
               }))
             }
             onBlur={() => saveSettings({ promoBanner: settings.promoBanner })}
-            placeholder="Book Today & Get $30 OFF!"
+            placeholder={t('admin.settings.defaults.promoText')}
           />
         </div>
       </div>
@@ -175,7 +175,7 @@ const SettingsContact: React.FC = () => {
           <input
             type="text"
             className="input"
-            value={settings.contactInfo?.contactPerson ?? 'Family Friends Hibachi Team'}
+            value={settings.contactInfo?.contactPerson ?? t('admin.settings.defaults.contactName')}
             onChange={(e) =>
               setSettings((s) => ({
                 ...s,
@@ -183,7 +183,7 @@ const SettingsContact: React.FC = () => {
               }))
             }
             onBlur={() => saveSettings({ contactInfo: settings.contactInfo })}
-            placeholder="Family Friends Hibachi Team"
+            placeholder={t('admin.settings.defaults.contactName')}
           />
         </div>
         <div className="form-group">
@@ -199,7 +199,7 @@ const SettingsContact: React.FC = () => {
               }))
             }
             onBlur={() => saveSettings({ contactInfo: settings.contactInfo })}
-            placeholder="909-615-6633"
+            placeholder={t('admin.settings.defaults.phone')}
           />
         </div>
         <div className="form-group">
@@ -215,7 +215,7 @@ const SettingsContact: React.FC = () => {
               }))
             }
             onBlur={() => saveSettings({ contactInfo: settings.contactInfo })}
-            placeholder="familyfriendshibachi@gmail.com"
+            placeholder={t('admin.settings.defaults.email')}
           />
         </div>
       </div>
@@ -238,7 +238,7 @@ const SettingsContact: React.FC = () => {
               }))
             }
             onBlur={() => saveSettings({ socialLinks: settings.socialLinks })}
-            placeholder="https://instagram.com/familyfriendshibachi"
+            placeholder={t('admin.settings.defaults.instagramUrl')}
           />
         </div>
         <div className="form-group">
@@ -254,7 +254,7 @@ const SettingsContact: React.FC = () => {
               }))
             }
             onBlur={() => saveSettings({ socialLinks: settings.socialLinks })}
-            placeholder="https://facebook.com/familyfriendshibachi"
+            placeholder={t('admin.settings.defaults.facebookUrl')}
           />
         </div>
         <div className="form-group">
@@ -270,7 +270,7 @@ const SettingsContact: React.FC = () => {
               }))
             }
             onBlur={() => saveSettings({ socialLinks: settings.socialLinks })}
-            placeholder="https://tiktok.com/@familyfriendshibachi"
+            placeholder={t('admin.settings.defaults.tiktokUrl')}
           />
         </div>
       </div>

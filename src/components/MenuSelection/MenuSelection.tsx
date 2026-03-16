@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useMenu } from '../../hooks';
 import { PRICING } from '../../constants';
 import { MenuPackageCard, MenuSpotlight } from '../Menu';
@@ -12,6 +12,7 @@ import './MenuSelection.css';
  */
 const MenuSelection: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { menu, loading, error, getLocalizedText } = useMenu();
 
   const visiblePackages = useMemo(() => {
@@ -123,7 +124,7 @@ const MenuSelection: React.FC = () => {
             <MenuPackageCard
               pkg={pkg}
               isSelected={false}
-              onSelect={() => {}}
+              onSelect={() => navigate(`/order?package=${pkg.id}`)}
               getLocalizedText={getLocalizedText}
             />
             {pkg.proteinCount > 0 && (

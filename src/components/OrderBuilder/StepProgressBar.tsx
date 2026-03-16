@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next';
 interface StepProgressBarProps {
   steps: string[];
   currentStep: number;
+  onStepClick?: (stepNumber: number) => void;
 }
 
-const StepProgressBar: React.FC<StepProgressBarProps> = ({ steps, currentStep }) => {
+const StepProgressBar: React.FC<StepProgressBarProps> = ({ steps, currentStep, onStepClick }) => {
   const { t } = useTranslation();
 
   return (
@@ -15,13 +16,32 @@ const StepProgressBar: React.FC<StepProgressBarProps> = ({ steps, currentStep })
         const stepNum = idx + 1;
         const isActive = stepNum === currentStep;
         const isComplete = stepNum < currentStep;
+        const isClickable = isComplete && onStepClick;
 
         return (
           <div
             key={idx}
             className={`step-indicator ${isActive ? 'active' : ''} ${isComplete ? 'complete' : ''}`}
           >
-            <div className="step-dot">{isComplete ? '✓' : stepNum}</div>
+            <div
+              className="step-dot"
+              role={isClickable ? 'button' : undefined}
+              tabIndex={isClickable ? 0 : undefined}
+              aria-label={isClickable ? label : undefined}
+              onClick={isClickable ? () => onStepClick(stepNum) : undefined}
+              onKeyDown={
+                isClickable
+                  ? (e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onStepClick(stepNum);
+                      }
+                    }
+                  : undefined
+              }
+            >
+              {isComplete ? '✓' : stepNum}
+            </div>
             <span className="step-label">{label}</span>
             {idx < steps.length - 1 && <div className="step-connector" />}
           </div>

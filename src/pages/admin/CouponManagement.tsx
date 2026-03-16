@@ -92,11 +92,11 @@ const CouponManagement: React.FC = () => {
   const referralStats = useMemo(() => {
     const stats: Record<string, number> = {};
     bookings.forEach((b) => {
-      const source = b.referralSource || 'Direct visit';
+      const source = b.referralSource || t('admin.coupon.directVisit');
       stats[source] = (stats[source] || 0) + 1;
     });
     return Object.entries(stats).sort((a, b) => b[1] - a[1]) as [string, number][];
-  }, [bookings]);
+  }, [bookings, t]);
 
   // Coupon usage stats from bookings
   const couponUsageMap = useMemo(() => {

@@ -33,6 +33,7 @@ const OrderBuilder: React.FC = () => {
   const [skippedMenu, setSkippedMenu] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success'>('idle');
   const [successFormData, setSuccessFormData] = useState<BookingFormData | null>(null);
+  const [regionHighlight, setRegionHighlight] = useState(false);
 
   const step2Ref = useRef<HTMLDivElement>(null);
   const bookingRef = useRef<HTMLDivElement>(null);
@@ -44,6 +45,15 @@ const OrderBuilder: React.FC = () => {
       setSelectedRegion(hash);
     }
   }, [location.hash]);
+
+  // Handle package preselection from query params (?package=xxx)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const packageId = params.get('package');
+    if (packageId && menu?.packages.some((p) => p.id === packageId)) {
+      selectPackage(packageId);
+    }
+  }, [location.search, menu, selectPackage]);
 
   // Determine flow state
   const hasPackage = order.packageId !== null;
@@ -105,6 +115,7 @@ const OrderBuilder: React.FC = () => {
 
   const handleRegionSelect = (region: string) => {
     setSelectedRegion(region);
+    if (region) setRegionHighlight(false);
   };
 
   const step1Ref = useRef<HTMLDivElement>(null);
@@ -123,6 +134,32 @@ const OrderBuilder: React.FC = () => {
   const handleEditCustomize = useCallback(() => {
     step2Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
+
+  const handleBackToParty = useCallback(() => {
+    step1Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
+  const handleBackToCustomize = useCallback(() => {
+    step2Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
+  const handleBackToReview = useCallback(() => {
+    // If skipped menu, go back to party step
+    if (skippedMenu) {
+      step1Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      bookingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [skippedMenu]);
+
+  const handleStepClick = useCallback(
+    (stepNumber: number) => {
+      if (stepNumber === 1) handleBackToParty();
+      else if (stepNumber === 2 && !skippedMenu) handleBackToCustomize();
+      else if (stepNumber === 3 && !skippedMenu) handleBackToReview();
+    },
+    [handleBackToParty, handleBackToCustomize, handleBackToReview, skippedMenu]
+  );
 
   const handleBookingSuccess = (formData: BookingFormData) => {
     setSuccessFormData(formData);
@@ -222,7 +259,11 @@ const OrderBuilder: React.FC = () => {
     <div className="order-builder">
       <div className="order-builder__header">
         <h2 className="order-builder__title">{t('order.title')}</h2>
-        <StepProgressBar steps={stepLabels} currentStep={currentStep} />
+        <StepProgressBar
+          steps={stepLabels}
+          currentStep={currentStep}
+          onStepClick={handleStepClick}
+        />
       </div>
 
       <div className="order-builder__layout">
@@ -241,6 +282,7 @@ const OrderBuilder: React.FC = () => {
               selectedRegion={selectedRegion}
               onRegionSelect={handleRegionSelect}
               onSkipToBooking={handleSkipToBooking}
+              regionHighlight={regionHighlight}
             />
           </div>
 
@@ -257,6 +299,7 @@ const OrderBuilder: React.FC = () => {
                 onAddAddon={addAddon}
                 onRemoveAddon={removeAddon}
                 getLocalizedText={getLocalizedText}
+                onBack={handleBackToParty}
               />
             </div>
           )}
@@ -285,6 +328,7 @@ const OrderBuilder: React.FC = () => {
               getLocalizedText={getLocalizedText}
               onEditParty={handleEditParty}
               onEditCustomize={handleEditCustomize}
+              onBack={handleBackToCustomize}
             />
           )}
 
@@ -298,6 +342,7 @@ const OrderBuilder: React.FC = () => {
                 orderData={orderData}
                 orderMessage={orderMessage}
                 onSuccess={handleBookingSuccess}
+                onBack={skippedMenu ? handleBackToParty : handleBackToReview}
               />
             </div>
           )}
@@ -310,6 +355,7 @@ const OrderBuilder: React.FC = () => {
             getLocalizedText={getLocalizedText}
             onGoToBooking={() => {
               if (!hasRegion) {
+                setRegionHighlight(true);
                 step1Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
               } else {
                 bookingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });

@@ -20,6 +20,7 @@ interface ReviewStepProps {
   getLocalizedText: (text: TranslatableText) => string;
   onEditParty?: () => void;
   onEditCustomize?: () => void;
+  onBack?: () => void;
 }
 
 const ReviewStep: React.FC<ReviewStepProps> = ({
@@ -33,6 +34,7 @@ const ReviewStep: React.FC<ReviewStepProps> = ({
   getLocalizedText,
   onEditParty,
   onEditCustomize,
+  onBack,
 }) => {
   const { t } = useTranslation();
 
@@ -52,6 +54,11 @@ const ReviewStep: React.FC<ReviewStepProps> = ({
 
   return (
     <div className="step-section">
+      {onBack && (
+        <button type="button" className="step-back-btn" onClick={onBack}>
+          ← {t('order.back')}
+        </button>
+      )}
       <div className="step-title-row">
         <h3 className="step-title">{t('order.step3.title')}</h3>
       </div>

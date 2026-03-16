@@ -44,6 +44,7 @@
   inset: 0;
   border-radius: inherit;
   padding: 2px;
+  pointer-events: none;
   background: linear-gradient(
     135deg,
     var(--color-primary),

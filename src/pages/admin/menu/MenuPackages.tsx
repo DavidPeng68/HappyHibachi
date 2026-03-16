@@ -95,16 +95,36 @@ const PackagesTab: React.FC<PackagesTabProps> = ({
               <span className="menu-mgmt__card-badge">
                 {pkg.minGuests}-{pkg.maxGuests ?? '...'} {t('admin.menu.guests')}
               </span>
-              <span
-                className={`menu-mgmt__card-badge ${pkg.visible ? 'menu-mgmt__card-badge--on' : 'menu-mgmt__card-badge--off'}`}
+              <button
+                type="button"
+                className={`menu-mgmt__toggle ${pkg.visible ? 'menu-mgmt__toggle--on' : 'menu-mgmt__toggle--off'}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onChange(
+                    packages.map((p) => (p.id === pkg.id ? { ...p, visible: !p.visible } : p))
+                  );
+                }}
+                title={pkg.visible ? t('admin.menu.clickToHide') : t('admin.menu.clickToShow')}
               >
                 {pkg.visible ? t('admin.menu.visible') : t('admin.menu.hidden')}
-              </span>
-              {pkg.highlighted && (
-                <span className="menu-mgmt__card-badge menu-mgmt__card-badge--on">
-                  {t('admin.menu.highlighted')}
-                </span>
-              )}
+              </button>
+              <button
+                type="button"
+                className={`menu-mgmt__toggle ${pkg.highlighted ? 'menu-mgmt__toggle--on' : ''}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onChange(
+                    packages.map((p) =>
+                      p.id === pkg.id ? { ...p, highlighted: !p.highlighted } : p
+                    )
+                  );
+                }}
+                title={
+                  pkg.highlighted ? t('admin.menu.removeHighlight') : t('admin.menu.addHighlight')
+                }
+              >
+                {pkg.highlighted ? t('admin.menu.highlighted') : t('admin.menu.notHighlighted')}
+              </button>
             </div>
             <div className="menu-mgmt__card-actions">
               <button

@@ -90,7 +90,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({
   return (
     <aside className={`sidebar${collapsed ? ' collapsed' : ''}`}>
       <div className="sidebar-header">
-        <span className="sidebar-logo" role="img" aria-label="logo">
+        <span className="sidebar-logo" aria-hidden="true">
           <Icon name="fire" size={24} />
         </span>
         {!collapsed && <span className="sidebar-title">{t('admin.dashboard.title')}</span>}

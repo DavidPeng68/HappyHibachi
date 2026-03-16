@@ -40,7 +40,7 @@ const SettingsBrand: React.FC = () => {
         <input
           type="text"
           className="input"
-          value={settings.brandInfo?.name ?? 'Family Friends Hibachi'}
+          value={settings.brandInfo?.name ?? t('admin.settings.defaults.brandName')}
           onChange={(e) =>
             setSettings((s) => ({
               ...s,
@@ -48,7 +48,7 @@ const SettingsBrand: React.FC = () => {
             }))
           }
           onBlur={() => saveSettings({ brandInfo: settings.brandInfo })}
-          placeholder="Family Friends Hibachi"
+          placeholder={t('admin.settings.defaults.brandName')}
         />
       </div>
       <div className="form-group">
@@ -64,7 +64,7 @@ const SettingsBrand: React.FC = () => {
             }))
           }
           onBlur={() => saveSettings({ brandInfo: settings.brandInfo })}
-          placeholder="https://familyfriendshibachi.com"
+          placeholder={t('admin.settings.defaults.websiteUrl')}
         />
       </div>
       <div className="form-group">
@@ -72,7 +72,7 @@ const SettingsBrand: React.FC = () => {
         <input
           type="text"
           className="input"
-          value={settings.brandInfo?.hashtag ?? '#MORESAKEMOREHAPPY'}
+          value={settings.brandInfo?.hashtag ?? t('admin.settings.defaults.brandTagline')}
           onChange={(e) =>
             setSettings((s) => ({
               ...s,
@@ -80,7 +80,7 @@ const SettingsBrand: React.FC = () => {
             }))
           }
           onBlur={() => saveSettings({ brandInfo: settings.brandInfo })}
-          placeholder="#MORESAKEMOREHAPPY"
+          placeholder={t('admin.settings.defaults.brandTagline')}
         />
       </div>
       <div className="form-group">

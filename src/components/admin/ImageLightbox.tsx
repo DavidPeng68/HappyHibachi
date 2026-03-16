@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface ImageLightboxProps {
   open: boolean;
@@ -17,6 +18,7 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({
   onPrev,
   onNext,
 }) => {
+  const { t } = useTranslation();
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       switch (e.key) {
@@ -55,9 +57,14 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({
       }}
       role="dialog"
       aria-modal="true"
-      aria-label={alt || 'Image preview'}
+      aria-label={alt || t('admin.a11y.imagePreview')}
     >
-      <button className="image-lightbox-close" onClick={onClose} type="button" aria-label="Close">
+      <button
+        className="image-lightbox-close"
+        onClick={onClose}
+        type="button"
+        aria-label={t('common.close')}
+      >
         &times;
       </button>
 
@@ -66,7 +73,7 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({
           className="image-lightbox-nav image-lightbox-prev"
           onClick={onPrev}
           type="button"
-          aria-label="Previous image"
+          aria-label={t('admin.a11y.previousImage')}
         >
           &#8249;
         </button>
@@ -79,7 +86,7 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({
           className="image-lightbox-nav image-lightbox-next"
           onClick={onNext}
           type="button"
-          aria-label="Next image"
+          aria-label={t('admin.a11y.nextImage')}
         >
           &#8250;
         </button>

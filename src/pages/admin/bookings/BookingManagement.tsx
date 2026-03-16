@@ -221,7 +221,7 @@ const BookingManagement: React.FC = () => {
       setSelectedKeys(new Set());
       refetch();
       if (successCount > 0) {
-        showToast(t('admin.toast.statusUpdated') + ` (${successCount})`, 'success');
+        showToast(t('admin.toast.statusUpdatedCount', { count: successCount }), 'success');
       } else {
         showToast(t('admin.toast.updateFailed'), 'error');
       }
@@ -245,7 +245,7 @@ const BookingManagement: React.FC = () => {
     setSelectedKeys(new Set());
     refetch();
     if (successCount > 0) {
-      showToast(t('admin.toast.deleteSuccessful') + ` (${successCount})`, 'success');
+      showToast(t('admin.toast.deleteSuccessfulCount', { count: successCount }), 'success');
     } else {
       showToast(t('admin.toast.deleteFailed'), 'error');
     }
@@ -259,19 +259,19 @@ const BookingManagement: React.FC = () => {
         return;
       }
       const headers = [
-        'Name',
-        'Email',
-        'Phone',
-        'Date',
-        'Time',
-        'Guests',
-        'Region',
-        'Type',
-        'Status',
-        'Message',
-        'Package',
-        'Estimated Total',
-        'Submitted',
+        t('admin.booking.csvHeaders.name'),
+        t('admin.booking.csvHeaders.email'),
+        t('admin.booking.csvHeaders.phone'),
+        t('admin.booking.csvHeaders.date'),
+        t('admin.booking.csvHeaders.time'),
+        t('admin.booking.csvHeaders.guests'),
+        t('admin.booking.csvHeaders.region'),
+        t('admin.booking.csvHeaders.type'),
+        t('admin.booking.csvHeaders.status'),
+        t('admin.booking.csvHeaders.message'),
+        t('admin.booking.csvHeaders.package'),
+        t('admin.booking.csvHeaders.estimatedTotal'),
+        t('admin.booking.csvHeaders.submitted'),
       ];
       const csvRows = rows.map((b) =>
         [

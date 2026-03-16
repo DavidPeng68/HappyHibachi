@@ -44,7 +44,7 @@ const AdminMobileNav: React.FC<AdminMobileNavProps> = ({
 
   return (
     <>
-      <nav className="mobile-nav" aria-label="Mobile navigation">
+      <nav className="mobile-nav" aria-label={t('admin.a11y.mobileNavigation')}>
         {visibleMobileNavItems.map((key) => (
           <button
             key={key}

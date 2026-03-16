@@ -230,7 +230,7 @@ const AdminLayoutInner: React.FC<AdminLayoutProps> = ({ onLogout, children }) =>
               <button
                 className="toast-close"
                 onClick={() => dismissToast(toast.id)}
-                aria-label="Close"
+                aria-label={t('common.close')}
               >
                 &times;
               </button>

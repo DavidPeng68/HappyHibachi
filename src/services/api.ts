@@ -52,10 +52,17 @@ async function apiRequest(url: string, options: RequestInit = {}): Promise<ApiRe
   }
 }
 
+function generateIdempotencyKey(prefix: string): string {
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+}
+
 export async function submitBooking(data: BookingFormData): Promise<ApiResponse> {
   return apiRequest(`${API_BASE}/booking`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Idempotency-Key': generateIdempotencyKey('booking'),
+    },
     body: JSON.stringify({ ...data, formType: 'booking' }),
   });
 }
@@ -63,7 +70,10 @@ export async function submitBooking(data: BookingFormData): Promise<ApiResponse>
 export async function submitEstimate(data: EstimateFormData): Promise<ApiResponse> {
   return apiRequest(`${API_BASE}/booking`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Idempotency-Key': generateIdempotencyKey('estimate'),
+    },
     body: JSON.stringify({
       name: data.name,
       email: data.email,

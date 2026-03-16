@@ -25,17 +25,19 @@ const MenuPackageCard: React.FC<MenuPackageCardProps> = ({
       {pkg.highlighted && <div className="package-badge">{t('menu.popular')}</div>}
       <h3 className="package-name">{getLocalizedText(pkg.name)}</h3>
       <div className="package-price">
-        {pkg.pricePerPerson > 0 ? (
+        {pkg.flatPrice != null ? (
+          <>
+            <span className="currency">$</span>
+            <span className="amount">{pkg.flatPrice}</span>
+            <span className="unit"> {t('pricing.total')}</span>
+          </>
+        ) : pkg.pricePerPerson > 0 ? (
           <>
             <span className="currency">$</span>
             <span className="amount">{pkg.pricePerPerson}</span>
             <span className="unit">/{t('pricing.perPerson')}</span>
           </>
-        ) : (
-          <span className="package-flat-price">
-            {getLocalizedText(pkg.features[pkg.features.length - 1] || { en: '' })}
-          </span>
-        )}
+        ) : null}
       </div>
       {pkg.minGuests > 0 && (
         <p className="package-guests">
