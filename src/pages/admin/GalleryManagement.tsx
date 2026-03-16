@@ -7,6 +7,72 @@ import { GALLERY_PRESET, compressImage } from '../../utils/imageCompression';
 import * as adminApi from '../../services/adminApi';
 import type { GalleryImageApi } from '../../types';
 
+// ---------------------------------------------------------------------------
+// Local SVG Icons
+// ---------------------------------------------------------------------------
+
+const ChevronUpIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="18 15 12 9 6 15" />
+  </svg>
+);
+
+const ChevronDownIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
+
+const RefreshIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="23 4 23 10 17 10" />
+    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+  </svg>
+);
+
+const TrashIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="3 6 5 6 21 6" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+  </svg>
+);
+
 function base64ToBlob(base64: string): Blob {
   const [header, data] = base64.split(',');
   const mime = header.match(/:(.*?);/)?.[1] || 'image/webp';
@@ -319,7 +385,7 @@ const GalleryManagement: React.FC = () => {
             {t('admin.gallery.imageCount', { count: galleryImages.length })}
           </span>
         </div>
-        <div style={{ padding: '16px 20px' }}>
+        <div className="gallery-upload-area">
           <ImageUploader
             preset={GALLERY_PRESET}
             onChange={handleUploadSingle}
@@ -327,21 +393,14 @@ const GalleryManagement: React.FC = () => {
             onMultipleChange={handleUploadMultiple}
             label={t('admin.gallery.uploadLabel')}
           />
-          {uploading && (
-            <p style={{ marginTop: 8, color: 'var(--admin-primary)' }}>
-              {t('admin.gallery.uploading')}
-            </p>
-          )}
+          {uploading && <p className="text-primary mt-2">{t('admin.gallery.uploading')}</p>}
         </div>
       </div>
 
       {/* Bulk actions */}
       {galleryImages.length > 0 && (
         <div className="card">
-          <div
-            className="card-header"
-            style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}
-          >
+          <div className="card-header">
             <button className="admin-btn" onClick={handleSelectAll} type="button">
               {selectedImageIds.size === galleryImages.length
                 ? t('admin.gallery.deselectAll')
@@ -399,7 +458,7 @@ const GalleryManagement: React.FC = () => {
                 {/* Caption */}
                 <input
                   type="text"
-                  className="input gallery-admin-caption"
+                  className="admin-input gallery-admin-caption"
                   value={image.caption}
                   onChange={(e) => handleCaptionChange(image.id, e.target.value)}
                   onBlur={handleCaptionBlur}
@@ -409,30 +468,29 @@ const GalleryManagement: React.FC = () => {
                 {/* Actions */}
                 <div className="gallery-admin-actions">
                   <button
-                    className="btn-icon-sm"
+                    className="gallery-action-btn"
                     onClick={() => handleMoveImage(image.id, 'up')}
                     disabled={idx === 0 || saving}
                     title={t('admin.gallery.moveUp')}
                     type="button"
                   >
-                    &#9650;
+                    <ChevronUpIcon />
                   </button>
                   <button
-                    className="btn-icon-sm"
+                    className="gallery-action-btn"
                     onClick={() => handleMoveImage(image.id, 'down')}
                     disabled={idx === galleryImages.length - 1 || saving}
                     title={t('admin.gallery.moveDown')}
                     type="button"
                   >
-                    &#9660;
+                    <ChevronDownIcon />
                   </button>
 
-                  {/* Replace */}
                   <label
-                    className="btn-icon-sm gallery-replace-btn"
+                    className="gallery-action-btn gallery-replace-btn"
                     title={t('admin.gallery.replace')}
                   >
-                    &#8635;
+                    <RefreshIcon />
                     <input
                       type="file"
                       accept="image/*"
@@ -447,14 +505,13 @@ const GalleryManagement: React.FC = () => {
                   </label>
 
                   <button
-                    className="btn-icon-sm"
+                    className="gallery-action-btn gallery-action-btn--danger"
                     onClick={() => handleDeleteSingle(image.id)}
                     disabled={saving}
                     title={t('admin.gallery.delete')}
                     type="button"
-                    style={{ color: 'var(--admin-danger)' }}
                   >
-                    &#128465;
+                    <TrashIcon />
                   </button>
                 </div>
               </div>

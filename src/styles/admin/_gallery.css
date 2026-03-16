@@ -46,78 +46,116 @@
   opacity: 1;
 }
 
-.caption-input {
+/* ===== Admin Gallery Management ===== */
+
+.gallery-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.gallery-admin-item {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  overflow: hidden;
+  transition: border-color var(--transition-base);
+  position: relative;
+}
+
+.gallery-admin-item.selected {
+  border-color: var(--admin-primary);
+  box-shadow: 0 0 0 1px var(--admin-primary-soft);
+}
+
+.gallery-admin-checkbox {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.gallery-admin-checkbox input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--admin-primary);
+  cursor: pointer;
+}
+
+.gallery-admin-image {
   width: 100%;
-  padding: 8px 10px;
-  border: none;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.95);
-  color: var(--color-bg-card-hover);
-  font-size: 12px;
-  margin-bottom: 8px;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--admin-bg);
 }
 
-.caption-input::placeholder {
-  color: var(--color-text-muted);
+.gallery-admin-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-.gallery-item-actions {
+.gallery-admin-image:hover img {
+  transform: scale(1.05);
+}
+
+.gallery-admin-caption {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: 1px solid var(--admin-border);
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.gallery-admin-actions {
   display: flex;
-  gap: 6px;
-  justify-content: flex-end;
+  gap: 4px;
+  padding: 10px 12px;
+  align-items: center;
 }
 
-/* Gallery-specific btn-icon-sm overrides */
-.btn-icon-sm {
-  width: 28px;
-  height: 28px;
+.gallery-action-btn {
+  width: 32px;
+  height: 32px;
   border: none;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.9);
+  border-radius: var(--admin-radius);
+  background: transparent;
+  color: var(--admin-text-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  transition: all 0.15s ease;
+  transition: all var(--transition-base);
 }
 
-.btn-icon-sm:hover {
-  background: white;
-  transform: scale(1.1);
+.gallery-action-btn:hover {
+  background: var(--admin-surface-hover);
+  color: var(--admin-text);
 }
 
-.btn-icon-sm:disabled {
-  opacity: 0.5;
+.gallery-action-btn:disabled {
+  opacity: 0.3;
   cursor: not-allowed;
-  transform: none;
 }
 
-.btn-icon-sm.danger:hover {
-  background: var(--admin-danger);
-  color: white;
+.gallery-action-btn:disabled:hover {
+  background: transparent;
+  color: var(--admin-text-muted);
 }
 
-.btn-sm-success {
-  padding: 8px 16px;
-  background: var(--admin-success);
-  color: white;
-  border: none;
-  border-radius: var(--admin-radius);
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.btn-sm-success:hover {
-  background: var(--color-success);
-  transform: translateY(-1px);
-}
-
-.btn-icon-sm.danger {
+.gallery-action-btn--danger:hover {
+  background: var(--admin-danger-soft);
   color: var(--admin-danger);
 }
 
-.btn-icon-sm.danger:hover {
-  background: var(--admin-danger-soft);
+.gallery-replace-btn {
+  cursor: pointer;
+}
+
+.gallery-upload-area {
+  padding: 16px 20px;
 }
