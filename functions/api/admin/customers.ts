@@ -6,7 +6,7 @@
 
 import { validateToken, requireSuperAdmin, getCorsHeaders } from '../_auth';
 import { validateStringLength, validateArrayLength } from '../_validation';
-import { paginateArray, parsePaginationParams } from '../_kvHelpers';
+import { paginateArray, parsePaginationParams, readAllShards } from '../_kvHelpers';
 
 interface BookingOrderData {
 	estimatedTotal: number;
@@ -72,13 +72,16 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 	if (denied) return denied;
 
 	try {
-		const [bookingsData, notesData, tagsData] = await Promise.all([
+		const [shardBookings, bookingsData, notesData, tagsData] = await Promise.all([
+			readAllShards<Booking>(context.env.BOOKINGS, 'bookings'),
 			context.env.BOOKINGS.get('bookings_list', 'json'),
 			context.env.BOOKINGS.get('customers_notes', 'json'),
 			context.env.BOOKINGS.get('customers_tags', 'json'),
 		]);
 
-		const bookings: Booking[] = (bookingsData as Booking[]) || [];
+		const bookings: Booking[] = shardBookings.length > 0
+			? shardBookings
+			: (bookingsData as Booking[]) || [];
 		const notes: CustomerNotes = (notesData as CustomerNotes) || {};
 		const tags: CustomerTags = (tagsData as CustomerTags) || {};
 

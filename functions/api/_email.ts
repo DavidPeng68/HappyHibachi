@@ -444,7 +444,7 @@ export function generateAdminEmail(booking: {
 								</tr>` : ''}
 								<tr style="border-top: 2px solid #ff6b35;">
 									<td style="color: #666666; font-size: 14px; padding: 12px;"><strong>Est. Total:</strong></td>
-									<td style="color: #ff6b35; font-weight: 700; font-size: 18px; padding: 12px;">$${booking.orderData.estimatedTotal.toLocaleString()}</td>
+									<td style="color: #ff6b35; font-weight: 700; font-size: 18px; padding: 12px;">$${booking.orderData.estimatedTotal.toLocaleString()} <span style="color: #dc2626; font-size: 11px; font-weight: 400; background: #fef2f2; padding: 2px 6px; border-radius: 4px;">⚠ Unverified</span></td>
 								</tr>
 							</table>
 							` : ''}

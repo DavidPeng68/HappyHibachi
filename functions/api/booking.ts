@@ -6,7 +6,7 @@
 import { sendEmail, generateCustomerEmail, generateAdminEmail } from './_email';
 import { getCorsHeaders } from './_auth';
 import { checkRateLimit } from './_rateLimit';
-import { getShardMonth, readShard, writeShard, ensureMonthInIndex } from './_kvHelpers';
+import { getShardMonth, readShard, writeShard, ensureMonthInIndex, writeEntity, addToMonthIndex } from './_kvHelpers';
 
 interface BookingOrderData {
 	packageName: string;
@@ -39,6 +39,7 @@ interface Booking {
 	referralSource?: string;
 	eventType?: string;
 	orderData?: BookingOrderData;
+	priceVerified?: boolean;
 	createdAt: string;
 }
 
@@ -185,7 +186,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
 		const bookingId = crypto.randomUUID();
 
-		// 处理优惠码
+		// 处理优惠码 — use per-coupon KV key for usage tracking (race-condition-safe)
 		let couponDiscount = '';
 		if (body.couponCode) {
 			const couponsData = await context.env.BOOKINGS.get('coupons_list', 'json');
@@ -200,14 +201,24 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 				const validUntil = new Date(coupon.validUntil + 'T23:59:59');
 
 				if (now >= validFrom && now <= validUntil) {
-					if (coupon.maxUses === 0 || coupon.usedCount < coupon.maxUses) {
+					// Read actual usage from per-coupon KV key (more accurate than coupons_list)
+					const usageKey = `coupon_usage:${coupon.id}`;
+					const usageData = await context.env.BOOKINGS.get(usageKey, 'json') as { count: number; bookings: string[] } | null;
+					const usage = usageData || { count: 0, bookings: [] };
+					const actualUsedCount = Math.max(usage.count, coupon.usedCount);
+
+					if (coupon.maxUses === 0 || actualUsedCount < coupon.maxUses) {
 						if (body.guestCount >= coupon.minGuests) {
 							couponDiscount = coupon.type === 'percentage'
 								? `${coupon.value}% OFF`
 								: `$${coupon.value} OFF`;
+							usage.count += 1;
+							usage.bookings.push(bookingId);
+							await context.env.BOOKINGS.put(usageKey, JSON.stringify(usage));
 
+							// Also update coupons_list for backward compat (best-effort)
 							const couponIndex = coupons.findIndex((c) => c.id === coupon.id);
-							coupons[couponIndex].usedCount += 1;
+							coupons[couponIndex].usedCount = usage.count;
 							if (!coupons[couponIndex].usedByBookings) {
 								coupons[couponIndex].usedByBookings = [];
 							}
@@ -219,7 +230,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 			}
 		}
 
-		// Handle referral code
+		// Handle referral code — use per-referral KV key for usage tracking (race-condition-safe)
 		let referralDiscount = '';
 		if ((body as Record<string, unknown>).referralCode) {
 			const refCode = (body as Record<string, unknown>).referralCode as string;
@@ -230,14 +241,24 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 			);
 
 			if (referral) {
-				const alreadyUsed = referral.usedBy.some(u => u.bookingId === bookingId);
+				// Track usage in per-referral KV key
+				const usageKey = `referral_usage:${referral.id}`;
+				const usageData = await context.env.BOOKINGS.get(usageKey, 'json') as Array<{ email: string; bookingId: string; usedAt: string }> | null;
+				const usages = usageData || [];
+				const alreadyUsed = usages.some(u => u.bookingId === bookingId);
+
 				if (!alreadyUsed) {
 					referralDiscount = `$${referral.friendDiscount} OFF`;
-					referral.usedBy.push({
+					usages.push({
 						email: body.email,
 						bookingId,
 						usedAt: new Date().toISOString(),
 					});
+					await context.env.BOOKINGS.put(usageKey, JSON.stringify(usages));
+
+					// Also update referrals_list for backward compat (best-effort)
+					const refIndex = referrals.findIndex((r) => r.id === referral.id);
+					referrals[refIndex].usedBy = usages;
 					await context.env.BOOKINGS.put('referrals_list', JSON.stringify(referrals));
 				}
 			}
@@ -262,26 +283,23 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 			referralSource: body.referralSource || undefined,
 			eventType: (body as Record<string, unknown>).eventType as string | undefined,
 			orderData: body.orderData || undefined,
+			priceVerified: false,
 			createdAt: new Date().toISOString(),
 			_version: 1,
 		};
 
-		// Get existing bookings
-		const existingData = await context.env.BOOKINGS.get('bookings_list', 'json');
-		const bookings: Booking[] = (existingData as Booking[]) || [];
+		// Write booking to individual KV key (race-condition-free)
+		await writeEntity(context.env.BOOKINGS, 'booking', booking.id, booking);
 
-		// Add new booking
-		bookings.push(booking);
-
-		// Save to KV
-		await context.env.BOOKINGS.put('bookings_list', JSON.stringify(bookings));
-
-		// Dual-write to monthly shard (migration period)
+		// Update month index for discoverability
 		const shardMonth = getShardMonth(booking.date);
+		await addToMonthIndex(context.env.BOOKINGS, 'booking', shardMonth, booking.id);
+		await ensureMonthInIndex(context.env.BOOKINGS, 'bookings', shardMonth);
+
+		// Backward-compat: also write to monthly shard (for admin reads during migration)
 		const shardBookings = await readShard<Booking>(context.env.BOOKINGS, 'bookings', shardMonth);
 		shardBookings.push(booking);
 		await writeShard(context.env.BOOKINGS, 'bookings', shardMonth, shardBookings);
-		await ensureMonthInIndex(context.env.BOOKINGS, 'bookings', shardMonth);
 
 		// Send emails (non-blocking)
 		const emailPromises: Promise<boolean>[] = [];
@@ -295,8 +313,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 			})
 		);
 
-		// Send notification email to admin
-		const adminEmail = context.env.ADMIN_EMAIL || 'familyfriendshibachi@gmail.com';
+		// Send notification email to admin (prefer KV setting over env var)
+		const appSettings = await context.env.BOOKINGS.get('app_settings', 'json') as Record<string, unknown> | null;
+		const adminEmail = (appSettings?.contactInfo as Record<string, unknown>)?.email as string || context.env.ADMIN_EMAIL || 'familyfriendshibachi@gmail.com';
 		emailPromises.push(
 			sendEmail(context.env, {
 				to: adminEmail,

@@ -124,6 +124,121 @@ export function parsePaginationParams(url: URL, defaults?: { pageSize?: number; 
 	return { page, pageSize, search, sort, dir };
 }
 
+// ---------------------------------------------------------------------------
+// Individual-key helpers (race-condition-free writes)
+// ---------------------------------------------------------------------------
+
+/** Write a single entity to its own KV key: `prefix:{id}` */
+export async function writeEntity<T>(
+	kv: KVNamespace,
+	prefix: string,
+	id: string,
+	data: T
+): Promise<void> {
+	await kv.put(`${prefix}:${id}`, JSON.stringify(data));
+}
+
+/** Read a single entity from its own KV key: `prefix:{id}` */
+export async function readEntity<T>(
+	kv: KVNamespace,
+	prefix: string,
+	id: string
+): Promise<T | null> {
+	try {
+		const raw = await kv.get(`${prefix}:${id}`);
+		if (!raw) return null;
+		return JSON.parse(raw) as T;
+	} catch {
+		return null;
+	}
+}
+
+/** Add an ID to the month index. Small race window but only affects discoverability, not data. */
+export async function addToMonthIndex(
+	kv: KVNamespace,
+	prefix: string,
+	month: string,
+	id: string
+): Promise<void> {
+	const indexKey = `${prefix}:index:${month}`;
+	const raw = await kv.get(indexKey);
+	const ids: string[] = raw ? JSON.parse(raw) : [];
+	if (!ids.includes(id)) {
+		ids.push(id);
+		await kv.put(indexKey, JSON.stringify(ids));
+	}
+}
+
+/** Read all IDs from a month index */
+export async function readMonthIndex(
+	kv: KVNamespace,
+	prefix: string,
+	month: string
+): Promise<string[]> {
+	try {
+		const raw = await kv.get(`${prefix}:index:${month}`);
+		if (!raw) return [];
+		return JSON.parse(raw) as string[];
+	} catch {
+		return [];
+	}
+}
+
+/** Read entities by fetching month index → individual keys. Falls back to shard if no individual keys found. */
+export async function readEntitiesByMonth<T extends { id: string }>(
+	kv: KVNamespace,
+	prefix: string,
+	month: string
+): Promise<T[]> {
+	// Try new individual-key approach first
+	const ids = await readMonthIndex(kv, prefix, month);
+	if (ids.length > 0) {
+		const entities = await Promise.all(
+			ids.map(id => readEntity<T>(kv, prefix, id))
+		);
+		return entities.filter((e): e is T => e !== null);
+	}
+	// Fallback to legacy shard
+	return readShard<T>(kv, prefix, month);
+}
+
+/** Read all entities across all months using individual keys with shard fallback.
+ *  `shardPrefix` is the prefix used in the global month index (e.g. 'bookings' for `bookings:index`).
+ *  `prefix` is the prefix for individual keys and month indices (e.g. 'booking' for `booking:{id}`). */
+export async function readAllEntities<T extends { id: string }>(
+	kv: KVNamespace,
+	prefix: string,
+	shardPrefix?: string
+): Promise<T[]> {
+	// Use shardPrefix for global month index if provided, else try prefix
+	const months = await readIndex(kv, shardPrefix || prefix);
+	if (months.length === 0) {
+		return [];
+	}
+	const shards = await Promise.all(
+		months.map(month => readEntitiesByMonth<T>(kv, prefix, month))
+	);
+	return shards.flat();
+}
+
+/** Read entities within a date range using individual keys with shard fallback.
+ *  `shardPrefix` is the prefix used in the global month index (e.g. 'bookings'). */
+export async function readEntitiesInRange<T extends { id: string }>(
+	kv: KVNamespace,
+	prefix: string,
+	fromMonth: string,
+	toMonth: string,
+	shardPrefix?: string
+): Promise<T[]> {
+	const months = await readIndex(kv, shardPrefix || prefix);
+	const filtered = months.filter(m => m >= fromMonth && m <= toMonth);
+	if (filtered.length === 0) return [];
+	const shards = await Promise.all(
+		filtered.map(month => readEntitiesByMonth<T>(kv, prefix, month))
+	);
+	return shards.flat();
+}
+
 /** Paginate an in-memory array */
 export function paginateArray<T>(
 	items: T[],

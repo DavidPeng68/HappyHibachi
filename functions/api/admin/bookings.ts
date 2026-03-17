@@ -11,7 +11,7 @@ import { sendEmail, generateConfirmedEmail } from '../_email';
 import { logAction } from '../_auditLog';
 import { createNotification } from '../_notifications';
 import { validateStringLength, validateArrayLength } from '../_validation';
-import { getShardMonth, readShard, writeShard, ensureMonthInIndex, readAllShards, readShardRange, paginateArray, parsePaginationParams } from '../_kvHelpers';
+import { getShardMonth, readShard, writeShard, ensureMonthInIndex, readAllShards, readShardRange, paginateArray, parsePaginationParams, writeEntity, readEntity, readAllEntities, readEntitiesInRange } from '../_kvHelpers';
 import { trackActivity } from '../_activity';
 
 interface Booking {
@@ -118,20 +118,26 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 		const assignedTo = url.searchParams.get('assignedTo') || '';
 		const includeDeleted = url.searchParams.get('includeDeleted') === 'true' && auth.role === 'super_admin';
 
-		// Load bookings: prefer shards when date range given, fallback to legacy key
+		// Load bookings: individual keys (uses 'bookings' shard index) → shards → legacy key
 		let bookings: Booking[];
 		if (dateFrom && dateTo) {
 			const fromMonth = dateFrom.slice(0, 7);
 			const toMonth = dateTo.slice(0, 7);
-			bookings = await readShardRange<Booking>(context.env.BOOKINGS, 'bookings', fromMonth, toMonth);
-			// If shards empty, fallback to legacy key
+			bookings = await readEntitiesInRange<Booking>(context.env.BOOKINGS, 'booking', fromMonth, toMonth, 'bookings');
+			// Fallback chain: shards → legacy
+			if (bookings.length === 0) {
+				bookings = await readShardRange<Booking>(context.env.BOOKINGS, 'bookings', fromMonth, toMonth);
+			}
 			if (bookings.length === 0) {
 				const data = await context.env.BOOKINGS.get('bookings_list', 'json');
 				bookings = (data as Booking[]) || [];
 			}
 		} else {
-			// Try shards first, fallback to legacy
-			bookings = await readAllShards<Booking>(context.env.BOOKINGS, 'bookings');
+			bookings = await readAllEntities<Booking>(context.env.BOOKINGS, 'booking', 'bookings');
+			// Fallback chain: shards → legacy
+			if (bookings.length === 0) {
+				bookings = await readAllShards<Booking>(context.env.BOOKINGS, 'bookings');
+			}
 			if (bookings.length === 0) {
 				const data = await context.env.BOOKINGS.get('bookings_list', 'json');
 				bookings = (data as Booking[]) || [];
@@ -333,18 +339,21 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 			}
 		}
 
-		const data = await context.env.BOOKINGS.get('bookings_list', 'json');
-		const bookings: Booking[] = (data as Booking[]) || [];
+		// Try individual key first, fallback to legacy list
+		let existing = await readEntity<Booking>(context.env.BOOKINGS, 'booking', id);
+		if (!existing) {
+			// Fallback: search legacy bookings_list
+			const data = await context.env.BOOKINGS.get('bookings_list', 'json');
+			const legacyBookings: Booking[] = (data as Booking[]) || [];
+			existing = legacyBookings.find(b => b.id === id) || null;
+		}
 
-		const bookingIndex = bookings.findIndex(b => b.id === id);
-		if (bookingIndex === -1) {
+		if (!existing) {
 			return new Response(
 				JSON.stringify({ success: false, error: 'Booking not found' }),
 				{ status: 404, headers: corsHeaders }
 			);
 		}
-
-		const existing = bookings[bookingIndex];
 
 		// Reject updates to soft-deleted bookings
 		if (existing.deletedAt) {
@@ -398,7 +407,7 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 		const previousStatus = existing.status;
 
 		// Update editable fields + bump version
-		bookings[bookingIndex] = {
+		const updated: Booking = {
 			...existing,
 			...(body.status && { status: body.status }),
 			...(body.date && { date: body.date }),
@@ -416,22 +425,24 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 			_version: (existing._version || 0) + 1,
 		};
 
-		const status = bookings[bookingIndex].status;
-		await context.env.BOOKINGS.put('bookings_list', JSON.stringify(bookings));
+		const status = updated.status;
 
-		// Dual-write to monthly shard (migration period)
+		// Write to individual key (race-condition-free)
+		await writeEntity(context.env.BOOKINGS, 'booking', id, updated);
+
+		// Backward-compat: also update monthly shard
 		const shardMonth = getShardMonth(existing.date);
 		const shardBookings = await readShard<Booking>(context.env.BOOKINGS, 'bookings', shardMonth);
 		const shardIdx = shardBookings.findIndex(b => b.id === id);
 		if (shardIdx !== -1) {
-			shardBookings[shardIdx] = bookings[bookingIndex];
+			shardBookings[shardIdx] = updated;
 		} else {
-			shardBookings.push(bookings[bookingIndex]);
+			shardBookings.push(updated);
 		}
 		await writeShard(context.env.BOOKINGS, 'bookings', shardMonth, shardBookings);
 		await ensureMonthInIndex(context.env.BOOKINGS, 'bookings', shardMonth);
 
-		const booking = bookings[bookingIndex];
+		const booking = updated;
 
 		// Audit log
 		const changes: string[] = [];
@@ -526,35 +537,39 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
 	try {
 		const { id } = await context.request.json() as { id: string };
 
-		const data = await context.env.BOOKINGS.get('bookings_list', 'json');
-		const bookings: Booking[] = (data as Booking[]) || [];
+		// Try individual key first, fallback to legacy list
+		let existing = await readEntity<Booking>(context.env.BOOKINGS, 'booking', id);
+		if (!existing) {
+			const data = await context.env.BOOKINGS.get('bookings_list', 'json');
+			const legacyBookings: Booking[] = (data as Booking[]) || [];
+			existing = legacyBookings.find(b => b.id === id) || null;
+		}
 
-		const bookingIndex = bookings.findIndex(b => b.id === id);
-		if (bookingIndex === -1) {
+		if (!existing) {
 			return new Response(
 				JSON.stringify({ success: false, error: 'Booking not found' }),
 				{ status: 404, headers: corsHeaders }
 			);
 		}
 
-		const deletedBooking = bookings[bookingIndex];
-
 		// Soft delete — set deletedAt timestamp instead of removing
-		bookings[bookingIndex] = {
-			...bookings[bookingIndex],
+		const updated: Booking = {
+			...existing,
 			deletedAt: new Date().toISOString(),
-			_version: (bookings[bookingIndex]._version || 0) + 1,
+			_version: (existing._version || 0) + 1,
 		};
-		await context.env.BOOKINGS.put('bookings_list', JSON.stringify(bookings));
 
-		// Dual-write to monthly shard (migration period)
-		const shardMonth = getShardMonth(deletedBooking.date);
+		// Write to individual key (race-condition-free)
+		await writeEntity(context.env.BOOKINGS, 'booking', id, updated);
+
+		// Backward-compat: also update monthly shard
+		const shardMonth = getShardMonth(existing.date);
 		const shardBookings = await readShard<Booking>(context.env.BOOKINGS, 'bookings', shardMonth);
 		const shardIdx = shardBookings.findIndex(b => b.id === id);
 		if (shardIdx !== -1) {
-			shardBookings[shardIdx] = bookings[bookingIndex];
+			shardBookings[shardIdx] = updated;
 		} else {
-			shardBookings.push(bookings[bookingIndex]);
+			shardBookings.push(updated);
 		}
 		await writeShard(context.env.BOOKINGS, 'bookings', shardMonth, shardBookings);
 		await ensureMonthInIndex(context.env.BOOKINGS, 'bookings', shardMonth);
@@ -564,7 +579,7 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
 			action: 'deleted',
 			entity: 'booking',
 			entityId: id,
-			details: `Soft-deleted booking for ${deletedBooking.name} (${deletedBooking.date})`,
+			details: `Soft-deleted booking for ${existing.name} (${existing.date})`,
 			performedBy: getPerformedBy(auth),
 		}).catch(() => {});
 

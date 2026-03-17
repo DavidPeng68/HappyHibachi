@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Calendar } from '../../components';
 import { PRICING } from '../../constants';
 import { useSettings } from '../../hooks';
-import { submitBooking } from '../../services/api';
+import { submitBooking, generateIdempotencyKey } from '../../services/api';
 import type { BookingFormData, BookingOrderData } from '../../types';
 import { Button, Input, Select, Textarea, Icon } from '../ui';
 import {
@@ -66,6 +66,13 @@ const BookingStep: React.FC<BookingStepProps> = ({
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [idempotencyKey] = useState(() => {
+    const stored = sessionStorage.getItem('happyhibachi_idempotency_key');
+    if (stored) return stored;
+    const key = generateIdempotencyKey('booking');
+    sessionStorage.setItem('happyhibachi_idempotency_key', key);
+    return key;
+  });
   const [errorMessage, setErrorMessage] = useState('');
   const [validationErrors, setValidationErrors] = useState<{
     email?: string;
@@ -288,9 +295,10 @@ const BookingStep: React.FC<BookingStepProps> = ({
     setErrorMessage('');
 
     try {
-      const result = await submitBooking(formData);
+      const result = await submitBooking(formData, idempotencyKey);
       if (result.success) {
         sessionStorage.removeItem(STORAGE_KEY);
+        sessionStorage.removeItem('happyhibachi_idempotency_key');
         onSuccess(formData);
       } else {
         setErrorMessage(result.error || (t('form.error') as string));

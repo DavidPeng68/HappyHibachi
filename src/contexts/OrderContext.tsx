@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
 import type { OrderState, MenuData } from '../types';
+import { calculateOrderTotal } from '../utils/pricing';
 
 const STORAGE_KEY = 'hibachi_order';
 const MAX_ITEM_QUANTITY = 100;
@@ -223,50 +224,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // --- Pricing ---
 
   const getTotal = useCallback(
-    (menu: MenuData | null): number => {
-      if (!menu) return 0;
-      const pkg = menu.packages.find((p) => p.id === order.packageId);
-      if (!pkg) return 0;
-
-      let total = 0;
-
-      // Package base price
-      if (pkg.flatPrice != null) {
-        // Fixed total price (e.g. Intimate Party = $600)
-        total = pkg.flatPrice;
-      } else {
-        // Per-person pricing
-        total += pkg.pricePerPerson * order.guestCount;
-        const kidsRate = pkg.kidsPrice ?? menu.pricing.kidsPrice;
-        total += kidsRate * order.kidsCount;
-      }
-
-      // Protein upgrade fees (adults only — kids typically get basic proteins)
-      for (const proteinId of order.proteinSelections) {
-        const item = menu.items.find((i) => i.id === proteinId);
-        if (item && item.priceType === 'upgrade') {
-          total += item.price * order.guestCount;
-        }
-      }
-
-      // Add-ons
-      for (const addon of order.addons) {
-        const item = menu.items.find((i) => i.id === addon.menuItemId);
-        if (!item) continue;
-        if (item.priceType === 'per_person') {
-          total += item.price * (order.guestCount + order.kidsCount) * addon.quantity;
-        } else {
-          total += item.price * addon.quantity;
-        }
-      }
-
-      // Minimum order floor (only for per-person packages)
-      if (pkg.flatPrice == null) {
-        total = Math.max(total, menu.pricing.minimumOrder);
-      }
-
-      return total;
-    },
+    (menu: MenuData | null): number => calculateOrderTotal(order, menu),
     [order]
   );
 

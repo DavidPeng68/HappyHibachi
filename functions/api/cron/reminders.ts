@@ -8,6 +8,7 @@
  */
 
 import { sendEmail } from '../_email';
+import { readAllShards, writeEntity } from '../_kvHelpers';
 
 interface Booking {
 	id: string;
@@ -182,9 +183,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 		const tomorrow = getTomorrowDate();
 		console.log(`Checking reminders for date: ${tomorrow}`);
 
-		// 获取所有预约
-		const bookingsData = await context.env.BOOKINGS.get('bookings_list', 'json');
-		const bookings: Booking[] = (bookingsData as Booking[]) || [];
+		// 获取所有预约 (shards → legacy fallback)
+		let bookings: Booking[] = await readAllShards<Booking>(context.env.BOOKINGS, 'bookings');
+		if (bookings.length === 0) {
+			const bookingsData = await context.env.BOOKINGS.get('bookings_list', 'json');
+			bookings = (bookingsData as Booking[]) || [];
+		}
 
 		// 筛选明天的已确认预约，且未发送过提醒
 		const tomorrowBookings = bookings.filter(
@@ -217,13 +221,24 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 			}
 		}
 
-		// 更新预约列表
+		// 更新预约列表 (individual keys + legacy)
 		if (tomorrowBookings.length > 0) {
-			const updatedBookings = bookings.map((b) => {
-				const reminded = tomorrowBookings.find((tb) => tb.id === b.id);
-				return reminded ? { ...b, reminded: true } : b;
-			});
-			await context.env.BOOKINGS.put('bookings_list', JSON.stringify(updatedBookings));
+			// Update individual booking keys
+			await Promise.allSettled(
+				tomorrowBookings.map(b =>
+					writeEntity(context.env.BOOKINGS, 'booking', b.id, { ...b, reminded: true })
+				)
+			);
+			// Also update legacy bookings_list for backward compat
+			const legacyData = await context.env.BOOKINGS.get('bookings_list', 'json');
+			if (legacyData) {
+				const legacyBookings: Booking[] = (legacyData as Booking[]) || [];
+				const updatedBookings = legacyBookings.map((b) => {
+					const reminded = tomorrowBookings.find((tb) => tb.id === b.id);
+					return reminded ? { ...b, reminded: true } : b;
+				});
+				await context.env.BOOKINGS.put('bookings_list', JSON.stringify(updatedBookings));
+			}
 		}
 
 		return new Response(
@@ -263,8 +278,11 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 	try {
 		const tomorrow = getTomorrowDate();
 		
-		const bookingsData = await context.env.BOOKINGS.get('bookings_list', 'json');
-		const bookings: Booking[] = (bookingsData as Booking[]) || [];
+		let bookings: Booking[] = await readAllShards<Booking>(context.env.BOOKINGS, 'bookings');
+		if (bookings.length === 0) {
+			const bookingsData = await context.env.BOOKINGS.get('bookings_list', 'json');
+			bookings = (bookingsData as Booking[]) || [];
+		}
 
 		const tomorrowBookings = bookings.filter(
 			(b) => b.date === tomorrow && b.status === 'confirmed'

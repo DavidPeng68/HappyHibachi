@@ -52,28 +52,33 @@ async function apiRequest(url: string, options: RequestInit = {}): Promise<ApiRe
   }
 }
 
-function generateIdempotencyKey(prefix: string): string {
+/** Generate a unique idempotency key. Call once per user intent, reuse across retries. */
+export function generateIdempotencyKey(prefix: string): string {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }
 
-export async function submitBooking(data: BookingFormData): Promise<ApiResponse> {
+export async function submitBooking(
+  data: BookingFormData,
+  idempotencyKey?: string
+): Promise<ApiResponse> {
   return apiRequest(`${API_BASE}/booking`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Idempotency-Key': generateIdempotencyKey('booking'),
-    },
-    body: JSON.stringify({ ...data, formType: 'booking' }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ...data,
+      formType: 'booking',
+      idempotencyKey: idempotencyKey || generateIdempotencyKey('booking'),
+    }),
   });
 }
 
-export async function submitEstimate(data: EstimateFormData): Promise<ApiResponse> {
+export async function submitEstimate(
+  data: EstimateFormData,
+  idempotencyKey?: string
+): Promise<ApiResponse> {
   return apiRequest(`${API_BASE}/booking`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Idempotency-Key': generateIdempotencyKey('estimate'),
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       name: data.name,
       email: data.email,
@@ -85,6 +90,7 @@ export async function submitEstimate(data: EstimateFormData): Promise<ApiRespons
       message: `Event Type: ${data.eventType}\n${data.additionalInfo || ''}`,
       eventType: data.eventType,
       formType: 'estimate',
+      idempotencyKey: idempotencyKey || generateIdempotencyKey('estimate'),
     }),
   });
 }
