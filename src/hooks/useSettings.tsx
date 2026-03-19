@@ -74,7 +74,23 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const response = await fetch('/api/settings');
       const data = await response.json();
       if (data.success && data.settings) {
-        setSettings((prev) => ({ ...prev, ...data.settings }));
+        setSettings((prev) => {
+          const merged = { ...prev, ...data.settings };
+          // Deep merge nested objects to preserve new defaults not yet in API
+          if (data.settings.featureToggles) {
+            merged.featureToggles = { ...prev.featureToggles, ...data.settings.featureToggles };
+          }
+          if (data.settings.contactInfo) {
+            merged.contactInfo = { ...prev.contactInfo, ...data.settings.contactInfo };
+          }
+          if (data.settings.socialLinks) {
+            merged.socialLinks = { ...prev.socialLinks, ...data.settings.socialLinks };
+          }
+          if (data.settings.brandInfo) {
+            merged.brandInfo = { ...prev.brandInfo, ...data.settings.brandInfo };
+          }
+          return merged;
+        });
       }
     } catch {
       // Keep using current/default settings

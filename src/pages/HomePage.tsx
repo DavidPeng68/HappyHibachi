@@ -117,7 +117,7 @@ const HomePage: React.FC = () => {
       <LazySection>
         <Contact />
       </LazySection>
-      {features.specialOffer && (
+      {features.specialOffer && !features.welcomePopup && (
         <LazySection>
           <SpecialOffer />
         </LazySection>
