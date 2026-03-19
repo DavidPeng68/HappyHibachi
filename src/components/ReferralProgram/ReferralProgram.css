@@ -288,6 +288,66 @@
   color: var(--color-text-muted);
 }
 
+/* Share Buttons */
+.referral-share {
+  margin-top: var(--space-lg);
+}
+
+.referral-share-label {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-sm);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.referral-share-buttons {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.share-whatsapp {
+  background: rgba(37, 211, 102, 0.15);
+  color: #25d366;
+}
+
+.share-whatsapp:hover {
+  background: rgba(37, 211, 102, 0.25);
+}
+
+.share-sms {
+  background: rgba(52, 152, 219, 0.15);
+  color: #3498db;
+}
+
+.share-sms:hover {
+  background: rgba(52, 152, 219, 0.25);
+}
+
+.share-email {
+  background: rgba(255, 107, 53, 0.15);
+  color: var(--color-primary);
+}
+
+.share-email:hover {
+  background: rgba(255, 107, 53, 0.25);
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .referral-program {

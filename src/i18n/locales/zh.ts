@@ -32,6 +32,29 @@ const zh = {
       gallery2: '精美铁板烧美食展示',
       gallery3: '客人在家享受铁板烧',
     },
+    quickQuote: {
+      guests: '宾客人数',
+      date: '活动日期',
+      region: '选择地区',
+      submit: '获取免费报价',
+    },
+    stats: {
+      events: '已服务活动',
+      cities: '覆盖城市',
+      rating: '星级评分',
+    },
+  },
+  menuPage: {
+    description: '查看我们的铁板烧餐饮菜单，包含蛋白质、高级升级和加菜。每人$60起。',
+  },
+  galleryPage: {
+    description: '浏览我们铁板烧到家活动的照片。观看我们的厨师在后院派对、企业活动和庆典中的表演。',
+  },
+  faqPage: {
+    description: '关于我们铁板烧到家餐饮服务的常见问题。定价、布置、饮食需求和预约信息。',
+  },
+  contactPage: {
+    description: '联系 Family Friends Hibachi 满足您的铁板烧到家餐饮需求。服务加州、德州和佛州。',
   },
   howItWorks: {
     title: '服务流程',
@@ -305,6 +328,25 @@ const zh = {
         location: '奥兰多, 佛州',
         review: '性价比极高。食物达到餐厅水准，服务无可挑剔。客人们至今还在谈论！',
       },
+      r7: {
+        location: 'San Francisco, CA',
+        review:
+          '我们举办了一场30人的团建活动，一切都很完美。洋葱火山表演让所有人都欢呼！强烈推荐用于企业聚会。',
+      },
+      r8: {
+        location: 'Dallas, TX',
+        review: '食物和表演都很棒。厨师技术高超且亲切。唯一提醒——周末很快就满了，请提前预订！',
+      },
+      r9: {
+        location: 'Fort Lauderdale, FL',
+        review:
+          '我们的孩子们非常喜欢！厨师让整个过程充满互动和乐趣。食物新鲜美味，在我们眼前现场烹制。',
+      },
+      r10: {
+        location: 'Sacramento, CA',
+        review:
+          '非常适合我们的婚礼彩排晚宴。客人们喜欢互动体验，清酒源源不断！下次周年纪念还会再用。',
+      },
     },
   },
   instagram: {
@@ -334,6 +376,10 @@ const zh = {
     checkFailed: '验证失败',
     copyCode: '复制代码',
     copied: '已复制！',
+    shareVia: '分享方式',
+    shareMessage:
+      '使用我的推荐码 {{code}}，首次日式铁板烧到家派对立减$30！预订网址：familyfriendshibachi.com',
+    shareEmailSubject: '日式铁板烧到家优惠$30 — 我的推荐',
   },
   newsletter: {
     title: '获取专属优惠',
@@ -480,6 +526,7 @@ const zh = {
       graduation: '毕业典礼',
       corporate: '企业活动',
       holiday: '节日派对',
+      wedding: '婚礼活动',
       other: '其他',
     },
     referralSource: '您是如何知道我们的？',
@@ -546,6 +593,7 @@ const zh = {
   topBar: {
     textUs: '发短信',
     email: '邮件',
+    limitedSlots: '周末名额有限 — 立即预订！',
   },
   photoShare: {
     title: '分享您的照片',
@@ -1685,6 +1733,12 @@ const zh = {
     guestMin: '需要 {{min}}+ 位客人',
     guestAdjustedTo: '人数已调整为 {{count}} 人',
     adjustGuests: '点击调整',
+    recovery: {
+      title: '继续您的预订？',
+      dateSaved: '活动日期：{{date}}',
+      inProgress: '您有一个进行中的预订',
+      continue: '继续',
+    },
     back: '返回',
     increaseAdults: '增加成人',
     decreaseAdults: '减少成人',
@@ -1699,6 +1753,34 @@ const zh = {
     progress: '订单进度',
     estimatedPrice: '预估: ${{amount}}',
     minimumExplanation: '最低消费 ${{minimum}} — 价格至少为 ${{minimum}}',
+  },
+  exitIntent: {
+    title: '等一下！别错过',
+    subtitle: '首次铁板烧派对享受专属优惠！',
+    offerText: '您的首次铁板烧到家预订',
+    emailPlaceholder: '输入邮箱获取优惠券',
+    claimOffer: '领取$30优惠',
+    noSpam: '不会发送垃圾邮件 — 仅发送优惠码。随时退订。',
+    successTitle: '优惠券已发送！',
+    successDesc: '请查收邮箱中的$30优惠码。',
+  },
+  cityLanding: {
+    title: '{{city}}上门铁板烧',
+    description:
+      '{{city}}、{{state}}顶级上门铁板烧餐饮服务。专业厨师将铁板烧带到您的后院，每人仅需${{price}}起。立即预订！',
+    heroTitle: '{{city}}上门铁板烧',
+    heroSubtitle:
+      '在{{city}}体验最棒的居家铁板烧派对。我们的专业厨师带来铁板烧、新鲜食材和难忘的娱乐体验——每人仅需${{price}}起。',
+    bookNow: '在{{city}}预订',
+    trustRated: '五星好评',
+    trustInsured: '全额保险',
+    trustEvents: '500+场活动',
+    areasTitle: '服务覆盖整个{{state}}',
+    areasSubtitle: '我们将铁板烧体验带到{{state}}各个城市。请选择您所在的区域。',
+    viewCity: '查看详情',
+    nearbyTitle: '也服务于{{city}}附近地区',
+    ctaTitle: '准备好在{{city}}享受铁板烧了吗？',
+    ctaSubtitle: '每人${{price}}起。立即预订您的上门铁板烧体验！',
   },
 };
 

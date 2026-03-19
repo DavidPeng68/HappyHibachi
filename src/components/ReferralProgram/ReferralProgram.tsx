@@ -137,6 +137,37 @@ const ReferralProgram: React.FC = () => {
                   {copied ? t('referral.copied') : t('referral.copyCode')}
                 </button>
               </div>
+              <div className="referral-share">
+                <p className="referral-share-label">{t('referral.shareVia')}</p>
+                <div className="referral-share-buttons">
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(t('referral.shareMessage', { code: referralCode }))}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="share-btn share-whatsapp"
+                    aria-label="WhatsApp"
+                  >
+                    <Icon name="phone" size={16} />
+                    WhatsApp
+                  </a>
+                  <a
+                    href={`sms:?body=${encodeURIComponent(t('referral.shareMessage', { code: referralCode }))}`}
+                    className="share-btn share-sms"
+                    aria-label="SMS"
+                  >
+                    <Icon name="sms" size={16} />
+                    SMS
+                  </a>
+                  <a
+                    href={`mailto:?subject=${encodeURIComponent(t('referral.shareEmailSubject'))}&body=${encodeURIComponent(t('referral.shareMessage', { code: referralCode }))}`}
+                    className="share-btn share-email"
+                    aria-label="Email"
+                  >
+                    <Icon name="email" size={16} />
+                    Email
+                  </a>
+                </div>
+              </div>
             </div>
           )}
         </div>

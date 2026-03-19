@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import { SEO } from '../components/common';
 import { Button, Input, Select, Textarea, Card, DatePicker } from '../components/ui';
 import { REGIONS } from '../constants';
@@ -19,14 +20,21 @@ const FreeEstimate: React.FC = () => {
   const { t } = useTranslation();
   const { settings } = useSettings();
   const { contactInfo } = settings;
+  const [searchParams] = useSearchParams();
+
+  // Pre-fill from query params (sent from Hero quick-quote)
+  const prefillGuests = parseInt(searchParams.get('guests') || '', 10);
+  const prefillDate = searchParams.get('date') || '';
+  const prefillRegion = searchParams.get('region') || '';
+
   const [formData, setFormData] = useState<EstimateFormData>({
     name: '',
     email: '',
     phone: '',
     eventType: '',
-    guestCount: 10,
-    preferredDate: '',
-    region: '',
+    guestCount: prefillGuests > 0 ? prefillGuests : 10,
+    preferredDate: prefillDate,
+    region: prefillRegion,
     additionalInfo: '',
   });
 
@@ -125,6 +133,20 @@ const FreeEstimate: React.FC = () => {
 
       if (result.success) {
         setSubmitStatus('success');
+        // Fire conversion tracking events
+        if (typeof window.gtag === 'function') {
+          window.gtag('event', 'generate_lead', {
+            event_category: 'engagement',
+            event_label: 'free_estimate',
+            value: formData.guestCount,
+          });
+        }
+        if (typeof window.fbq === 'function') {
+          window.fbq('track', 'Lead', {
+            content_name: 'free_estimate',
+            content_category: formData.eventType,
+          });
+        }
       } else {
         setSubmitStatus('error');
         setErrorMessage(result.error || t('form.error'));

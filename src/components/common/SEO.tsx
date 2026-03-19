@@ -25,6 +25,8 @@ interface SEOProps {
   noIndex?: boolean;
   reviewStats?: ReviewStats;
   faqItems?: FAQItem[];
+  cityName?: string;
+  stateName?: string;
 }
 
 const SEO: React.FC<SEOProps> = ({
@@ -37,6 +39,8 @@ const SEO: React.FC<SEOProps> = ({
   noIndex = false,
   reviewStats,
   faqItems,
+  cityName,
+  stateName,
 }) => {
   const { settings } = useSettings();
   const { i18n } = useTranslation();
@@ -78,7 +82,7 @@ const SEO: React.FC<SEOProps> = ({
     const localBusinessSchema = {
       '@context': 'https://schema.org',
       '@type': 'FoodService',
-      name: brandInfo.name,
+      name: cityName ? `${brandInfo.name} - ${cityName}` : brandInfo.name,
       image: `${baseUrl}${brandInfo.logoUrl}`,
       '@id': baseUrl,
       url: baseUrl,
@@ -86,12 +90,20 @@ const SEO: React.FC<SEOProps> = ({
       email: contactInfo.email,
       priceRange: '$$',
       servesCuisine: 'Japanese, Hibachi',
-      description: seoDefaults.description,
-      areaServed: [
-        { '@type': 'State', name: 'California' },
-        { '@type': 'State', name: 'Texas' },
-        { '@type': 'State', name: 'Florida' },
-      ],
+      description: resolvedDescription,
+      areaServed: cityName
+        ? [
+            {
+              '@type': 'City',
+              name: cityName,
+              containedInPlace: { '@type': 'State', name: stateName || '' },
+            },
+          ]
+        : [
+            { '@type': 'State', name: 'California' },
+            { '@type': 'State', name: 'Texas' },
+            { '@type': 'State', name: 'Florida' },
+          ],
       hasOfferCatalog: {
         '@type': 'OfferCatalog',
         name: 'Hibachi Catering Menu',
@@ -144,14 +156,26 @@ const SEO: React.FC<SEOProps> = ({
         : null;
 
     const schemas: object[] = [organizationSchema, websiteSchema];
-    if (type === 'local_business') {
+    if (type === 'local_business' || cityName) {
       schemas.push(localBusinessSchema);
     }
     if (faqPageSchema) {
       schemas.push(faqPageSchema);
     }
     return schemas;
-  }, [brandInfo, baseUrl, seoDefaults, contactInfo, socialLinks, type, reviewStats, faqItems]);
+  }, [
+    brandInfo,
+    baseUrl,
+    seoDefaults,
+    contactInfo,
+    socialLinks,
+    type,
+    reviewStats,
+    faqItems,
+    cityName,
+    stateName,
+    resolvedDescription,
+  ]);
 
   return (
     <Helmet>

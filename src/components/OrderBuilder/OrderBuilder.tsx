@@ -10,8 +10,11 @@ import ReviewStep from './ReviewStep';
 import BookingStep from './BookingStep';
 import SuccessStep from './SuccessStep';
 import { OrderSummary } from '../Menu';
+import { Button, Icon } from '../ui';
 import type { BookingFormData, BookingOrderData } from '../../types';
 import './OrderBuilder.css';
+
+const BOOKING_STORAGE_KEY = 'happyhibachi_booking_form';
 
 const OrderBuilder: React.FC = () => {
   const { t } = useTranslation();
@@ -34,6 +37,26 @@ const OrderBuilder: React.FC = () => {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success'>('idle');
   const [successFormData, setSuccessFormData] = useState<BookingFormData | null>(null);
   const [regionHighlight, setRegionHighlight] = useState(false);
+  const [showRecoveryBanner, setShowRecoveryBanner] = useState(false);
+  const [recoveryData, setRecoveryData] = useState<{ name?: string; date?: string } | null>(null);
+
+  // Check for abandoned cart data on mount
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(BOOKING_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.name || parsed.date || parsed.email) {
+          setRecoveryData({ name: parsed.name, date: parsed.date });
+          setShowRecoveryBanner(true);
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const dismissRecoveryBanner = () => setShowRecoveryBanner(false);
 
   const step2Ref = useRef<HTMLDivElement>(null);
   const bookingRef = useRef<HTMLDivElement>(null);
@@ -165,6 +188,21 @@ const OrderBuilder: React.FC = () => {
     setSuccessFormData(formData);
     setSubmitStatus('success');
     clearOrder();
+    // Fire conversion tracking events
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'purchase', {
+        event_category: 'booking',
+        event_label: formData.region,
+        value: total,
+      });
+    }
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'Schedule', {
+        content_name: 'hibachi_booking',
+        value: total,
+        currency: 'USD',
+      });
+    }
   };
 
   // Build orderData and message for BookingStep
@@ -257,6 +295,46 @@ const OrderBuilder: React.FC = () => {
 
   return (
     <div className="order-builder">
+      {showRecoveryBanner && recoveryData && (
+        <div className="order-recovery-banner">
+          <div className="order-recovery-content">
+            <Icon name="clock" size={20} />
+            <div>
+              <strong>{t('order.recovery.title')}</strong>
+              <p>
+                {recoveryData.name && `${recoveryData.name} — `}
+                {recoveryData.date
+                  ? t('order.recovery.dateSaved', { date: recoveryData.date })
+                  : t('order.recovery.inProgress')}
+              </p>
+            </div>
+          </div>
+          <div className="order-recovery-actions">
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => {
+                dismissRecoveryBanner();
+                bookingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+            >
+              {t('order.recovery.continue')}
+            </Button>
+            <button
+              type="button"
+              className="order-recovery-dismiss"
+              onClick={() => {
+                dismissRecoveryBanner();
+                sessionStorage.removeItem(BOOKING_STORAGE_KEY);
+              }}
+              aria-label={t('common.close')}
+            >
+              <Icon name="close" size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="order-builder__header">
         <h2 className="order-builder__title">{t('order.title')}</h2>
         <StepProgressBar

@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigation, useSettings, useMagnetic, useSlider } from '../../hooks';
 import { Button, Icon } from '../ui';
+import { REGIONS } from '../../constants';
 import heroBg from '../../images/hero-bg.webp';
 import chefCooking from '../../images/chef-cooking.webp';
 import food1 from '../../images/food-1.webp';
@@ -28,9 +30,72 @@ const HERO_SLIDES = [
  */
 const Hero: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { goToFreeEstimate, goToBookNow } = useAppNavigation();
   const { settings } = useSettings();
   const { brandInfo } = settings;
+
+  // Quick-quote form state
+  const [quoteGuests, setQuoteGuests] = useState('');
+  const [quoteDate, setQuoteDate] = useState('');
+  const [quoteRegion, setQuoteRegion] = useState('');
+
+  const handleQuickQuote = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      const params = new URLSearchParams();
+      if (quoteGuests) params.set('guests', quoteGuests);
+      if (quoteDate) params.set('date', quoteDate);
+      if (quoteRegion) params.set('region', quoteRegion);
+      navigate(`/free-estimate?${params.toString()}`);
+    },
+    [quoteGuests, quoteDate, quoteRegion, navigate]
+  );
+
+  // Animated counter
+  const counterRef = useRef<HTMLDivElement>(null);
+  const [countersVisible, setCountersVisible] = useState(false);
+  const [counts, setCounts] = useState({ events: 0, cities: 0, rating: 0 });
+
+  useEffect(() => {
+    const el = counterRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setCountersVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.5 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!countersVisible) return;
+    const targets = { events: 1200, cities: 48, rating: 5 };
+    const duration = 1500;
+    const steps = 40;
+    const interval = duration / steps;
+    let step = 0;
+    const timer = setInterval(() => {
+      step++;
+      const progress = step / steps;
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCounts({
+        events: Math.round(targets.events * eased),
+        cities: Math.round(targets.cities * eased),
+        rating: Math.round(targets.rating * eased * 10) / 10,
+      });
+      if (step >= steps) clearInterval(timer);
+    }, interval);
+    return () => clearInterval(timer);
+  }, [countersVisible]);
+
+  // Minimum date = tomorrow
+  const minDate = new Date(Date.now() + 86400000).toISOString().split('T')[0];
   const magneticRef = useMagnetic<HTMLDivElement>({ strength: 0.2, radius: 120 });
   const { currentSlide } = useSlider({
     totalSlides: HERO_SLIDES.length,
@@ -103,6 +168,24 @@ const Hero: React.FC = () => {
           {t('booking.florida')}
         </div>
 
+        {/* Animated Stats Counter */}
+        <div className="hero-stats" ref={counterRef}>
+          <div className="hero-stat">
+            <span className="hero-stat-number">{counts.events.toLocaleString()}+</span>
+            <span className="hero-stat-label">{t('hero.stats.events')}</span>
+          </div>
+          <div className="hero-stat-divider" />
+          <div className="hero-stat">
+            <span className="hero-stat-number">{counts.cities}+</span>
+            <span className="hero-stat-label">{t('hero.stats.cities')}</span>
+          </div>
+          <div className="hero-stat-divider" />
+          <div className="hero-stat">
+            <span className="hero-stat-number">{counts.rating}</span>
+            <span className="hero-stat-label">{t('hero.stats.rating')}</span>
+          </div>
+        </div>
+
         {/* CTA Buttons with magnetic effect */}
         <div className="hero-buttons">
           <div ref={magneticRef} className="btn-magnetic" style={{ display: 'inline-block' }}>
@@ -114,6 +197,52 @@ const Hero: React.FC = () => {
             {t('hero.freeEstimate')}
           </Button>
         </div>
+
+        {/* Quick Quote Form */}
+        <form className="hero-quick-quote" onSubmit={handleQuickQuote}>
+          <div className="quick-quote-fields">
+            <div className="quick-quote-field">
+              <Icon name="user" size={14} />
+              <input
+                type="number"
+                min="10"
+                max="200"
+                placeholder={t('hero.quickQuote.guests')}
+                value={quoteGuests}
+                onChange={(e) => setQuoteGuests(e.target.value)}
+                aria-label={t('hero.quickQuote.guests')}
+              />
+            </div>
+            <div className="quick-quote-field">
+              <Icon name="calendar" size={14} />
+              <input
+                type="date"
+                min={minDate}
+                value={quoteDate}
+                onChange={(e) => setQuoteDate(e.target.value)}
+                aria-label={t('hero.quickQuote.date')}
+              />
+            </div>
+            <div className="quick-quote-field">
+              <Icon name="map-pin" size={14} />
+              <select
+                value={quoteRegion}
+                onChange={(e) => setQuoteRegion(e.target.value)}
+                aria-label={t('hero.quickQuote.region')}
+              >
+                <option value="">{t('hero.quickQuote.region')}</option>
+                {REGIONS.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {t(`nav.${r.id}`, r.name)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <Button type="submit" variant="primary" size="md" className="quick-quote-btn">
+            {t('hero.quickQuote.submit')}
+          </Button>
+        </form>
 
         {/* Trust Indicators */}
         <p className="hero-trust-indicators">{t('hero.trustIndicators')}</p>

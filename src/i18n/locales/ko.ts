@@ -36,6 +36,33 @@ const ko = {
       gallery2: '아름다운 철판 요리 프레젠테이션',
       gallery3: '집에서 철판 요리를 즐기는 손님들',
     },
+    quickQuote: {
+      guests: '게스트 수',
+      date: '이벤트 날짜',
+      region: '지역 선택',
+      submit: '무료 견적 받기',
+    },
+    stats: {
+      events: '서비스 이벤트',
+      cities: '서비스 도시',
+      rating: '별점',
+    },
+  },
+  menuPage: {
+    description:
+      '정통 철판 요리 메뉴를 살펴보세요 — 프리미엄 스테이크, 해산물, 채식 옵션 등 다양한 메뉴를 제공합니다.',
+  },
+  galleryPage: {
+    description:
+      '최근 철판 요리 케이터링 이벤트 사진을 구경하세요 — 생일, 기업 행사, 결혼식 등 다양한 행사에서의 모습을 확인하세요.',
+  },
+  faqPage: {
+    description:
+      'Happy Hibachi 케이터링에 대한 자주 묻는 질문의 답변을 확인하세요 — 가격, 메뉴, 예약 등에 대한 정보를 제공합니다.',
+  },
+  contactPage: {
+    description:
+      '다음 이벤트에 대해 Happy Hibachi에 문의하세요. {{city}}와 주변 지역에서 서비스를 제공합니다.',
   },
   howItWorks: {
     title: '이용 방법',
@@ -295,6 +322,26 @@ const ko = {
         review:
           '놀라운 가성비. 음식은 레스토랑 수준이었고 서비스는 완벽했습니다. 손님들이 아직도 이야기하고 있어요!',
       },
+      r7: {
+        location: 'Denver, CO',
+        review:
+          '셰프가 시간에 맞춰 도착해서 아름다운 연출을 선보였습니다. 음식이 정말 맛있었고 가족 모두가 즐거워했어요.',
+      },
+      r8: {
+        location: 'Nashville, TN',
+        review:
+          '숨겨진 보석! 음식의 신선함과 풍미가 우리 동네 어떤 일식당보다 뛰어났습니다. 꼭 다시 예약할 거예요.',
+      },
+      r9: {
+        location: 'Charlotte, NC',
+        review:
+          '40명 규모의 기업 행사를 위해 예약했는데 모든 것이 완벽했습니다. 전문적이고 깔끔했으며 맛도 최고였어요.',
+      },
+      r10: {
+        location: 'Portland, OR',
+        review:
+          '모든 기대를 뛰어넘었습니다. 셰프가 정말 재미있었고 볶음밥은 지금까지 먹어본 중 최고였어요!',
+      },
     },
   },
   instagram: {
@@ -324,6 +371,10 @@ const ko = {
     checkFailed: '확인 실패',
     copyCode: '코드 복사',
     copied: '복사됨!',
+    shareVia: '공유하기',
+    shareMessage:
+      '추천 코드 {{code}}를 사용하면 첫 히바치 홈파티에서 $30 할인! familyfriendshibachi.com에서 예약하세요',
+    shareEmailSubject: '히바치 홈파티 $30 할인 — 내 추천',
   },
   newsletter: {
     title: '독점 혜택 받기',
@@ -470,6 +521,7 @@ const ko = {
       graduation: '졸업',
       corporate: '기업 행사',
       holiday: '명절 파티',
+      wedding: '웨딩 이벤트',
       other: '기타',
     },
     referralSource: '저희를 어떻게 알게 되셨나요?',
@@ -536,6 +588,7 @@ const ko = {
   topBar: {
     textUs: '문자 보내기',
     email: '이메일',
+    limitedSlots: '주말 예약 한정 — 지금 예약하세요!',
   },
   photoShare: {
     title: '사진 공유하기',
@@ -1676,6 +1729,12 @@ const ko = {
     guestMin: '{{min}}명 이상 필요',
     guestAdjustedTo: '인원이 {{count}}명으로 조정되었습니다',
     adjustGuests: '탭하여 조정',
+    recovery: {
+      title: '예약을 계속하시겠습니까?',
+      dateSaved: '이벤트 날짜: {{date}}',
+      inProgress: '진행 중인 예약이 있습니다',
+      continue: '계속하기',
+    },
     back: '뒤로',
     increaseAdults: '성인 증가',
     decreaseAdults: '성인 감소',
@@ -1690,6 +1749,34 @@ const ko = {
     progress: '주문 진행 상태',
     estimatedPrice: '예상: ${{amount}}',
     minimumExplanation: '최소 ${{minimum}} 적용 — 가격은 최소 ${{minimum}}입니다',
+  },
+  exitIntent: {
+    title: '잠깐만요! 놓치지 마세요',
+    subtitle: '첫 히바치 파티에 특별 할인을 받으세요!',
+    offerText: '첫 히바치 홈파티 예약',
+    emailPlaceholder: '쿠폰을 받을 이메일 입력',
+    claimOffer: '$30 할인 받기',
+    noSpam: '스팸 없음 — 쿠폰 코드만 보내드립니다. 언제든 구독 취소 가능.',
+    successTitle: '쿠폰이 발송되었습니다!',
+    successDesc: '받은 편지함에서 $30 할인 코드를 확인하세요.',
+  },
+  cityLanding: {
+    title: '{{city}} 홈 히바치',
+    description:
+      '{{city}}, {{state}} 최고 평점 홈 히바치 케이터링. 전문 셰프가 ${{price}}/인부터 그릴을 가져다 드립니다. 오늘 예약하세요!',
+    heroTitle: '{{city}} 홈 히바치',
+    heroSubtitle:
+      '{{city}}에서 최고의 홈 히바치 파티를 경험하세요. 전문 셰프가 그릴, 신선한 재료, 잊을 수 없는 엔터테인먼트를 가져다 드립니다 — ${{price}}/인부터.',
+    bookNow: '{{city}}에서 예약',
+    trustRated: '5성 평점',
+    trustInsured: '완전 보험 가입',
+    trustEvents: '500+ 이벤트',
+    areasTitle: '{{state}} 전역 서비스',
+    areasSubtitle: '{{state}} 전역의 도시에 히바치 경험을 제공합니다. 아래에서 지역을 선택하세요.',
+    viewCity: '상세 보기',
+    nearbyTitle: '{{city}} 인근 지역도 서비스',
+    ctaTitle: '{{city}}에서 히바치 준비되셨나요?',
+    ctaSubtitle: '1인당 ${{price}}부터. 오늘 홈 히바치 경험을 예약하세요!',
   },
 };
 

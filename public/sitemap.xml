@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Core Pages -->
   <url>
     <loc>https://familyfriendshibachi.com/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://familyfriendshibachi.com/book-now</loc>
+    <loc>https://familyfriendshibachi.com/order</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -14,6 +15,26 @@
     <loc>https://familyfriendshibachi.com/free-estimate</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/menu</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/gallery</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/faq</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/contact</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://familyfriendshibachi.com/my-booking</loc>
@@ -29,5 +50,268 @@
     <loc>https://familyfriendshibachi.com/terms</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
+  </url>
+
+  <!-- State Landing Pages -->
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/california</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/texas</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/florida</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- California Cities -->
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/california/los-angeles</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/california/orange-county</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/california/san-francisco</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/california/san-diego</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/california/san-jose</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/california/sacramento</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/california/palm-springs</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/california/lake-tahoe</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/california/bay-area</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/california/central-valley</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/california/inland-empire</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/california/ventura-county</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/california/santa-barbara</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/california/monterey</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/california/fresno</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/california/bakersfield</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Texas Cities -->
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/texas/houston</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/texas/dallas</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/texas/fort-worth</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/texas/austin</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/texas/san-antonio</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/texas/arlington</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/texas/plano</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/texas/irving</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/texas/corpus-christi</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/texas/lubbock</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/texas/el-paso</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/texas/amarillo</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/texas/waco</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/texas/college-station</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/texas/galveston</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/texas/beaumont</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Florida Cities -->
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/florida/miami</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/florida/miami-beach</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/florida/fort-lauderdale</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/florida/hollywood</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/florida/coral-gables</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/florida/doral</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/florida/hialeah</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/florida/aventura</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/florida/sunny-isles</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/florida/north-miami</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/florida/south-miami</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/florida/kendall</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/florida/homestead</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/florida/key-west</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/florida/boca-raton</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://familyfriendshibachi.com/hibachi-catering/florida/west-palm-beach</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>

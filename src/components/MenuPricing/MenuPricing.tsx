@@ -3,7 +3,22 @@ import { useTranslation } from 'react-i18next';
 import { useScrollReveal, useSettings, useMenu } from '../../hooks';
 import { PRICING, UPGRADES } from '../../constants';
 import { Icon } from '../ui';
+import chickenImg from '../../images/menu/chicken.jpg';
+import steakImg from '../../images/menu/steak.jpg';
+import shrimpImg from '../../images/menu/shrimp.jpg';
+import salmonImg from '../../images/menu/salmon.jpg';
+import tofuImg from '../../images/menu/tofu.jpg';
+import scallopsImg from '../../images/menu/scallops.jpg';
 import './MenuPricing.css';
+
+const PROTEIN_IMAGES: Record<string, string> = {
+  chicken: chickenImg,
+  steak: steakImg,
+  shrimp: shrimpImg,
+  salmon: salmonImg,
+  tofu: tofuImg,
+  scallops: scallopsImg,
+};
 
 /**
  * Menu pricing section component
@@ -64,11 +79,12 @@ const MenuPricing: React.FC = () => {
       }
     }
     return [
-      { name: t('menu.chicken'), price: 0 },
-      { name: t('menu.steak'), price: 0 },
-      { name: t('menu.shrimp'), price: 0 },
-      { name: t('menu.salmon'), price: 0 },
-      { name: t('menu.tofu'), price: 0 },
+      { name: t('menu.chicken'), price: 0, imageKey: 'chicken' },
+      { name: t('menu.steak'), price: 0, imageKey: 'steak' },
+      { name: t('menu.shrimp'), price: 0, imageKey: 'shrimp' },
+      { name: t('menu.salmon'), price: 0, imageKey: 'salmon' },
+      { name: t('menu.scallops'), price: 0, imageKey: 'scallops' },
+      { name: t('menu.tofu'), price: 0, imageKey: 'tofu' },
     ];
   }, [menu, getLocalizedText, t]);
 
@@ -190,12 +206,26 @@ const MenuPricing: React.FC = () => {
             <Icon name="steak" size={18} /> {t('menu.protein.title')} (2 {t('pricing.perPerson')})
           </h3>
           <div className="protein-grid">
-            {regularProteins.map((protein, idx) => (
-              <div className="protein-item" key={idx}>
-                <span className="name">{protein.name}</span>
-                <span className="badge">{t('menu.protein.included')}</span>
-              </div>
-            ))}
+            {regularProteins.map((protein, idx) => {
+              const imgKey = (protein as { imageKey?: string }).imageKey;
+              const imgSrc = imgKey ? PROTEIN_IMAGES[imgKey] : undefined;
+              return (
+                <div className="protein-item" key={idx}>
+                  {imgSrc && (
+                    <img
+                      className="protein-thumb"
+                      src={imgSrc}
+                      alt={protein.name}
+                      loading="lazy"
+                      width={80}
+                      height={80}
+                    />
+                  )}
+                  <span className="name">{protein.name}</span>
+                  <span className="badge">{t('menu.protein.included')}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 

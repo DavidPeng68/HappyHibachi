@@ -86,7 +86,7 @@ const Booking: React.FC = () => {
             <div className="cities-list">
               {activeRegion.cities.map((city, index) => (
                 <span key={index} className="city-tag">
-                  {city}
+                  {city.name}
                 </span>
               ))}
             </div>

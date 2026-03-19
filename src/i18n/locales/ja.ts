@@ -36,6 +36,33 @@ const ja = {
       gallery2: '美しい鉄板焼き料理のプレゼンテーション',
       gallery3: 'ご自宅で鉄板焼きを楽しむゲスト',
     },
+    quickQuote: {
+      guests: 'ゲスト人数',
+      date: 'イベント日',
+      region: 'エリアを選択',
+      submit: '無料見積もりを取得',
+    },
+    stats: {
+      events: 'イベント実績',
+      cities: '対応都市',
+      rating: '星評価',
+    },
+  },
+  menuPage: {
+    description:
+      'タンパク質、プレミアムアップグレード、追加メニューを含む鉄板焼きケータリングメニューをご覧ください。お一人様$60から。',
+  },
+  galleryPage: {
+    description:
+      '出張鉄板焼きイベントの写真をご覧ください。裏庭パーティー、企業イベント、お祝いでのシェフのパフォーマンスをご確認いただけます。',
+  },
+  faqPage: {
+    description:
+      '出張鉄板焼きケータリングサービスに関するよくある質問。料金、セットアップ、食事制限への対応、予約情報。',
+  },
+  contactPage: {
+    description:
+      '出張鉄板焼きケータリングのご依頼は Family Friends Hibachi へ。カリフォルニア、テキサス、フロリダでサービス提供中。',
   },
   howItWorks: {
     title: 'ご利用の流れ',
@@ -297,6 +324,26 @@ const ja = {
         review:
           '驚くほどのコスパ。料理はレストラン品質で、サービスは完璧でした。ゲストたちはまだ話題にしています！',
       },
+      r7: {
+        location: 'San Francisco, CA',
+        review:
+          '30人のチームビルディングイベントを開催しましたが、完璧でした。オニオンボルケーノのトリックでみんな大盛り上がり！企業イベントに強くお勧めします。',
+      },
+      r8: {
+        location: 'Dallas, TX',
+        review:
+          '素晴らしい食事とエンターテイメント。シェフは腕が良く親しみやすかったです。一つだけ注意点 — 週末はすぐ埋まるので早めの予約をお勧めします！',
+      },
+      r9: {
+        location: 'Fort Lauderdale, FL',
+        review:
+          '子供たちが大喜びでした！シェフがとてもインタラクティブで楽しくしてくれました。食事は新鮮で美味しく、目の前で調理されました。',
+      },
+      r10: {
+        location: 'Sacramento, CA',
+        review:
+          '結婚式のリハーサルディナーに最適でした。ゲストはインタラクティブな体験を気に入り、日本酒も楽しめました！記念日にまた利用したいです。',
+      },
     },
   },
   instagram: {
@@ -326,6 +373,10 @@ const ja = {
     checkFailed: '検証に失敗しました',
     copyCode: 'コードをコピー',
     copied: 'コピーしました！',
+    shareVia: 'シェアする',
+    shareMessage:
+      '紹介コード {{code}} を使うと、初回の出張鉄板焼きパーティーが$30割引！familyfriendshibachi.comで予約',
+    shareEmailSubject: '出張鉄板焼き $30割引 — 紹介コード',
   },
   newsletter: {
     title: '限定特典を受け取る',
@@ -472,6 +523,7 @@ const ja = {
       graduation: '卒業',
       corporate: '企業イベント',
       holiday: 'ホリデーパーティー',
+      wedding: 'ウェディングイベント',
       other: 'その他',
     },
     referralSource: '当店をどこでお知りになりましたか？',
@@ -538,6 +590,7 @@ const ja = {
   topBar: {
     textUs: 'テキスト',
     email: 'メール',
+    limitedSlots: '週末の枠に限りあり — 今すぐ予約！',
   },
   photoShare: {
     title: '写真を共有',
@@ -1679,6 +1732,12 @@ const ja = {
     guestMin: '{{min}}名以上必要',
     guestAdjustedTo: 'ゲスト数が{{count}}人に調整されました',
     adjustGuests: 'タップして調整',
+    recovery: {
+      title: '予約を続けますか？',
+      dateSaved: 'イベント日: {{date}}',
+      inProgress: '進行中の予約があります',
+      continue: '続ける',
+    },
     back: '戻る',
     increaseAdults: '大人を増やす',
     decreaseAdults: '大人を減らす',
@@ -1693,6 +1752,34 @@ const ja = {
     progress: '注文の進捗',
     estimatedPrice: '予想: ${{amount}}',
     minimumExplanation: '最低${{minimum}}が適用されます — 金額は${{minimum}}以上になります',
+  },
+  exitIntent: {
+    title: 'お待ちください！お見逃しなく',
+    subtitle: '初回の鉄板焼きパーティーで特別割引をゲット！',
+    offerText: '初回の出張鉄板焼き予約',
+    emailPlaceholder: 'クーポン受取用メールアドレス',
+    claimOffer: '$30割引を受け取る',
+    noSpam: 'スパムなし — クーポンコードのみ送信。いつでも配信停止可能。',
+    successTitle: 'クーポンを送信しました！',
+    successDesc: '受信箱で$30割引コードをご確認ください。',
+  },
+  cityLanding: {
+    title: '{{city}}の出張ヒバチ',
+    description:
+      '{{city}}、{{state}}で最高評価の出張ヒバチケータリング。プロのシェフがグリルをご自宅に持参、${{price}}/人から。今すぐご予約！',
+    heroTitle: '{{city}}の出張ヒバチ',
+    heroSubtitle:
+      '{{city}}で最高のホームヒバチパーティーを体験。プロのシェフがグリル、新鮮な食材、忘れられないエンターテインメントをお届けします — ${{price}}/人から。',
+    bookNow: '{{city}}で予約する',
+    trustRated: '5つ星評価',
+    trustInsured: '完全保険付き',
+    trustEvents: '500件以上のイベント',
+    areasTitle: '{{state}}全域に対応',
+    areasSubtitle: '{{state}}各地にヒバチ体験をお届けします。以下からエリアを選択してください。',
+    viewCity: '詳細を見る',
+    nearbyTitle: '{{city}}近郊もサービス対象',
+    ctaTitle: '{{city}}でヒバチの準備はできましたか？',
+    ctaSubtitle: '1人${{price}}から。今すぐ出張ヒバチ体験をご予約ください！',
   },
 };
 

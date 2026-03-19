@@ -9,6 +9,11 @@ import { SettingsProvider } from './hooks';
 import { OrderProvider } from './contexts/OrderContext';
 import './App.css';
 
+const CityLandingPage = React.lazy(() => import('./pages/CityLandingPage'));
+const MenuPage = React.lazy(() => import('./pages/MenuPage'));
+const GalleryPage = React.lazy(() => import('./pages/GalleryPage'));
+const FAQPage = React.lazy(() => import('./pages/FAQPage'));
+const ContactPage = React.lazy(() => import('./pages/ContactPage'));
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const AdminLoginPage = React.lazy(() =>
   import('./pages/AdminDashboard').then((m) => ({ default: m.AdminLoginPage }))
@@ -150,6 +155,12 @@ const AppRoutes: React.FC = () => {
             <Route path="/order" element={<OrderPage />} />
             <Route path="/free-estimate" element={<FreeEstimate />} />
             <Route path="/book-now" element={<Navigate to="/order" replace />} />
+            <Route path="/menu" element={<MenuPage />} />
+            <Route path="/gallery" element={<GalleryPage />} />
+            <Route path="/faq" element={<FAQPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/hibachi-catering/:stateSlug/:citySlug" element={<CityLandingPage />} />
+            <Route path="/hibachi-catering/:stateSlug" element={<CityLandingPage />} />
             <Route path="/my-booking" element={<MyBooking />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />

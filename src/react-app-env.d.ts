@@ -35,6 +35,13 @@ declare module '*.svg' {
   export default src;
 }
 
+// Analytics globals
+interface Window {
+  gtag?: (...args: unknown[]) => void;
+  fbq?: (...args: unknown[]) => void;
+  dataLayer?: unknown[];
+}
+
 // Environment variables
 declare namespace NodeJS {
   interface ProcessEnv {

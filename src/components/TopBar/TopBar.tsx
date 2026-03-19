@@ -14,9 +14,17 @@ const TopBar: React.FC = () => {
       <div className="top-bar-container">
         <div className="top-bar-left">
           {promoBanner.enabled && (
-            <span className="top-bar-promo">
-              {promoBanner.emoji} {promoBanner.text}
-            </span>
+            <div className="top-bar-promo-scroll">
+              <span className="top-bar-promo">
+                {promoBanner.emoji} {promoBanner.text}
+              </span>
+              <span className="top-bar-promo-sep" aria-hidden="true">
+                •
+              </span>
+              <span className="top-bar-promo top-bar-promo-urgency">
+                {t('topBar.limitedSlots')}
+              </span>
+            </div>
           )}
         </div>
         <div className="top-bar-right">

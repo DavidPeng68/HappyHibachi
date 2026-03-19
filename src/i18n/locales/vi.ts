@@ -36,6 +36,33 @@ const vi = {
       gallery2: 'Trình bày món ăn hibachi đẹp mắt',
       gallery3: 'Khách mời thưởng thức hibachi tại nhà',
     },
+    quickQuote: {
+      guests: 'Số lượng khách',
+      date: 'Ngày sự kiện',
+      region: 'Chọn khu vực',
+      submit: 'Nhận Báo Giá Miễn Phí',
+    },
+    stats: {
+      events: 'Sự Kiện Đã Phục Vụ',
+      cities: 'Thành Phố',
+      rating: 'Đánh Giá Sao',
+    },
+  },
+  menuPage: {
+    description:
+      'Khám phá thực đơn hibachi chính thống của chúng tôi — bít tết cao cấp, hải sản, tùy chọn chay và nhiều hơn nữa.',
+  },
+  galleryPage: {
+    description:
+      'Xem ảnh từ các sự kiện catering hibachi gần đây — sinh nhật, sự kiện công ty, đám cưới và hơn thế nữa.',
+  },
+  faqPage: {
+    description:
+      'Tìm câu trả lời cho các câu hỏi thường gặp về catering Happy Hibachi — giá cả, thực đơn, đặt chỗ và nhiều hơn nữa.',
+  },
+  contactPage: {
+    description:
+      'Liên hệ Happy Hibachi để tổ chức sự kiện tiếp theo của bạn. Phục vụ tại {{city}} và các khu vực lân cận.',
   },
   howItWorks: {
     title: 'Cách Thức Hoạt Động',
@@ -306,6 +333,26 @@ const vi = {
         review:
           'Giá trị không thể tin được. Đồ ăn chất lượng nhà hàng và dịch vụ hoàn hảo. Khách của chúng tôi vẫn còn nhắc đến!',
       },
+      r7: {
+        location: 'Denver, CO',
+        review:
+          'Đầu bếp đến đúng giờ và mang đến một buổi trình diễn tuyệt đẹp. Đồ ăn ngon tuyệt và cả gia đình đều thích.',
+      },
+      r8: {
+        location: 'Nashville, TN',
+        review:
+          'Viên ngọc ẩn giấu! Sự tươi ngon và hương vị của đồ ăn vượt trội hơn bất kỳ nhà hàng Nhật nào trong khu vực. Chắc chắn sẽ đặt lại.',
+      },
+      r9: {
+        location: 'Charlotte, NC',
+        review:
+          'Đã đặt cho sự kiện công ty 40 người và mọi thứ đều hoàn hảo. Chuyên nghiệp, gọn gàng và hương vị tuyệt vời.',
+      },
+      r10: {
+        location: 'Portland, OR',
+        review:
+          'Vượt xa mọi kỳ vọng. Đầu bếp rất vui tính và cơm chiên là món ngon nhất tôi từng ăn!',
+      },
     },
   },
   instagram: {
@@ -335,6 +382,10 @@ const vi = {
     checkFailed: 'Xác minh thất bại',
     copyCode: 'Sao Chép Mã',
     copied: 'Đã sao chép!',
+    shareVia: 'Chia sẻ qua',
+    shareMessage:
+      'Sử dụng mã giới thiệu {{code}} của tôi để được giảm $30 cho bữa tiệc hibachi tại nhà đầu tiên! Đặt tại familyfriendshibachi.com',
+    shareEmailSubject: 'Giảm $30 Hibachi Tại Nhà — Giới Thiệu Của Tôi',
   },
   newsletter: {
     title: 'Nhận Ưu Đãi Độc Quyền',
@@ -481,6 +532,7 @@ const vi = {
       graduation: 'Lễ Tốt Nghiệp',
       corporate: 'Sự Kiện Công Ty',
       holiday: 'Tiệc Lễ Hội',
+      wedding: 'Sự Kiện Đám Cưới',
       other: 'Khác',
     },
     referralSource: 'Bạn biết đến chúng tôi qua đâu?',
@@ -547,6 +599,7 @@ const vi = {
   topBar: {
     textUs: 'Nhắn Tin',
     email: 'Email',
+    limitedSlots: 'Chỗ cuối tuần có hạn — Đặt ngay!',
   },
   photoShare: {
     title: 'Chia Sẻ Ảnh',
@@ -1689,6 +1742,12 @@ const vi = {
     guestMin: 'Cần {{min}}+ khách',
     guestAdjustedTo: 'Số khách đã điều chỉnh thành {{count}}',
     adjustGuests: 'Nhấn để điều chỉnh',
+    recovery: {
+      title: 'Tiếp tục đặt chỗ?',
+      dateSaved: 'Ngày sự kiện: {{date}}',
+      inProgress: 'Bạn có một đặt chỗ đang tiến hành',
+      continue: 'Tiếp tục',
+    },
     back: 'Quay lại',
     increaseAdults: 'Tăng người lớn',
     decreaseAdults: 'Giảm người lớn',
@@ -1703,6 +1762,35 @@ const vi = {
     progress: 'Tiến trình đặt hàng',
     estimatedPrice: 'Ước tính: ${{amount}}',
     minimumExplanation: 'Áp dụng tối thiểu ${{minimum}} — giá sẽ ít nhất ${{minimum}}',
+  },
+  exitIntent: {
+    title: 'Khoan đã! Đừng bỏ lỡ',
+    subtitle: 'Nhận ưu đãi độc quyền cho bữa tiệc hibachi đầu tiên!',
+    offerText: 'đặt hibachi tại nhà lần đầu',
+    emailPlaceholder: 'Nhập email để nhận mã giảm giá',
+    claimOffer: 'Nhận giảm $30',
+    noSpam: 'Không spam — chỉ gửi mã giảm giá. Hủy đăng ký bất cứ lúc nào.',
+    successTitle: 'Mã giảm giá đang đến!',
+    successDesc: 'Kiểm tra hộp thư đến để nhận mã giảm $30.',
+  },
+  cityLanding: {
+    title: 'Hibachi Tại Nhà ở {{city}}',
+    description:
+      'Dịch vụ tiệc hibachi tại nhà được đánh giá cao nhất tại {{city}}, {{state}}. Đầu bếp chuyên nghiệp mang bếp nướng đến sân nhà bạn chỉ từ ${{price}}/người. Đặt ngay hôm nay!',
+    heroTitle: 'Hibachi Tại Nhà ở {{city}}',
+    heroSubtitle:
+      'Trải nghiệm tiệc hibachi tại nhà tuyệt vời nhất ở {{city}}. Đầu bếp chuyên nghiệp mang theo bếp nướng, nguyên liệu tươi và giải trí khó quên — chỉ từ ${{price}}/người.',
+    bookNow: 'Đặt Ngay tại {{city}}',
+    trustRated: 'Đánh Giá 5 Sao',
+    trustInsured: 'Bảo Hiểm Đầy Đủ',
+    trustEvents: '500+ Sự Kiện',
+    areasTitle: 'Phục Vụ Toàn Bộ {{state}}',
+    areasSubtitle:
+      'Chúng tôi mang trải nghiệm hibachi đến các thành phố trên khắp {{state}}. Chọn khu vực của bạn bên dưới.',
+    viewCity: 'Xem Chi Tiết',
+    nearbyTitle: 'Cũng Phục Vụ Gần {{city}}',
+    ctaTitle: 'Sẵn Sàng cho Hibachi tại {{city}}?',
+    ctaSubtitle: 'Chỉ từ ${{price}} mỗi người. Đặt trải nghiệm hibachi tại nhà ngay hôm nay!',
   },
 };
 

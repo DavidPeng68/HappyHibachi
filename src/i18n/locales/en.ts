@@ -33,6 +33,33 @@ const en = {
       gallery2: 'Beautiful hibachi food presentation',
       gallery3: 'Guests enjoying hibachi at home',
     },
+    quickQuote: {
+      guests: 'Guest count',
+      date: 'Event date',
+      region: 'Select area',
+      submit: 'Get Free Quote',
+    },
+    stats: {
+      events: 'Events Served',
+      cities: 'Cities Covered',
+      rating: 'Star Rating',
+    },
+  },
+  menuPage: {
+    description:
+      'View our hibachi catering menu with proteins, premium upgrades, and add-ons. Starting at $60 per person.',
+  },
+  galleryPage: {
+    description:
+      'Browse photos from our hibachi at home events. See our chefs in action at backyard parties, corporate events, and celebrations.',
+  },
+  faqPage: {
+    description:
+      'Frequently asked questions about our hibachi at home catering service. Pricing, setup, dietary accommodations, and booking info.',
+  },
+  contactPage: {
+    description:
+      'Contact Family Friends Hibachi for your at-home hibachi catering needs. Serving California, Texas, and Florida.',
   },
   howItWorks: {
     title: 'How It Works',
@@ -299,6 +326,26 @@ const en = {
         review:
           'Incredible value for money. The food was restaurant-quality and the service was impeccable. Our guests are still talking about it!',
       },
+      r7: {
+        location: 'San Francisco, CA',
+        review:
+          'We hosted a 30-person team building event and it was flawless. The onion volcano trick had everyone cheering! Highly recommend for corporate gatherings.',
+      },
+      r8: {
+        location: 'Dallas, TX',
+        review:
+          'Great food and entertainment. The chef was very skilled and personable. Only minor note — book early because weekends fill up fast!',
+      },
+      r9: {
+        location: 'Fort Lauderdale, FL',
+        review:
+          'Our kids absolutely loved it! The chef made it so interactive and fun. The food was fresh, delicious, and cooked right before our eyes.',
+      },
+      r10: {
+        location: 'Sacramento, CA',
+        review:
+          'Perfect for our wedding rehearsal dinner. Guests loved the interactive experience and the sake was flowing! Would use again for our anniversary.',
+      },
     },
   },
   instagram: {
@@ -329,6 +376,10 @@ const en = {
     checkFailed: 'Verification failed',
     copyCode: 'Copy Code',
     copied: 'Copied!',
+    shareVia: 'Share via',
+    shareMessage:
+      'Use my referral code {{code}} to get $30 off your first hibachi at home party! Book at familyfriendshibachi.com',
+    shareEmailSubject: '$30 Off Hibachi At Home — My Referral',
   },
   newsletter: {
     title: 'Get Exclusive Offers',
@@ -476,6 +527,7 @@ const en = {
       graduation: 'Graduation',
       corporate: 'Corporate Event',
       holiday: 'Holiday Party',
+      wedding: 'Wedding Event',
       other: 'Other',
     },
     referralSource: 'How did you hear about us?',
@@ -542,6 +594,7 @@ const en = {
   topBar: {
     textUs: 'Text Us',
     email: 'Email',
+    limitedSlots: 'Limited weekend slots — Book now!',
   },
   photoShare: {
     title: 'Share Your Photos',
@@ -1686,6 +1739,12 @@ const en = {
     guestMin: '{{min}}+ guests required',
     guestAdjustedTo: 'Guest count adjusted to {{count}}',
     adjustGuests: 'Tap to adjust',
+    recovery: {
+      title: 'Continue your booking?',
+      dateSaved: 'Event date: {{date}}',
+      inProgress: 'You have a booking in progress',
+      continue: 'Continue',
+    },
     back: 'Back',
     increaseAdults: 'Increase adults',
     decreaseAdults: 'Decrease adults',
@@ -1700,6 +1759,35 @@ const en = {
     progress: 'Order progress',
     estimatedPrice: 'Estimated: ${{amount}}',
     minimumExplanation: '${{minimum}} minimum applies — price will be at least ${{minimum}}',
+  },
+  exitIntent: {
+    title: "Wait! Don't miss out",
+    subtitle: 'Get an exclusive discount on your first hibachi party!',
+    offerText: 'your first hibachi at home booking',
+    emailPlaceholder: 'Enter your email for the coupon',
+    claimOffer: 'Claim My $30 Off',
+    noSpam: 'No spam — just your coupon code. Unsubscribe anytime.',
+    successTitle: 'Coupon on the way!',
+    successDesc: 'Check your inbox for your $30 discount code.',
+  },
+  cityLanding: {
+    title: 'Hibachi At Home in {{city}}',
+    description:
+      'Top rated hibachi at home catering in {{city}}, {{state}}. Professional chefs bring the grill to your backyard starting at ${{price}}/person. Book today!',
+    heroTitle: 'Hibachi At Home in {{city}}',
+    heroSubtitle:
+      'Experience the best at-home hibachi party in {{city}}. Our professional chefs bring the grill, fresh ingredients, and unforgettable entertainment — starting at ${{price}}/person.',
+    bookNow: 'Book Now in {{city}}',
+    trustRated: '5-Star Rated',
+    trustInsured: 'Fully Insured',
+    trustEvents: '500+ Events',
+    areasTitle: 'Serving All of {{state}}',
+    areasSubtitle:
+      'We bring the hibachi experience to cities across {{state}}. Select your area below.',
+    viewCity: 'View Details',
+    nearbyTitle: 'Also Serving Near {{city}}',
+    ctaTitle: 'Ready for Hibachi in {{city}}?',
+    ctaSubtitle: 'Starting at ${{price}} per person. Book your at-home hibachi experience today!',
   },
 };
 

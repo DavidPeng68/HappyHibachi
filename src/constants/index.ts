@@ -43,78 +43,96 @@ export const BUSINESS_HOURS: BusinessHours = {
   night: process.env.REACT_APP_HOURS_NIGHT || '7:00 PM - 9:00 PM',
 };
 
+/** Convert a city name to a URL slug (e.g. "Los Angeles" → "los-angeles") */
+export const toSlug = (name: string): string => name.toLowerCase().replace(/\s+/g, '-');
+
+/** Build a CityData object from a city name */
+const city = (name: string) => ({ name, slug: toSlug(name) });
+
 // Service regions
 export const REGIONS: Region[] = [
   {
     id: 'california',
     name: 'CALIFORNIA',
+    slug: 'california',
     cities: [
-      'Los Angeles',
-      'Orange County',
-      'San Francisco',
-      'San Diego',
-      'San Jose',
-      'Sacramento',
-      'Palm Springs',
-      'Lake Tahoe',
-      'Bay Area',
-      'Central Valley',
-      'Inland Empire',
-      'Ventura County',
-      'Santa Barbara',
-      'Monterey',
-      'Fresno',
-      'Bakersfield',
+      city('Los Angeles'),
+      city('Orange County'),
+      city('San Francisco'),
+      city('San Diego'),
+      city('San Jose'),
+      city('Sacramento'),
+      city('Palm Springs'),
+      city('Lake Tahoe'),
+      city('Bay Area'),
+      city('Central Valley'),
+      city('Inland Empire'),
+      city('Ventura County'),
+      city('Santa Barbara'),
+      city('Monterey'),
+      city('Fresno'),
+      city('Bakersfield'),
     ],
     hashLink: '#california',
   },
   {
     id: 'texas',
     name: 'TEXAS',
+    slug: 'texas',
     cities: [
-      'Houston',
-      'Dallas',
-      'Fort Worth',
-      'Austin',
-      'San Antonio',
-      'Arlington',
-      'Plano',
-      'Irving',
-      'Corpus Christi',
-      'Lubbock',
-      'El Paso',
-      'Amarillo',
-      'Waco',
-      'College Station',
-      'Galveston',
-      'Beaumont',
+      city('Houston'),
+      city('Dallas'),
+      city('Fort Worth'),
+      city('Austin'),
+      city('San Antonio'),
+      city('Arlington'),
+      city('Plano'),
+      city('Irving'),
+      city('Corpus Christi'),
+      city('Lubbock'),
+      city('El Paso'),
+      city('Amarillo'),
+      city('Waco'),
+      city('College Station'),
+      city('Galveston'),
+      city('Beaumont'),
     ],
     hashLink: '#texas',
   },
   {
     id: 'florida',
     name: 'FLORIDA',
+    slug: 'florida',
     cities: [
-      'Miami',
-      'Miami Beach',
-      'Fort Lauderdale',
-      'Hollywood',
-      'Coral Gables',
-      'Doral',
-      'Hialeah',
-      'Aventura',
-      'Sunny Isles',
-      'North Miami',
-      'South Miami',
-      'Kendall',
-      'Homestead',
-      'Key West',
-      'Boca Raton',
-      'West Palm Beach',
+      city('Miami'),
+      city('Miami Beach'),
+      city('Fort Lauderdale'),
+      city('Hollywood'),
+      city('Coral Gables'),
+      city('Doral'),
+      city('Hialeah'),
+      city('Aventura'),
+      city('Sunny Isles'),
+      city('North Miami'),
+      city('South Miami'),
+      city('Kendall'),
+      city('Homestead'),
+      city('Key West'),
+      city('Boca Raton'),
+      city('West Palm Beach'),
     ],
     hashLink: '#florida',
   },
 ];
+
+/** Look up a region + city by their slugs */
+export const findBySlug = (stateSlug: string, citySlug?: string) => {
+  const region = REGIONS.find((r) => r.slug === stateSlug);
+  if (!region) return null;
+  if (!citySlug) return { region, city: null };
+  const cityData = region.cities.find((c) => c.slug === citySlug);
+  return cityData ? { region, city: cityData } : null;
+};
 
 // Coupon tiers
 export const COUPON_TIERS: PricingTier[] = [
@@ -242,6 +260,42 @@ export const REVIEWS: Review[] = [
       'Incredible value for money. The food was restaurant-quality and the service was impeccable. Our guests are still talking about it!',
     event: 'Birthday Party',
   },
+  {
+    id: '7',
+    name: 'Angela W.',
+    location: 'San Francisco, CA',
+    rating: 5,
+    review:
+      'We hosted a 30-person team building event and it was flawless. The onion volcano trick had everyone cheering! Highly recommend for corporate gatherings.',
+    event: 'Corporate Event',
+  },
+  {
+    id: '8',
+    name: 'Carlos R.',
+    location: 'Dallas, TX',
+    rating: 4,
+    review:
+      'Great food and entertainment. The chef was very skilled and personable. Only minor note — book early because weekends fill up fast!',
+    event: 'Birthday Party',
+  },
+  {
+    id: '9',
+    name: 'Priya S.',
+    location: 'Fort Lauderdale, FL',
+    rating: 5,
+    review:
+      'Our kids absolutely loved it! The chef made it so interactive and fun. The food was fresh, delicious, and cooked right before our eyes.',
+    event: 'Holiday Party',
+  },
+  {
+    id: '10',
+    name: 'James & Maria H.',
+    location: 'Sacramento, CA',
+    rating: 4,
+    review:
+      'Perfect for our wedding rehearsal dinner. Guests loved the interactive experience and the sake was flowing! Would use again for our anniversary.',
+    event: 'Wedding Event',
+  },
 ];
 
 /** Get translated reviews (for default/fallback reviews only) */
@@ -293,6 +347,38 @@ export const getTranslatedReviews = (t: TFunction): Review[] => [
     rating: 5,
     review: t('reviews.items.r6.review'),
     event: t('form.eventTypes.birthday'),
+  },
+  {
+    id: '7',
+    name: 'Angela W.',
+    location: t('reviews.items.r7.location'),
+    rating: 5,
+    review: t('reviews.items.r7.review'),
+    event: t('form.eventTypes.corporate'),
+  },
+  {
+    id: '8',
+    name: 'Carlos R.',
+    location: t('reviews.items.r8.location'),
+    rating: 4,
+    review: t('reviews.items.r8.review'),
+    event: t('form.eventTypes.birthday'),
+  },
+  {
+    id: '9',
+    name: 'Priya S.',
+    location: t('reviews.items.r9.location'),
+    rating: 5,
+    review: t('reviews.items.r9.review'),
+    event: t('form.eventTypes.holiday'),
+  },
+  {
+    id: '10',
+    name: 'James & Maria H.',
+    location: t('reviews.items.r10.location'),
+    rating: 4,
+    review: t('reviews.items.r10.review'),
+    event: t('form.eventTypes.wedding'),
   },
 ];
 

@@ -37,6 +37,33 @@ const tl = {
       gallery2: 'Magandang presentasyon ng pagkaing hibachi',
       gallery3: 'Mga bisita na nag-eenjoy ng hibachi sa bahay',
     },
+    quickQuote: {
+      guests: 'Bilang ng bisita',
+      date: 'Petsa ng event',
+      region: 'Pumili ng lugar',
+      submit: 'Kumuha ng Libreng Quote',
+    },
+    stats: {
+      events: 'Mga Event na Naihatid',
+      cities: 'Mga Lungsod',
+      rating: 'Star Rating',
+    },
+  },
+  menuPage: {
+    description:
+      'Tingnan ang aming hibachi catering menu na may mga protein, premium upgrades, at add-ons. Simula sa $60 bawat tao.',
+  },
+  galleryPage: {
+    description:
+      'Mag-browse ng mga litrato mula sa aming hibachi sa bahay events. Panoorin ang aming mga chef sa aksyon sa backyard parties, corporate events, at mga selebrasyon.',
+  },
+  faqPage: {
+    description:
+      'Mga madalas na tanong tungkol sa aming hibachi sa bahay catering service. Presyo, setup, dietary accommodations, at booking info.',
+  },
+  contactPage: {
+    description:
+      'Makipag-ugnayan sa Family Friends Hibachi para sa inyong at-home hibachi catering needs. Nagse-serve sa California, Texas, at Florida.',
   },
   howItWorks: {
     title: 'Paano Gumagana',
@@ -309,6 +336,26 @@ const tl = {
         review:
           'Hindi kapani-paniwalang halaga. Restaurant-quality ang pagkain at walang kapintasan ang serbisyo. Pinag-uusapan pa rin ng mga bisita namin!',
       },
+      r7: {
+        location: 'San Francisco, CA',
+        review:
+          'Nag-host kami ng 30-person team building event at walang kapintasan. Lahat ay sumigaw sa onion volcano trick! Lubos na inirerekomenda para sa corporate gatherings.',
+      },
+      r8: {
+        location: 'Dallas, TX',
+        review:
+          'Magaling ang pagkain at entertainment. Napakahusay at palakaibigan ng chef. Isang bagay lang — mag-book nang maaga dahil mabilis mapuno ang weekends!',
+      },
+      r9: {
+        location: 'Fort Lauderdale, FL',
+        review:
+          'Sobrang na-enjoy ng mga anak namin! Ginawang interactive at masaya ng chef. Ang pagkain ay sariwa, masarap, at niluto mismo sa harap namin.',
+      },
+      r10: {
+        location: 'Sacramento, CA',
+        review:
+          'Perpekto para sa aming wedding rehearsal dinner. Na-enjoy ng mga bisita ang interactive experience at hindi naubusan ng sake! Gagamitin ulit para sa aming anniversary.',
+      },
     },
   },
   instagram: {
@@ -338,6 +385,10 @@ const tl = {
     checkFailed: 'Nabigo ang pag-verify',
     copyCode: 'Kopyahin ang Code',
     copied: 'Nakopya na!',
+    shareVia: 'I-share sa pamamagitan ng',
+    shareMessage:
+      'Gamitin ang referral code ko na {{code}} para makakuha ng $30 off sa unang hibachi at home party mo! Mag-book sa familyfriendshibachi.com',
+    shareEmailSubject: '$30 Off sa Hibachi At Home — Aking Referral',
   },
   newsletter: {
     title: 'Kumuha ng Exclusive Offers',
@@ -484,6 +535,7 @@ const tl = {
       graduation: 'Graduation',
       corporate: 'Corporate Event',
       holiday: 'Holiday Party',
+      wedding: 'Wedding Event',
       other: 'Iba Pa',
     },
     referralSource: 'Paano mo kami nakilala?',
@@ -550,6 +602,7 @@ const tl = {
   topBar: {
     textUs: 'Text Kami',
     email: 'Email',
+    limitedSlots: 'Limitadong weekend slots — Mag-book na!',
   },
   photoShare: {
     title: 'Ibahagi ang Mga Larawan',
@@ -1702,6 +1755,12 @@ const tl = {
     guestMin: 'Kailangan ng {{min}}+ guests',
     guestAdjustedTo: 'Bilang ng bisita ay inayos sa {{count}}',
     adjustGuests: 'I-tap para ayusin',
+    recovery: {
+      title: 'Ituloy ang iyong booking?',
+      dateSaved: 'Petsa ng event: {{date}}',
+      inProgress: 'Mayroon kang kasalukuyang booking',
+      continue: 'Ituloy',
+    },
     back: 'Bumalik',
     increaseAdults: 'Dagdagan ang adults',
     decreaseAdults: 'Bawasan ang adults',
@@ -1716,6 +1775,35 @@ const tl = {
     progress: 'Progreso ng order',
     estimatedPrice: 'Tinatayang: ${{amount}}',
     minimumExplanation: 'May minimum na ${{minimum}} — ang presyo ay hindi bababa sa ${{minimum}}',
+  },
+  exitIntent: {
+    title: 'Sandali! Huwag palampasin',
+    subtitle: 'Kumuha ng exclusive na diskwento sa iyong unang hibachi party!',
+    offerText: 'sa iyong unang hibachi at home booking',
+    emailPlaceholder: 'Ilagay ang email para sa coupon',
+    claimOffer: 'Kunin ang $30 Off Ko',
+    noSpam: 'Walang spam — coupon code lang. Mag-unsubscribe anumang oras.',
+    successTitle: 'Paparating na ang coupon!',
+    successDesc: 'Tingnan ang inbox mo para sa $30 discount code.',
+  },
+  cityLanding: {
+    title: 'Hibachi sa Bahay sa {{city}}',
+    description:
+      'Pinakamataas na rating na hibachi sa bahay catering sa {{city}}, {{state}}. Mga propesyonal na chef ang magdadala ng grill sa iyong bakuran simula sa ${{price}}/tao. Mag-book ngayon!',
+    heroTitle: 'Hibachi sa Bahay sa {{city}}',
+    heroSubtitle:
+      'Maranasan ang pinakamahusay na hibachi party sa bahay sa {{city}}. Ang aming mga propesyonal na chef ay magdadala ng grill, sariwang sangkap, at hindi malilimutang libangan — simula sa ${{price}}/tao.',
+    bookNow: 'Mag-book sa {{city}}',
+    trustRated: '5-Star na Rating',
+    trustInsured: 'Ganap na May Seguro',
+    trustEvents: '500+ na Kaganapan',
+    areasTitle: 'Nagse-serve sa Buong {{state}}',
+    areasSubtitle:
+      'Dinadala namin ang karanasan ng hibachi sa mga lungsod sa buong {{state}}. Piliin ang iyong lugar sa ibaba.',
+    viewCity: 'Tingnan ang Detalye',
+    nearbyTitle: 'Nagse-serve din Malapit sa {{city}}',
+    ctaTitle: 'Handa na ba para sa Hibachi sa {{city}}?',
+    ctaSubtitle: 'Simula sa ${{price}} bawat tao. I-book ang iyong hibachi sa bahay ngayon!',
   },
 };
 

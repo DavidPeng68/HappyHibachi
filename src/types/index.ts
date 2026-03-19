@@ -16,10 +16,16 @@ export interface FAQItem {
   answer: string;
 }
 
+export interface CityData {
+  name: string;
+  slug: string;
+}
+
 export interface Region {
   id: string;
   name: string;
-  cities: string[];
+  slug: string;
+  cities: CityData[];
   hashLink: string;
 }
 

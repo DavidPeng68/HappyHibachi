@@ -24,11 +24,29 @@
   gap: var(--space-lg);
 }
 
+.top-bar-promo-scroll {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  overflow: hidden;
+}
+
 .top-bar-promo {
   font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-bg-dark);
+  white-space: nowrap;
   animation: pulse 2s ease-in-out infinite;
+}
+
+.top-bar-promo-sep {
+  color: var(--color-bg-dark);
+  opacity: 0.5;
+}
+
+.top-bar-promo-urgency {
+  opacity: 0.9;
+  font-weight: 700;
 }
 
 @keyframes pulse {

@@ -518,7 +518,13 @@ const BookNow: React.FC = () => {
                 onClick={() => handleRegionSelect(region.id)}
               >
                 <h3>{t(`nav.${region.id}`, region.name)}</h3>
-                <p>{region.cities.slice(0, 8).join(', ')}...</p>
+                <p>
+                  {region.cities
+                    .slice(0, 8)
+                    .map((c) => c.name)
+                    .join(', ')}
+                  ...
+                </p>
                 <Button variant={selectedRegion === region.id ? 'primary' : 'outline'} size="sm">
                   {selectedRegion === region.id ? '✓' : t('form.selectOption')}
                 </Button>

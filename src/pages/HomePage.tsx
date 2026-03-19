@@ -1,8 +1,9 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SEO } from '../components/common';
 import { Hero, HowItWorks, MenuPricing } from '../components';
 import { useSettings } from '../hooks';
+import { FAQ_ITEMS } from '../constants';
 
 // Lazy-load below-fold components for faster initial paint
 const MenuSelection = lazy(() => import('../components/MenuSelection/MenuSelection'));
@@ -17,6 +18,7 @@ const Newsletter = lazy(() => import('../components/Newsletter/Newsletter'));
 const InstagramFeed = lazy(() => import('../components/InstagramFeed/InstagramFeed'));
 const ReferralProgram = lazy(() => import('../components/ReferralProgram/ReferralProgram'));
 const PhotoShare = lazy(() => import('../components/PhotoShare/PhotoShare'));
+const ExitIntentPopup = lazy(() => import('../components/ExitIntentPopup'));
 
 const LazySection: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <Suspense
@@ -53,9 +55,23 @@ const HomePage: React.FC = () => {
       .catch(() => {});
   }, []);
 
+  const faqItems = useMemo(
+    () =>
+      FAQ_ITEMS.map((item) => ({
+        question: t(`faq.items.q${item.id}.question`),
+        answer: t(`faq.items.q${item.id}.answer`),
+      })),
+    [t]
+  );
+
   return (
     <>
-      <SEO title={t('nav.home')} description={t('seo.homeDescription')} reviewStats={reviewStats} />
+      <SEO
+        title={t('nav.home')}
+        description={t('seo.homeDescription')}
+        reviewStats={reviewStats}
+        faqItems={faqItems}
+      />
       <Hero />
       <HowItWorks />
       <MenuPricing />
@@ -105,6 +121,9 @@ const HomePage: React.FC = () => {
           <SpecialOffer />
         </LazySection>
       )}
+      <Suspense fallback={null}>
+        <ExitIntentPopup />
+      </Suspense>
     </>
   );
 };
