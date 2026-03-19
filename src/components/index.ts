@@ -20,6 +20,8 @@ export { default as PriceCalculator } from './PriceCalculator';
 export { default as InstagramFeed } from './InstagramFeed';
 export { default as ReferralProgram } from './ReferralProgram';
 export { default as PhotoShare } from './PhotoShare';
+export { default as WelcomePopup } from './WelcomePopup';
+export { default as FloatingContact } from './FloatingContact';
 
 // Common components
 export * from './common';

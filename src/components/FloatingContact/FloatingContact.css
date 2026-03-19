@@ -1,0 +1,247 @@
+/* =============================================
+   FLOATING CONTACT — Fixed Bottom-Right Buttons
+   Enterprise-Level Glass Morphism Design
+   ============================================= */
+
+.floating-contact {
+  position: fixed;
+  bottom: var(--space-xl);
+  right: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  z-index: 280;
+}
+
+/* ---- Individual Button ---- */
+.floating-contact__btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
+  background: rgba(30, 30, 30, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  color: white;
+  text-decoration: none;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  transition: all var(--transition-base);
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  /* Stagger entrance */
+  opacity: 0;
+  transform: translateX(20px);
+  animation: floatingSlideIn 0.4s ease-out forwards;
+}
+
+.floating-contact__btn:nth-child(1) {
+  animation-delay: 0s;
+}
+.floating-contact__btn:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.floating-contact__btn:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+@keyframes floatingSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.floating-contact__btn:hover,
+.floating-contact__btn:focus-visible {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  transform: translateX(-4px);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+
+.floating-contact__btn:hover .icon,
+.floating-contact__btn:focus-visible .icon {
+  transform: scale(1.15);
+}
+
+.floating-contact__btn .icon {
+  flex-shrink: 0;
+  transition: transform var(--transition-fast);
+}
+
+.floating-contact__label {
+  transition: all var(--transition-base);
+}
+
+/* ---- Collapsed State — Icon Only ---- */
+.floating-contact--collapsed .floating-contact__btn {
+  padding: var(--space-sm);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  max-width: 44px;
+  justify-content: center;
+  transition: all var(--transition-base);
+}
+
+.floating-contact--collapsed .floating-contact__label {
+  width: 0;
+  overflow: hidden;
+  opacity: 0;
+  max-width: 0;
+}
+
+.floating-contact--collapsed .floating-contact__btn:hover .floating-contact__label,
+.floating-contact--collapsed .floating-contact__btn:focus-visible .floating-contact__label {
+  width: auto;
+  max-width: 100px;
+  opacity: 1;
+  margin-left: var(--space-sm);
+}
+
+.floating-contact--collapsed .floating-contact__btn:hover,
+.floating-contact--collapsed .floating-contact__btn:focus-visible {
+  width: auto;
+  max-width: 200px;
+  border-radius: var(--radius-full);
+  padding: var(--space-sm) var(--space-lg);
+}
+
+/* =============================================
+   RESPONSIVE — Mobile Bottom Bar
+   ============================================= */
+
+@media (max-width: 768px) {
+  .floating-contact {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    flex-direction: row;
+    gap: 0;
+    border-radius: 0;
+    padding: 0;
+  }
+
+  .floating-contact__btn {
+    flex: 1;
+    justify-content: center;
+    border-radius: 0;
+    padding: var(--space-md) var(--space-xs);
+    background: rgba(20, 20, 20, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: none;
+    border-top: 1px solid var(--color-border-light);
+    font-size: var(--text-xs);
+    box-shadow: none;
+    /* Override stagger for mobile — instant show */
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  /* Separator between buttons */
+  .floating-contact__btn + .floating-contact__btn {
+    border-left: 1px solid var(--color-border-light);
+  }
+
+  .floating-contact__btn:hover {
+    transform: none;
+    box-shadow: none;
+    background: rgba(240, 94, 42, 0.15);
+  }
+
+  .floating-contact__label {
+    width: auto !important;
+    max-width: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Top gradient accent line */
+  .floating-contact::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      var(--color-primary),
+      var(--color-secondary),
+      var(--color-primary)
+    );
+    z-index: 1;
+  }
+
+  /* No collapse on mobile — always show labels */
+  .floating-contact--collapsed .floating-contact__btn {
+    width: auto;
+    max-width: none;
+    height: auto;
+    border-radius: 0;
+    padding: var(--space-md) var(--space-xs);
+  }
+
+  .floating-contact--collapsed .floating-contact__label {
+    width: auto;
+    max-width: none;
+    opacity: 1;
+    margin-left: 0;
+  }
+}
+
+/* =============================================
+   LIGHT THEME
+   ============================================= */
+
+.theme-light .floating-contact__btn {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.theme-light .floating-contact__btn:hover,
+.theme-light .floating-contact__btn:focus-visible {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+
+@media (max-width: 768px) {
+  .theme-light .floating-contact__btn {
+    background: rgba(255, 255, 255, 0.98);
+    border-top-color: var(--color-border-light);
+    box-shadow: none;
+  }
+
+  .theme-light .floating-contact__btn + .floating-contact__btn {
+    border-left-color: var(--color-border-light);
+  }
+
+  .theme-light .floating-contact__btn:hover {
+    background: rgba(240, 94, 42, 0.08);
+  }
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-contact__btn {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

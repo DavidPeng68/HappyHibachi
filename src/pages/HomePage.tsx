@@ -19,6 +19,7 @@ const InstagramFeed = lazy(() => import('../components/InstagramFeed/InstagramFe
 const ReferralProgram = lazy(() => import('../components/ReferralProgram/ReferralProgram'));
 const PhotoShare = lazy(() => import('../components/PhotoShare/PhotoShare'));
 const ExitIntentPopup = lazy(() => import('../components/ExitIntentPopup'));
+const WelcomePopup = lazy(() => import('../components/WelcomePopup'));
 
 const LazySection: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <Suspense
@@ -124,6 +125,11 @@ const HomePage: React.FC = () => {
       <Suspense fallback={null}>
         <ExitIntentPopup />
       </Suspense>
+      {features.welcomePopup && (
+        <Suspense fallback={null}>
+          <WelcomePopup />
+        </Suspense>
+      )}
     </>
   );
 };

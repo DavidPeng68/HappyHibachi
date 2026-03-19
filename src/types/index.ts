@@ -135,6 +135,7 @@ export interface FeatureToggles {
   specialOffer: boolean; // 特别优惠弹窗
   instagramFeed: boolean; // Instagram 动态
   coupons: boolean; // 优惠券系统
+  welcomePopup: boolean; // 首访欢迎弹窗
 }
 
 export interface BrandInfo {

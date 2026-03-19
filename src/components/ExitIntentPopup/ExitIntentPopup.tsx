@@ -25,6 +25,10 @@ const ExitIntentPopup: React.FC = () => {
 
     // Desktop: mouse leaves viewport at top
     const handleMouseLeave = (e: MouseEvent) => {
+      // Don't trigger if WelcomePopup was shown within last 30 seconds
+      const welcomeShown = sessionStorage.getItem('welcomeShown');
+      if (welcomeShown && Date.now() - Number(welcomeShown) < 30000) return;
+
       if (e.clientY <= 0) {
         setVisible(true);
       }

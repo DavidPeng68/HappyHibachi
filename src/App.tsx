@@ -23,6 +23,7 @@ const OrderPage = React.lazy(() => import('./pages/OrderPage'));
 const MyBooking = React.lazy(() => import('./pages/MyBooking'));
 const Privacy = React.lazy(() => import('./pages/Privacy'));
 const Terms = React.lazy(() => import('./pages/Terms'));
+const FloatingContact = React.lazy(() => import('./components/FloatingContact'));
 
 const DashboardOverview = React.lazy(() => import('./pages/admin/DashboardOverview'));
 const ManagerDashboard = React.lazy(() => import('./pages/admin/ManagerDashboard'));
@@ -169,6 +170,9 @@ const AppRoutes: React.FC = () => {
         </Suspense>
       </main>
       <Footer />
+      <Suspense fallback={null}>
+        <FloatingContact />
+      </Suspense>
     </div>
   );
 };

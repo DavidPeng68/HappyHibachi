@@ -16,11 +16,23 @@ interface TrustBadge {
   labelKey: string;
 }
 
+interface ValuePropItem {
+  icon: IconName;
+  labelKey: string;
+}
+
 const TRUST_BADGES: TrustBadge[] = [
   { icon: 'check', labelKey: 'howItWorks.trustBar.insured' },
   { icon: 'clipboard', labelKey: 'howItWorks.trustBar.licensed' },
   { icon: 'star-filled', labelKey: 'howItWorks.trustBar.fiveStarRated' },
   { icon: 'users', labelKey: 'howItWorks.trustBar.eventsServed' },
+];
+
+const VALUE_PROPS: ValuePropItem[] = [
+  { icon: 'map-pin', labelKey: 'howItWorks.valueProps.noTravel' },
+  { icon: 'check', labelKey: 'howItWorks.valueProps.freeSetup' },
+  { icon: 'gift', labelKey: 'howItWorks.valueProps.weekdayDiscount' },
+  { icon: 'chef', labelKey: 'howItWorks.valueProps.insuredChefs' },
 ];
 
 const STEPS: Step[] = [
@@ -39,6 +51,7 @@ const HowItWorks: React.FC = () => {
   const { ref: headerRef, isVisible: headerVisible } = useScrollReveal();
   const { ref: stepsRef, isVisible: stepsVisible } = useScrollReveal({ threshold: 0.2 });
   const { ref: trustRef, isVisible: trustVisible } = useScrollReveal({ threshold: 0.3 });
+  const { ref: valueRef, isVisible: valueVisible } = useScrollReveal({ threshold: 0.3 });
 
   return (
     <section className="how-it-works" id="how-it-works">
@@ -78,6 +91,23 @@ const HowItWorks: React.FC = () => {
           <div key={badge.labelKey} className="trust-badge">
             <Icon name={badge.icon} size={20} />
             <span>{t(badge.labelKey)}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Value Props Bar */}
+      <div
+        ref={valueRef}
+        className={`value-props-bar stagger-children ${valueVisible ? 'visible' : ''}`}
+      >
+        {VALUE_PROPS.map((prop, index) => (
+          <div
+            key={prop.labelKey}
+            className={`value-prop-card reveal ${valueVisible ? 'visible' : ''}`}
+            style={{ transitionDelay: `${index * 0.1}s` }}
+          >
+            <Icon name={prop.icon} size={28} />
+            <span>{t(prop.labelKey)}</span>
           </div>
         ))}
       </div>

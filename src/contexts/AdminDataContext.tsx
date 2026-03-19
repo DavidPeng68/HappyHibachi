@@ -47,6 +47,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     specialOffer: false,
     instagramFeed: false,
     coupons: false,
+    welcomePopup: false,
   },
   brandInfo: {} as AppSettings['brandInfo'],
   seoDefaults: {} as AppSettings['seoDefaults'],

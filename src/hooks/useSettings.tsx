@@ -34,6 +34,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     specialOffer: true,
     instagramFeed: true,
     coupons: true,
+    welcomePopup: true,
   },
   brandInfo: {
     name: 'Family Friends Hibachi',

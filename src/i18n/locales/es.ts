@@ -86,6 +86,12 @@ const es = {
       fiveStarRated: '5 Estrellas',
       eventsServed: '500+ Eventos',
     },
+    valueProps: {
+      noTravel: 'Sin Cargo de Viaje dentro de 50 Miles',
+      freeSetup: 'Montaje de Mesa y Sillas Gratis',
+      weekdayDiscount: '10% OFF Fiestas entre Semana',
+      insuredChefs: 'Chefs Profesionales y Asegurados',
+    },
   },
   menu: {
     title: 'Precios y Servicio',
@@ -1425,6 +1431,8 @@ const es = {
         instagramFeedDesc: 'Mostrar publicaciones de Instagram',
         coupons: 'Sistema de Cupones',
         couponsDesc: 'Usar cupones al pagar',
+        welcomePopup: 'Popup de Bienvenida',
+        welcomePopupDesc: 'Modal de bienvenida para primera visita con propuestas de valor',
       },
       socialLinks: 'Enlaces de Redes Sociales',
       instagramUrl: 'Instagram',
@@ -1785,6 +1793,24 @@ const es = {
     estimatedPrice: 'Estimado: ${{amount}}',
     minimumExplanation:
       'Se aplica un mínimo de ${{minimum}} — el precio será al menos ${{minimum}}',
+  },
+  welcome: {
+    heading: '¡Bienvenido a Family Friends Hibachi!',
+    brandLine: '🔥 #1 Experiencia Hibachi en Casa Mejor Calificada',
+    limitedOffer: '¡Oferta por Tiempo Limitado!',
+    tagline: 'Hibachi premium llevado a su jardín',
+    prop1: '$60/Person — Todo Incluido',
+    prop2: 'Sin Cargo de Viaje dentro de 50 Miles',
+    prop3: 'Montaje de Mesa y Sillas Gratis',
+    prop4: '10% OFF Fiestas entre Semana',
+    urgency: '¡Ofertas válidas solo para nuevas reservas esta semana!',
+    ctaEstimate: 'Obtener Presupuesto Gratis',
+    ctaMenu: 'Ver Menú',
+  },
+  floatingContact: {
+    call: 'Llamar',
+    text: 'Mensaje',
+    email: 'Email',
   },
   exitIntent: {
     title: '¡Espera! No te lo pierdas',

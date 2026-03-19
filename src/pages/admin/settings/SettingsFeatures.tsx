@@ -12,6 +12,7 @@ const DEFAULT_FEATURE_TOGGLES: FeatureToggles = {
   specialOffer: true,
   instagramFeed: true,
   coupons: true,
+  welcomePopup: true,
 };
 
 const FEATURE_TOGGLE_ITEMS: Array<{
@@ -48,6 +49,11 @@ const FEATURE_TOGGLE_ITEMS: Array<{
     key: 'coupons',
     labelKey: 'admin.settings.features.coupons',
     descKey: 'admin.settings.features.couponsDesc',
+  },
+  {
+    key: 'welcomePopup',
+    labelKey: 'admin.settings.features.welcomePopup',
+    descKey: 'admin.settings.features.welcomePopupDesc',
   },
 ];
 

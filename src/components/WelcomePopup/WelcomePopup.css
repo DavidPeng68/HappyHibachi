@@ -1,0 +1,324 @@
+/* =============================================
+   WELCOME POPUP — Enterprise-Level First Visit Modal
+   ============================================= */
+
+.welcome-popup {
+  text-align: center;
+  padding: var(--space-md) 0 0;
+  position: relative;
+}
+
+/* Top decorative gradient line */
+.welcome-popup::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-secondary),
+    var(--color-primary),
+    var(--color-secondary),
+    transparent
+  );
+  border-radius: var(--radius-full);
+}
+
+/* ---- Header ---- */
+.welcome-popup__header {
+  margin-bottom: var(--space-xl);
+}
+
+.welcome-popup__heading {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  margin-bottom: var(--space-sm);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  background: linear-gradient(
+    135deg,
+    var(--color-text-primary) 0%,
+    var(--color-secondary) 50%,
+    var(--color-primary) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: welcome-text-shine 4s linear infinite;
+}
+
+@keyframes welcome-text-shine {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.welcome-popup__brand {
+  font-size: var(--text-lg);
+  color: var(--color-secondary);
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.welcome-popup__badge {
+  display: inline-block;
+  padding: var(--space-xs) var(--space-xl);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: white;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border-radius: var(--radius-full);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-glow);
+}
+
+/* Shimmer effect on badge (matching Button primary ::before) */
+.welcome-popup__badge::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  animation: welcome-badge-shimmer 2.5s ease-in-out infinite;
+}
+
+@keyframes welcome-badge-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  60%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ---- Value Props Container ---- */
+.welcome-popup__props {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xl);
+  text-align: left;
+  padding: var(--space-lg);
+  background: linear-gradient(135deg, var(--color-bg-card) 0%, rgba(255, 107, 53, 0.08) 100%);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+/* Animated gradient border (matching SpecialOffer offer-card::before) */
+.welcome-popup__props::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    var(--color-secondary),
+    var(--color-primary),
+    var(--color-secondary)
+  );
+  background-size: 200% 200%;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: welcome-border-rotate 3s linear infinite;
+}
+
+@keyframes welcome-border-rotate {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ---- Individual Prop Item ---- */
+.welcome-popup__prop {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-secondary);
+  transition: all var(--transition-base);
+  position: relative;
+}
+
+.welcome-popup__prop:hover {
+  background: rgba(255, 215, 0, 0.06);
+  transform: translateX(4px);
+}
+
+/* Icon circular background */
+.welcome-popup__prop .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 107, 53, 0.15) 100%);
+  border-radius: 50%;
+  color: var(--color-secondary);
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---- Urgency Text ---- */
+.welcome-popup__urgency {
+  font-size: var(--text-sm);
+  color: var(--color-primary);
+  font-weight: 600;
+  margin-bottom: var(--space-lg);
+  animation: welcome-urgency-breathe 2s ease-in-out infinite;
+}
+
+@keyframes welcome-urgency-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* ---- CTA Buttons ---- */
+.welcome-popup__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.welcome-popup__actions .ui-btn:first-child {
+  box-shadow: var(--shadow-glow);
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+
+@media (max-width: 768px) {
+  .welcome-popup__heading {
+    font-size: var(--text-2xl);
+    letter-spacing: 1px;
+  }
+
+  .welcome-popup__brand {
+    font-size: var(--text-base);
+  }
+
+  .welcome-popup__badge {
+    padding: var(--space-xs) var(--space-lg);
+    font-size: var(--text-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-popup__heading {
+    font-size: var(--text-xl);
+  }
+
+  .welcome-popup__props {
+    padding: var(--space-md);
+    gap: var(--space-xs);
+  }
+
+  .welcome-popup__prop {
+    font-size: var(--text-sm);
+    padding: var(--space-xs) var(--space-sm);
+    gap: var(--space-sm);
+  }
+
+  .welcome-popup__prop .icon {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+  }
+
+  .welcome-popup__actions {
+    gap: var(--space-sm);
+  }
+}
+
+/* =============================================
+   LIGHT THEME
+   ============================================= */
+
+.theme-light .welcome-popup__heading {
+  background: linear-gradient(
+    135deg,
+    var(--color-text-primary) 0%,
+    var(--color-primary) 50%,
+    var(--color-secondary) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.theme-light .welcome-popup__brand {
+  text-shadow: none;
+}
+
+.theme-light .welcome-popup__props {
+  background: linear-gradient(135deg, var(--color-bg-card) 0%, rgba(255, 107, 53, 0.05) 100%);
+  border-color: var(--color-border);
+}
+
+.theme-light .welcome-popup__prop:hover {
+  background: rgba(255, 215, 0, 0.04);
+}
+
+.theme-light .welcome-popup__prop .icon {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 107, 53, 0.1) 100%);
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-popup__heading,
+  .welcome-popup__badge::before,
+  .welcome-popup__props::before,
+  .welcome-popup__urgency {
+    animation: none;
+  }
+
+  .welcome-popup__heading {
+    -webkit-text-fill-color: var(--color-text-primary);
+    background: none;
+  }
+}
