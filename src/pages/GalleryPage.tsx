@@ -1,9 +1,10 @@
-import React, { lazy, Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SEO } from '../components/common';
+import lazyWithRetry from '../utils/lazyWithRetry';
 
-const Gallery = lazy(() => import('../components/Gallery/Gallery'));
-const ImageSlider = lazy(() => import('../components/ImageSlider/ImageSlider'));
+const Gallery = lazyWithRetry(() => import('../components/Gallery/Gallery'));
+const ImageSlider = lazyWithRetry(() => import('../components/ImageSlider/ImageSlider'));
 
 const GalleryPage: React.FC = () => {
   const { t } = useTranslation();

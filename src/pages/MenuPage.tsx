@@ -1,9 +1,10 @@
-import React, { lazy, Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SEO } from '../components/common';
 import { MenuPricing } from '../components';
+import lazyWithRetry from '../utils/lazyWithRetry';
 
-const MenuSelection = lazy(() => import('../components/MenuSelection/MenuSelection'));
+const MenuSelection = lazyWithRetry(() => import('../components/MenuSelection/MenuSelection'));
 
 const MenuPage: React.FC = () => {
   const { t } = useTranslation();

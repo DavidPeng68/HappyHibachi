@@ -7,40 +7,41 @@ import { HomePage, NotFound } from './pages';
 
 import { SettingsProvider } from './hooks';
 import { OrderProvider } from './contexts/OrderContext';
+import lazyWithRetry from './utils/lazyWithRetry';
 import './App.css';
 
-const CityLandingPage = React.lazy(() => import('./pages/CityLandingPage'));
-const MenuPage = React.lazy(() => import('./pages/MenuPage'));
-const GalleryPage = React.lazy(() => import('./pages/GalleryPage'));
-const FAQPage = React.lazy(() => import('./pages/FAQPage'));
-const ContactPage = React.lazy(() => import('./pages/ContactPage'));
-const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
-const AdminLoginPage = React.lazy(() =>
+const CityLandingPage = lazyWithRetry(() => import('./pages/CityLandingPage'));
+const MenuPage = lazyWithRetry(() => import('./pages/MenuPage'));
+const GalleryPage = lazyWithRetry(() => import('./pages/GalleryPage'));
+const FAQPage = lazyWithRetry(() => import('./pages/FAQPage'));
+const ContactPage = lazyWithRetry(() => import('./pages/ContactPage'));
+const AdminDashboard = lazyWithRetry(() => import('./pages/AdminDashboard'));
+const AdminLoginPage = lazyWithRetry(() =>
   import('./pages/AdminDashboard').then((m) => ({ default: m.AdminLoginPage }))
 );
-const FreeEstimate = React.lazy(() => import('./pages/FreeEstimate'));
-const OrderPage = React.lazy(() => import('./pages/OrderPage'));
-const MyBooking = React.lazy(() => import('./pages/MyBooking'));
-const Privacy = React.lazy(() => import('./pages/Privacy'));
-const Terms = React.lazy(() => import('./pages/Terms'));
-const FloatingContact = React.lazy(() => import('./components/FloatingContact'));
+const FreeEstimate = lazyWithRetry(() => import('./pages/FreeEstimate'));
+const OrderPage = lazyWithRetry(() => import('./pages/OrderPage'));
+const MyBooking = lazyWithRetry(() => import('./pages/MyBooking'));
+const Privacy = lazyWithRetry(() => import('./pages/Privacy'));
+const Terms = lazyWithRetry(() => import('./pages/Terms'));
+const FloatingContact = lazyWithRetry(() => import('./components/FloatingContact'));
 
-const DashboardOverview = React.lazy(() => import('./pages/admin/DashboardOverview'));
-const ManagerDashboard = React.lazy(() => import('./pages/admin/ManagerDashboard'));
-const AnalyticsDashboard = React.lazy(() => import('./pages/admin/AnalyticsDashboard'));
-const BookingManagement = React.lazy(() => import('./pages/admin/bookings/BookingManagement'));
-const CalendarManagement = React.lazy(() => import('./pages/admin/CalendarManagement'));
-const ReviewManagement = React.lazy(() => import('./pages/admin/ReviewManagement'));
-const CouponManagement = React.lazy(() => import('./pages/admin/CouponManagement'));
-const GalleryManagement = React.lazy(() => import('./pages/admin/GalleryManagement'));
-const InstagramManagement = React.lazy(() => import('./pages/admin/InstagramManagement'));
-const SettingsPage = React.lazy(() => import('./pages/admin/settings/SettingsPage'));
-const MenuManagement = React.lazy(() => import('./pages/admin/menu/MenuManagement'));
-const CustomerManagement = React.lazy(() => import('./pages/admin/CustomerManagement'));
-const ActivityLog = React.lazy(() => import('./pages/admin/ActivityLog'));
-const UserManagement = React.lazy(() => import('./pages/admin/UserManagement'));
-const TeamDashboard = React.lazy(() => import('./pages/admin/TeamDashboard'));
-const DispatchCenter = React.lazy(() => import('./pages/admin/DispatchCenter'));
+const DashboardOverview = lazyWithRetry(() => import('./pages/admin/DashboardOverview'));
+const ManagerDashboard = lazyWithRetry(() => import('./pages/admin/ManagerDashboard'));
+const AnalyticsDashboard = lazyWithRetry(() => import('./pages/admin/AnalyticsDashboard'));
+const BookingManagement = lazyWithRetry(() => import('./pages/admin/bookings/BookingManagement'));
+const CalendarManagement = lazyWithRetry(() => import('./pages/admin/CalendarManagement'));
+const ReviewManagement = lazyWithRetry(() => import('./pages/admin/ReviewManagement'));
+const CouponManagement = lazyWithRetry(() => import('./pages/admin/CouponManagement'));
+const GalleryManagement = lazyWithRetry(() => import('./pages/admin/GalleryManagement'));
+const InstagramManagement = lazyWithRetry(() => import('./pages/admin/InstagramManagement'));
+const SettingsPage = lazyWithRetry(() => import('./pages/admin/settings/SettingsPage'));
+const MenuManagement = lazyWithRetry(() => import('./pages/admin/menu/MenuManagement'));
+const CustomerManagement = lazyWithRetry(() => import('./pages/admin/CustomerManagement'));
+const ActivityLog = lazyWithRetry(() => import('./pages/admin/ActivityLog'));
+const UserManagement = lazyWithRetry(() => import('./pages/admin/UserManagement'));
+const TeamDashboard = lazyWithRetry(() => import('./pages/admin/TeamDashboard'));
+const DispatchCenter = lazyWithRetry(() => import('./pages/admin/DispatchCenter'));
 
 const LanguageUpdater: React.FC = () => {
   const { i18n } = useTranslation();
@@ -92,6 +93,14 @@ const AdminLoadingScreen: React.FC = () => (
   </div>
 );
 
+/** Wraps each admin sub-route with its own ErrorBoundary + Suspense so a
+ *  single chunk failure only affects that page, not the whole admin shell. */
+const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <ErrorBoundary>
+    <Suspense fallback={<AdminLoadingScreen />}>{children}</Suspense>
+  </ErrorBoundary>
+);
+
 const AppRoutes: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
@@ -114,21 +123,126 @@ const AppRoutes: React.FC = () => {
             }
           >
             <Route index element={<AdminHashRedirect />} />
-            <Route path="dashboard" element={<DashboardIndex />} />
-            <Route path="analytics" element={<AnalyticsDashboard />} />
-            <Route path="bookings" element={<BookingManagement />} />
-            <Route path="calendar" element={<CalendarManagement />} />
-            <Route path="reviews" element={<ReviewManagement />} />
-            <Route path="coupons" element={<CouponManagement />} />
-            <Route path="gallery" element={<GalleryManagement />} />
-            <Route path="menu" element={<MenuManagement />} />
-            <Route path="instagram" element={<InstagramManagement />} />
-            <Route path="customers" element={<CustomerManagement />} />
-            <Route path="activity" element={<ActivityLog />} />
-            <Route path="settings" element={<SettingsPage />} />
-            <Route path="users" element={<UserManagement />} />
-            <Route path="team" element={<TeamDashboard />} />
-            <Route path="dispatch" element={<DispatchCenter />} />
+            <Route
+              path="dashboard"
+              element={
+                <AdminRoute>
+                  <DashboardIndex />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="analytics"
+              element={
+                <AdminRoute>
+                  <AnalyticsDashboard />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="bookings"
+              element={
+                <AdminRoute>
+                  <BookingManagement />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="calendar"
+              element={
+                <AdminRoute>
+                  <CalendarManagement />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="reviews"
+              element={
+                <AdminRoute>
+                  <ReviewManagement />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="coupons"
+              element={
+                <AdminRoute>
+                  <CouponManagement />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="gallery"
+              element={
+                <AdminRoute>
+                  <GalleryManagement />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="menu"
+              element={
+                <AdminRoute>
+                  <MenuManagement />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="instagram"
+              element={
+                <AdminRoute>
+                  <InstagramManagement />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="customers"
+              element={
+                <AdminRoute>
+                  <CustomerManagement />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="activity"
+              element={
+                <AdminRoute>
+                  <ActivityLog />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="settings"
+              element={
+                <AdminRoute>
+                  <SettingsPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="users"
+              element={
+                <AdminRoute>
+                  <UserManagement />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="team"
+              element={
+                <AdminRoute>
+                  <TeamDashboard />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="dispatch"
+              element={
+                <AdminRoute>
+                  <DispatchCenter />
+                </AdminRoute>
+              }
+            />
             <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
           </Route>
         </Routes>

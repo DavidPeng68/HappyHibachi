@@ -1,9 +1,10 @@
-import React, { lazy, Suspense, useMemo } from 'react';
+import React, { Suspense, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SEO } from '../components/common';
 import { FAQ_ITEMS } from '../constants';
+import lazyWithRetry from '../utils/lazyWithRetry';
 
-const FAQ = lazy(() => import('../components/FAQ/FAQ'));
+const FAQ = lazyWithRetry(() => import('../components/FAQ/FAQ'));
 
 const FAQPage: React.FC = () => {
   const { t } = useTranslation();

@@ -1,25 +1,30 @@
-import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SEO } from '../components/common';
 import { Hero, HowItWorks, MenuPricing } from '../components';
 import { useSettings } from '../hooks';
 import { FAQ_ITEMS } from '../constants';
+import lazyWithRetry from '../utils/lazyWithRetry';
 
 // Lazy-load below-fold components for faster initial paint
-const MenuSelection = lazy(() => import('../components/MenuSelection/MenuSelection'));
-const ImageSlider = lazy(() => import('../components/ImageSlider/ImageSlider'));
-const Gallery = lazy(() => import('../components/Gallery/Gallery'));
-const Booking = lazy(() => import('../components/Booking/Booking'));
-const CustomerReviews = lazy(() => import('../components/CustomerReviews/CustomerReviews'));
-const FAQ = lazy(() => import('../components/FAQ/FAQ'));
-const Contact = lazy(() => import('../components/Contact/Contact'));
-const SpecialOffer = lazy(() => import('../components/SpecialOffer/SpecialOffer'));
-const Newsletter = lazy(() => import('../components/Newsletter/Newsletter'));
-const InstagramFeed = lazy(() => import('../components/InstagramFeed/InstagramFeed'));
-const ReferralProgram = lazy(() => import('../components/ReferralProgram/ReferralProgram'));
-const PhotoShare = lazy(() => import('../components/PhotoShare/PhotoShare'));
-const ExitIntentPopup = lazy(() => import('../components/ExitIntentPopup'));
-const WelcomePopup = lazy(() => import('../components/WelcomePopup'));
+const MenuSelection = lazyWithRetry(() => import('../components/MenuSelection/MenuSelection'));
+const ImageSlider = lazyWithRetry(() => import('../components/ImageSlider/ImageSlider'));
+const Gallery = lazyWithRetry(() => import('../components/Gallery/Gallery'));
+const Booking = lazyWithRetry(() => import('../components/Booking/Booking'));
+const CustomerReviews = lazyWithRetry(
+  () => import('../components/CustomerReviews/CustomerReviews')
+);
+const FAQ = lazyWithRetry(() => import('../components/FAQ/FAQ'));
+const Contact = lazyWithRetry(() => import('../components/Contact/Contact'));
+const SpecialOffer = lazyWithRetry(() => import('../components/SpecialOffer/SpecialOffer'));
+const Newsletter = lazyWithRetry(() => import('../components/Newsletter/Newsletter'));
+const InstagramFeed = lazyWithRetry(() => import('../components/InstagramFeed/InstagramFeed'));
+const ReferralProgram = lazyWithRetry(
+  () => import('../components/ReferralProgram/ReferralProgram')
+);
+const PhotoShare = lazyWithRetry(() => import('../components/PhotoShare/PhotoShare'));
+const ExitIntentPopup = lazyWithRetry(() => import('../components/ExitIntentPopup'));
+const WelcomePopup = lazyWithRetry(() => import('../components/WelcomePopup'));
 
 const LazySection: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <Suspense
