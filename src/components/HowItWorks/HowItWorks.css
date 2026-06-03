@@ -1,5 +1,5 @@
 /* =============================================
-   HOW IT WORKS - 3 Steps Design
+   HOW IT WORKS - 4 Steps Design
    Inspired by Let's Hibachi
    ============================================= */
 
@@ -48,7 +48,7 @@
 /* Steps Container */
 .steps-container {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--space-xl);
   max-width: 1200px;
   margin: 0 auto;
@@ -358,9 +358,8 @@
   }
 
   .steps-container {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--space-xl);
-    max-width: 400px;
   }
 
   .steps-container::before {
@@ -385,6 +384,13 @@
 @media (max-width: 480px) {
   .how-it-works h2 {
     font-size: var(--text-3xl);
+  }
+
+  .steps-container {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .step {
@@ -454,4 +460,54 @@
 .theme-light .value-prop-card .icon {
   background: linear-gradient(135deg, rgba(255, 215, 0, 0.18) 0%, rgba(255, 107, 53, 0.1) 100%);
   box-shadow: var(--shadow-sm);
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .how-it-works .reveal,
+  .how-it-works .reveal.visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .how-it-works .hover-lift {
+    transition: none;
+  }
+
+  .how-it-works .hover-lift:hover {
+    transform: none;
+  }
+
+  .step {
+    transition: none;
+  }
+
+  .step:hover {
+    transform: none;
+  }
+
+  .step:hover .step-number::before {
+    animation: none;
+  }
+
+  .trust-badge {
+    transition: none;
+  }
+
+  .value-prop-card {
+    transition: none;
+  }
+
+  .value-prop-card:hover {
+    transform: none;
+  }
+
+  .value-prop-card .icon {
+    transition: none;
+  }
+
+  .value-prop-card:hover .icon {
+    transform: none;
+  }
 }

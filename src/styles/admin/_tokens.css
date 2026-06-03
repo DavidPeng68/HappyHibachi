@@ -1,6 +1,6 @@
 /* =============================================
-   企业级管理后台样式 - 现代深色设计
-   参考: Linear, Vercel, Notion
+   Admin Design Tokens — References main design system
+   Inspired by: Linear, Vercel, Notion
    ============================================= */
 
 /*
@@ -12,7 +12,7 @@
 */
 
 .admin-layout {
-  /* 核心颜色 */
+  /* Core colors */
   --admin-bg: #09090b;
   --admin-bg-elevated: #0f0f12;
   --admin-surface: #18181b;
@@ -21,51 +21,56 @@
   --admin-border: rgba(255, 255, 255, 0.08);
   --admin-border-hover: rgba(255, 255, 255, 0.15);
 
-  /* 文字 */
+  /* Text */
   --admin-text: #fafafa;
   --admin-text-secondary: #a1a1aa;
   --admin-text-muted: #71717a;
 
-  /* 品牌色 */
+  /* Brand — references main tokens */
   --admin-primary: var(--color-primary);
-  --admin-primary-glow: rgba(255, 107, 53, 0.25);
-  --admin-primary-soft: rgba(255, 107, 53, 0.1);
+  --admin-primary-glow: var(--color-primary-glow, rgba(255, 107, 53, 0.25));
+  --admin-primary-soft: var(--color-primary-subtle, rgba(255, 107, 53, 0.1));
 
-  /* 语义色 */
+  /* Semantic — references main tokens */
   --admin-success: var(--color-success);
   --admin-success-soft: rgba(34, 197, 94, 0.12);
-  --admin-warning: #eab308;
+  --admin-warning: var(--color-warning);
   --admin-warning-soft: rgba(234, 179, 8, 0.12);
   --admin-danger: var(--color-danger);
   --admin-danger-soft: rgba(239, 68, 68, 0.12);
   --admin-info: var(--color-info);
   --admin-info-soft: rgba(59, 130, 246, 0.12);
 
-  /* 布局 */
+  /* Glass & spatial UI */
+  --admin-glass-bg: rgba(255, 255, 255, 0.03);
+  --admin-glass-border: rgba(255, 255, 255, 0.06);
+  --admin-glass-blur: var(--blur-md, 12px);
+
+  /* Layout */
   --admin-sidebar-width: 260px;
   --admin-sidebar-collapsed: 72px;
   --admin-topbar-height: 56px;
-  --admin-radius: 8px;
-  --admin-radius-lg: 12px;
-  --admin-radius-xl: 16px;
+  --admin-radius: var(--radius-md, 8px);
+  --admin-radius-lg: var(--radius-lg, 12px);
+  --admin-radius-xl: var(--radius-xl, 16px);
 
-  /* 触摸与交互 */
+  /* Touch & interaction */
   --admin-touch-target: 44px;
   --admin-focus-ring: 0 0 0 2px var(--admin-bg), 0 0 0 4px var(--admin-primary);
 
-  /* 移动端间距 */
+  /* Mobile spacing */
   --admin-space-mobile-xs: 4px;
   --admin-space-mobile-sm: 8px;
   --admin-space-mobile-md: 12px;
   --admin-space-mobile-lg: 16px;
   --admin-space-mobile-xl: 24px;
 
-  /* 卡片阴影 */
+  /* Card shadows */
   --admin-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
   --admin-shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
   --admin-shadow-overlay: 0 16px 48px rgba(0, 0, 0, 0.5);
 
-  /* 过渡 */
+  /* Transitions — references main tokens */
   --transition-fast: 0.15s ease;
   --transition-base: 0.2s ease;
   --transition-slow: 0.3s ease;

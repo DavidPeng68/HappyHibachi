@@ -70,10 +70,10 @@
 .ui-select:focus {
   outline: none;
   border-color: var(--color-primary);
-  background: rgba(255, 107, 53, 0.05);
+  background: var(--color-primary-subtle);
   box-shadow:
-    0 0 0 3px rgba(255, 107, 53, 0.1),
-    0 0 20px rgba(255, 107, 53, 0.1);
+    0 0 0 3px var(--color-primary-subtle),
+    0 0 20px var(--color-primary-subtle);
 }
 
 .ui-select:focus + .ui-select__arrow {

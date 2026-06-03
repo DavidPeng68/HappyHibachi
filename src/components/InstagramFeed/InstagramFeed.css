@@ -119,7 +119,6 @@
 }
 
 .instagram-icon-view {
-  font-size: var(--text-3xl);
   color: white;
   background: rgba(255, 255, 255, 0.2);
   width: 60px;
@@ -220,4 +219,48 @@
 .theme-light .instagram-loading-spinner {
   border-color: rgba(0, 0, 0, 0.08);
   border-top-color: var(--color-primary);
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .instagram-container,
+  .instagram-container.visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .instagram-handle {
+    transition: none;
+  }
+
+  .instagram-post {
+    opacity: 1;
+    animation: none;
+    animation-delay: 0s !important;
+  }
+
+  .instagram-post img {
+    transition: none;
+  }
+
+  .instagram-post:hover img {
+    transform: none;
+  }
+
+  .instagram-overlay {
+    transition: none;
+  }
+
+  .instagram-icon-view {
+    transition: none;
+  }
+
+  .instagram-post:hover .instagram-icon-view {
+    transform: none;
+  }
+
+  .instagram-loading-spinner {
+    animation: none;
+  }
 }

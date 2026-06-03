@@ -116,3 +116,18 @@
     height: 20px;
   }
 }
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .top-bar-promo {
+    animation: none;
+  }
+
+  .top-bar-link {
+    transition: none;
+  }
+
+  .top-bar-link:hover {
+    transform: none;
+  }
+}

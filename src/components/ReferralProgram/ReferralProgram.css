@@ -399,3 +399,37 @@
   border-color: rgba(0, 0, 0, 0.15);
   border-top-color: var(--color-primary);
 }
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .referral-container,
+  .referral-container.visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .referral-badge {
+    animation: none;
+  }
+
+  .referral-step {
+    transition: none;
+  }
+
+  .referral-step:hover {
+    transform: none;
+  }
+
+  .referral-success .success-icon {
+    animation: none;
+  }
+
+  .share-btn {
+    transition: none;
+  }
+
+  .loading-spinner {
+    animation: none;
+  }
+}

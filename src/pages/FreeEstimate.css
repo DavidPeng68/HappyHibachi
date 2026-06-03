@@ -365,6 +365,19 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
+/* Success state */
+.free-estimate .success-content {
+  text-align: center;
+}
+
+.free-estimate .success-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-md);
+  color: var(--color-success);
+}
+
 /* =============================================
    RESPONSIVE STYLES
    ============================================= */
@@ -418,7 +431,7 @@
   }
 }
 
-/* Number input spinner - 隐藏默认箭头 */
+/* Number input spinner - Hide default spinners */
 .form-group input[type='number'] {
   -moz-appearance: textfield;
 }

@@ -378,6 +378,29 @@
   background: #1a1a2e;
 }
 
+.theme-light .nav-buttons .btn-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: white;
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(240, 94, 42, 0.3);
+  text-decoration: none;
+}
+
+.theme-light .nav-buttons .btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(240, 94, 42, 0.45);
+  transform: translateY(-1px);
+}
+
+.theme-light .nav-buttons .btn-secondary {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  color: #1a1a2e;
+}
+
+.theme-light .nav-buttons .btn-secondary:hover {
+  border-color: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.04);
+}
+
 @media (max-width: 768px) {
   .theme-light .nav-links {
     background: rgba(255, 255, 255, 0.98);
@@ -386,6 +409,18 @@
   .theme-light .nav-links a:hover,
   .theme-light .nav-links .nav-link-btn:hover {
     background: rgba(0, 0, 0, 0.05);
+  }
+
+  .theme-light .mobile-nav-buttons .btn-primary {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+    color: white;
+    border-radius: 50px;
+    text-decoration: none;
+  }
+
+  .theme-light .mobile-nav-buttons .btn-secondary {
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    color: #1a1a2e;
   }
 
   .theme-light .mobile-menu-overlay {

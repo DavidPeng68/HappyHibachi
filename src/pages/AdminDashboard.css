@@ -1,10 +1,10 @@
 /* =============================================
-   企业级管理后台样式 - 现代深色设计
-   参考: Linear, Vercel, Notion
+   Admin Dashboard Styles - Modern Dark Design
+   Inspired by: Linear, Vercel, Notion
    ============================================= */
 
 .admin-layout {
-  /* 核心颜色 */
+  /* Core Colors */
   --admin-bg: #09090b;
   --admin-bg-elevated: #0f0f12;
   --admin-surface: #18181b;
@@ -13,17 +13,17 @@
   --admin-border: rgba(255, 255, 255, 0.08);
   --admin-border-hover: rgba(255, 255, 255, 0.15);
 
-  /* 文字 */
+  /* Text */
   --admin-text: #fafafa;
   --admin-text-secondary: #a1a1aa;
   --admin-text-muted: #71717a;
 
-  /* 品牌色 */
+  /* Brand Colors */
   --admin-primary: var(--color-primary);
   --admin-primary-glow: rgba(255, 107, 53, 0.25);
   --admin-primary-soft: rgba(255, 107, 53, 0.1);
 
-  /* 语义色 */
+  /* Semantic Colors */
   --admin-success: var(--color-success);
   --admin-success-soft: rgba(34, 197, 94, 0.12);
   --admin-warning: #eab308;
@@ -33,7 +33,7 @@
   --admin-info: var(--color-info);
   --admin-info-soft: rgba(59, 130, 246, 0.12);
 
-  /* 布局 */
+  /* Layout */
   --admin-sidebar-width: 260px;
   --admin-sidebar-collapsed: 72px;
   --admin-topbar-height: 56px;
@@ -41,14 +41,14 @@
   --admin-radius-lg: 12px;
   --admin-radius-xl: 16px;
 
-  /* 过渡 */
+  /* Transitions */
   --transition-fast: 0.15s ease;
   --transition-base: 0.2s ease;
   --transition-slow: 0.3s ease;
 }
 
 /* =============================================
-   登录页面
+   Login Page
    ============================================= */
 
 .admin-login-page {
@@ -62,7 +62,7 @@
   overflow: hidden;
 }
 
-/* 背景装饰 */
+/* Background Decoration */
 .admin-login-page::before {
   content: '';
   position: absolute;
@@ -245,7 +245,7 @@
 }
 
 /* =============================================
-   主布局
+   Main Layout
    ============================================= */
 
 .admin-layout {
@@ -256,7 +256,7 @@
 }
 
 /* =============================================
-   侧边栏
+   Sidebar
    ============================================= */
 
 .sidebar {
@@ -400,7 +400,7 @@
 }
 
 /* =============================================
-   主内容区
+   Main Content
    ============================================= */
 
 .admin-layout .main-content {
@@ -417,7 +417,7 @@
 }
 
 /* =============================================
-   顶部栏
+   Top Bar
    ============================================= */
 
 .topbar {
@@ -502,7 +502,7 @@
 }
 
 /* =============================================
-   内容区
+   Content Area
    ============================================= */
 
 .content-area {
@@ -512,7 +512,7 @@
 }
 
 /* =============================================
-   统计卡片 - 企业级设计
+   Stat Cards
    ============================================= */
 
 .stats-grid {
@@ -616,7 +616,7 @@
 }
 
 /* =============================================
-   卡片组件
+   Card Components
    ============================================= */
 
 .card {
@@ -664,7 +664,7 @@
 }
 
 /* =============================================
-   数据表格 - 现代设计
+   Data Table
    ============================================= */
 
 .table-wrapper {
@@ -729,7 +729,7 @@
 }
 
 /* =============================================
-   徽章 & 标签
+   Badges & Tags
    ============================================= */
 
 .status-badge {
@@ -783,7 +783,7 @@
 }
 
 /* =============================================
-   按钮
+   Buttons
    ============================================= */
 
 .btn-sm {
@@ -931,7 +931,7 @@
 }
 
 /* =============================================
-   工具栏
+   Toolbar
    ============================================= */
 
 .toolbar {
@@ -1019,7 +1019,7 @@
 }
 
 /* =============================================
-   详情页
+   Detail Page
    ============================================= */
 
 .detail-grid {
@@ -1159,7 +1159,7 @@
 }
 
 /* =============================================
-   日历
+   Calendar
    ============================================= */
 
 .calendar-grid {
@@ -1415,7 +1415,7 @@
 }
 
 /* =============================================
-   状态
+   Status
    ============================================= */
 
 .loading-state,
@@ -1456,7 +1456,7 @@
 }
 
 /* =============================================
-   模态框
+   Modal
    ============================================= */
 
 .modal-overlay {
@@ -1583,7 +1583,7 @@
 }
 
 /* =============================================
-   移动端底部导航
+   Mobile Bottom Nav
    ============================================= */
 
 .mobile-nav {
@@ -1591,7 +1591,7 @@
 }
 
 /* =============================================
-   响应式设计
+   Responsive Design
    ============================================= */
 
 @media (max-width: 1024px) {
@@ -1832,7 +1832,7 @@
 }
 
 /* =============================================
-   设置页面
+   Settings Page
    ============================================= */
 
 .settings-page .card {
@@ -1843,7 +1843,7 @@
   padding: 16px 0;
 }
 
-/* 时间段列表 */
+/* Time Slots List */
 .time-slots-list {
   padding: 16px;
 }
@@ -1969,7 +1969,7 @@
   transform: translateX(20px);
 }
 
-/* 响应式 */
+/* Responsive */
 @media (max-width: 600px) {
   .time-slot-item {
     flex-wrap: wrap;
@@ -1992,14 +1992,14 @@
 }
 
 /* =============================================
-   评价管理
+   Review Management
    ============================================= */
 
 .reviews-page .card {
   max-width: 800px;
 }
 
-/* 添加评价表单 */
+/* Add Review Form */
 .add-review-form {
   padding: 20px;
 }
@@ -2051,7 +2051,7 @@
   margin-top: 16px;
 }
 
-/* 评价列表 */
+/* Review List */
 .reviews-list {
   padding: 0;
 }
@@ -2389,7 +2389,7 @@
 }
 
 /* =============================================
-   Instagram 管理
+   Instagram Management
    ============================================= */
 
 .instagram-page .card {
@@ -2430,7 +2430,7 @@
   font-weight: 500;
 }
 
-/* 添加帖子表单 */
+/* Add Post Form */
 .add-post-form {
   display: flex;
   gap: 20px;
@@ -2550,7 +2550,7 @@
   margin-top: auto;
 }
 
-/* 帖子列表 */
+/* Post List */
 .instagram-posts-list {
   padding: 0;
 }
@@ -2656,14 +2656,14 @@
 }
 
 /* =============================================
-   优惠码管理
+   Coupon Management
    ============================================= */
 
 .coupons-page .card {
   max-width: 800px;
 }
 
-/* 优惠码表单 */
+/* Coupon Form */
 .coupon-form {
   padding: 20px;
   border-bottom: 1px solid var(--admin-border);
@@ -2742,7 +2742,7 @@
   font-size: 13px;
 }
 
-/* 优惠码列表 */
+/* Coupon List */
 .coupons-list {
   padding: 0;
 }
@@ -2831,7 +2831,7 @@
   gap: 8px;
 }
 
-/* 推荐来源统计 */
+/* Referral Source Stats */
 .referral-stats {
   padding: 16px 20px;
 }
@@ -2900,7 +2900,7 @@
   }
 }
 
-/* ===== 图库管理 ===== */
+/* ===== Gallery Management ===== */
 .gallery-page .card {
   max-width: 1000px;
 }
@@ -3028,7 +3028,7 @@
 }
 
 /* =============================================
-   功能开关样式
+   Feature Toggle Styles
    ============================================= */
 
 .feature-toggles {
@@ -3323,7 +3323,7 @@
 }
 
 /* =============================================
-   通用 admin-btn 按钮组件
+   Admin Button Components
    ============================================= */
 
 .admin-btn {
@@ -3372,7 +3372,7 @@
 }
 
 /* =============================================
-   预约管理 (BookingManagement)
+   Booking Management (BookingManagement)
    ============================================= */
 
 .booking-management {

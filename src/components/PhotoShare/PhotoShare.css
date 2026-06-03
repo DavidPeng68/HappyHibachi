@@ -387,3 +387,45 @@
 .theme-light .remove-btn {
   background: rgba(0, 0, 0, 0.5);
 }
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .photo-share-container,
+  .photo-share-container.visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .photo-badge {
+    animation: none;
+  }
+
+  .share-option {
+    transition: none;
+  }
+
+  .share-option:hover {
+    transform: none;
+  }
+
+  .upload-zone {
+    transition: none;
+  }
+
+  .remove-btn {
+    transition: none;
+  }
+
+  .add-more {
+    transition: none;
+  }
+
+  .upload-success .success-icon {
+    animation: none;
+  }
+
+  .loading-spinner {
+    animation: none;
+  }
+}

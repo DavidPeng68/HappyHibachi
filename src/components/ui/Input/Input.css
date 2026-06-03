@@ -83,14 +83,13 @@
 .ui-input:focus {
   outline: none;
   border-color: var(--color-primary);
-  background: rgba(255, 107, 53, 0.05);
+  background: var(--color-primary-subtle);
   box-shadow:
-    0 0 0 3px rgba(255, 107, 53, 0.1),
-    0 0 20px rgba(255, 107, 53, 0.1);
+    0 0 0 3px var(--color-primary-subtle),
+    0 0 20px var(--color-primary-subtle);
 }
 
-.ui-input:focus + .ui-input__icon,
-.ui-input-wrapper--icon-left .ui-input:focus ~ .ui-input__icon {
+.ui-input__container:focus-within .ui-input__icon {
   color: var(--color-primary);
 }
 
@@ -133,11 +132,11 @@
 .ui-input:-webkit-autofill:hover,
 .ui-input:-webkit-autofill:focus {
   -webkit-text-fill-color: var(--color-text-primary);
-  -webkit-box-shadow: 0 0 0px 1000px rgba(255, 107, 53, 0.05) inset;
+  -webkit-box-shadow: 0 0 0px 1000px var(--color-primary-subtle) inset;
   transition: background-color 5000s ease-in-out 0s;
 }
 
-/* Number input spinner - 隐藏默认箭头 */
+/* Hide default number input spinners */
 .ui-input[type='number'] {
   -moz-appearance: textfield;
 }

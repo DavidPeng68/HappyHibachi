@@ -1,5 +1,5 @@
 /* =============================================
-   UI Button Component - 企业级设计
+   UI Button Component
    ============================================= */
 
 .ui-btn {
@@ -36,13 +36,13 @@
 }
 
 /* =============================================
-   Primary Button - 主要按钮
+   Primary Button
    ============================================= */
 
 .ui-btn--primary {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
   color: white;
-  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+  box-shadow: 0 4px 15px var(--color-primary-glow);
 }
 
 .ui-btn--primary::before {
@@ -61,7 +61,7 @@
 
 .ui-btn--primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 107, 53, 0.5);
+  box-shadow: 0 8px 25px var(--color-primary-glow-strong);
 }
 
 .ui-btn--primary:hover:not(:disabled)::before {
@@ -73,7 +73,7 @@
 }
 
 /* =============================================
-   Secondary Button - 次要按钮
+   Secondary Button
    ============================================= */
 
 .ui-btn--secondary {
@@ -94,7 +94,7 @@
 }
 
 /* =============================================
-   Outline Button - 轮廓按钮
+   Outline Button
    ============================================= */
 
 .ui-btn--outline {
@@ -104,12 +104,12 @@
 }
 
 .ui-btn--outline:hover:not(:disabled) {
-  background: rgba(255, 107, 53, 0.1);
+  background: var(--color-primary-subtle);
   transform: translateY(-2px);
 }
 
 /* =============================================
-   Ghost Button - 幽灵按钮
+   Ghost Button
    ============================================= */
 
 .ui-btn--ghost {
@@ -124,7 +124,26 @@
 }
 
 /* =============================================
-   Size Variants - 尺寸变体
+   Danger Button
+   ============================================= */
+
+.ui-btn--danger {
+  background: linear-gradient(135deg, var(--color-danger) 0%, #f87171 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+}
+
+.ui-btn--danger:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.45);
+}
+
+.ui-btn--danger:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* =============================================
+   Size Variants
    ============================================= */
 
 .ui-btn--sm {
@@ -148,7 +167,7 @@
 }
 
 /* =============================================
-   Full Width - 全宽按钮
+   Full Width
    ============================================= */
 
 .ui-btn--full {
@@ -156,7 +175,7 @@
 }
 
 /* =============================================
-   Loading State - 加载状态
+   Loading State
    ============================================= */
 
 .ui-btn--loading {
@@ -185,7 +204,7 @@
 }
 
 /* =============================================
-   Icon Support - 图标支持
+   Icon Support
    ============================================= */
 
 .ui-btn__icon {
@@ -204,7 +223,7 @@
 }
 
 /* =============================================
-   Responsive - 响应式
+   Responsive
    ============================================= */
 
 @media (max-width: 768px) {

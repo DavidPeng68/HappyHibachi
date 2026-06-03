@@ -221,7 +221,7 @@
 
   .toast {
     top: auto;
-    bottom: 72px;
+    bottom: calc(72px + var(--toast-index, 0) * 60px);
     left: 16px;
     right: 16px;
   }

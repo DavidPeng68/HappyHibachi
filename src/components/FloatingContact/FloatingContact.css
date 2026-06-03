@@ -128,6 +128,8 @@
     gap: 0;
     border-radius: 0;
     padding: 0;
+    /* Safe area + reserve so bar clears home indicator / future bottom nav */
+    padding-bottom: calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
   }
 
   .floating-contact__btn {

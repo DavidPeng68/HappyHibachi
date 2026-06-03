@@ -1,3 +1,12 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .exit-popup-overlay {
   position: fixed;
   inset: 0;
@@ -8,6 +17,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-md);
+  padding-bottom: max(var(--space-md), env(safe-area-inset-bottom));
   animation: fadeIn 0.3s ease;
 }
 
@@ -19,6 +29,9 @@
   padding: var(--space-2xl);
   max-width: 440px;
   width: 100%;
+  max-height: min(90vh, 100%);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   text-align: center;
   animation: scaleIn 0.3s ease;
 }
@@ -118,4 +131,24 @@
 
 .exit-popup-success p {
   color: var(--text-secondary);
+}
+
+@media (max-width: 480px) {
+  .exit-popup {
+    padding: var(--space-xl);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exit-popup-overlay {
+    animation: none;
+  }
+
+  .exit-popup {
+    animation: none;
+  }
+
+  .exit-popup-close {
+    transition: none;
+  }
 }

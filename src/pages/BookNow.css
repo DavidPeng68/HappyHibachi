@@ -451,7 +451,7 @@
 }
 
 /* =============================================
-   SUCCESS PAGE - 日历添加功能
+   SUCCESS PAGE - Calendar add feature
    ============================================= */
 
 .success-content {
@@ -669,7 +669,7 @@
   color: var(--color-danger);
 }
 
-/* Number input spinner - 隐藏默认箭头 */
+/* Number input spinner - Hide default spinners */
 .booking-form input[type='number'] {
   -moz-appearance: textfield;
 }
