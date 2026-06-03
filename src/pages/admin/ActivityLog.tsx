@@ -10,7 +10,10 @@ import * as adminApi from '../../services/adminApi';
 
 type EntityFilter = 'all' | 'booking' | 'coupon' | 'review' | 'settings';
 
-function relativeTime(iso: string): string {
+function relativeTime(
+  iso: string,
+  t: (key: string, opts?: Record<string, unknown>) => string
+): string {
   const now = Date.now();
   const then = new Date(iso).getTime();
   const diffMs = now - then;
@@ -19,11 +22,11 @@ function relativeTime(iso: string): string {
   const diffHour = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHour / 24);
 
-  if (diffSec < 60) return 'just now';
-  if (diffMin < 60) return `${diffMin}m ago`;
-  if (diffHour < 24) return `${diffHour}h ago`;
-  if (diffDay < 7) return `${diffDay}d ago`;
-  return new Date(iso).toLocaleDateString('en-US', {
+  if (diffSec < 60) return t('admin.activity.justNow');
+  if (diffMin < 60) return t('admin.activity.minutesAgo', { count: diffMin });
+  if (diffHour < 24) return t('admin.activity.hoursAgo', { count: diffHour });
+  if (diffDay < 7) return t('admin.activity.daysAgo', { count: diffDay });
+  return new Date(iso).toLocaleDateString(undefined, {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -167,13 +170,15 @@ const ActivityLog: React.FC = () => {
                     <div className="activity-entry-meta">
                       <span className="activity-entry-icon">{entityIcon(entry.entity)}</span>
                       <span className={`activity-action-badge activity-action-badge--${mod}`}>
-                        {entry.action}
+                        {t(
+                          `admin.activity.action${entry.action.charAt(0).toUpperCase()}${entry.action.slice(1)}`
+                        )}
                       </span>
                       <span className="activity-entity">{entry.entity}</span>
                     </div>
                     <div className="activity-details">{entry.details}</div>
                   </div>
-                  <div className="activity-timestamp">{relativeTime(entry.createdAt)}</div>
+                  <div className="activity-timestamp">{relativeTime(entry.createdAt, t)}</div>
                 </div>
               </div>
             );

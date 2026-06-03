@@ -55,13 +55,15 @@ const Booking: React.FC = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="region-tabs">
+        <div className="region-tabs" role="tablist">
           {REGIONS.map((region) => (
             <button
               key={region.id}
               className={`region-tab ${activeTab === region.id ? 'active' : ''}`}
               onClick={() => setActiveTab(region.id)}
               type="button"
+              role="tab"
+              aria-selected={activeTab === region.id}
             >
               <span className="tab-icon">
                 <Icon name={getRegionIconName(region.id)} size={20} />

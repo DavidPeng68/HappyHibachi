@@ -13,7 +13,11 @@ import {
   formatDate,
 } from '../../utils/adminHelpers';
 import type { Booking } from '../../types/admin';
+import type { IconName } from '../../components/ui/Icon/Icon';
+import Icon from '../../components/ui/Icon/Icon';
 import '../../styles/admin/index.css';
+
+type StatTone = 'highlight' | 'info' | 'warning' | 'success' | 'neutral';
 
 // ---------------------------------------------------------------------------
 // Component
@@ -226,52 +230,51 @@ const DashboardOverview: React.FC = () => {
       {
         label: t('admin.stats.todayBookings'),
         value: stats.todayCount,
-        icon: '📅',
-        color: 'var(--admin-primary)',
+        iconName: 'calendar' as IconName,
+        tone: 'highlight' as StatTone,
         trend: trends.todayCount,
         onClick: () => setActiveMenu('calendar'),
       },
       {
         label: t('admin.stats.thisWeek'),
         value: stats.weekCount,
-        icon: '📆',
-        color: 'var(--admin-info)',
+        iconName: 'calendar' as IconName,
+        tone: 'info' as StatTone,
         trend: trends.weekCount,
       },
       {
         label: t('admin.stats.pending'),
         value: stats.pending,
-        icon: '⏳',
-        color: 'var(--admin-warning)',
+        iconName: 'clock' as IconName,
+        tone: 'warning' as StatTone,
         trend: trends.pending,
         onClick: () => setActiveMenu('bookings'),
       },
       {
         label: t('admin.stats.confirmed'),
         value: stats.confirmed,
-        icon: '✅',
-        color: 'var(--admin-success)',
+        iconName: 'check-circle' as IconName,
+        tone: 'success' as StatTone,
         trend: trends.confirmed,
       },
       {
         label: t('admin.stats.completed'),
         value: stats.completed,
-        icon: '🎉',
-        color: 'var(--admin-info)',
+        iconName: 'party' as IconName,
+        tone: 'info' as StatTone,
         trend: trends.completed,
       },
       {
         label: t('admin.stats.totalGuests'),
         value: stats.totalGuests,
-        icon: '👥',
-        color: 'var(--admin-text-secondary)',
+        iconName: 'users' as IconName,
+        tone: 'neutral' as StatTone,
       },
       {
         label: t('admin.stats.revenue'),
         value: formatCurrency(stats.revenue),
-        icon: '💰',
-        color: 'var(--admin-success)',
-        isRevenue: true,
+        iconName: 'money' as IconName,
+        tone: 'success' as StatTone,
       },
     ],
     [stats, trends, t, setActiveMenu]
@@ -376,9 +379,23 @@ const DashboardOverview: React.FC = () => {
   // -------------------------------------------------------------------
 
   const trendArrow = (trend: 'up' | 'down' | 'flat') => {
-    if (trend === 'up') return <span className="stat-trend up">↑</span>;
-    if (trend === 'down') return <span className="stat-trend down">↓</span>;
-    return <span className="stat-trend flat">→</span>;
+    if (trend === 'up')
+      return (
+        <span className="stat-trend up" aria-hidden>
+          <Icon name="trending-up" size={14} />
+        </span>
+      );
+    if (trend === 'down')
+      return (
+        <span className="stat-trend down" aria-hidden>
+          <Icon name="trending-down" size={14} />
+        </span>
+      );
+    return (
+      <span className="stat-trend flat" aria-hidden>
+        <Icon name="chevron-right" size={14} />
+      </span>
+    );
   };
 
   return (
@@ -390,7 +407,9 @@ const DashboardOverview: React.FC = () => {
         <div className="dashboard-alerts">
           {alerts.overduePending > 0 && (
             <div className="alert-card alert-warning">
-              <span className="alert-icon">⚠️</span>
+              <span className="alert-icon" aria-hidden>
+                <Icon name="alert-triangle" size={22} />
+              </span>
               <div className="alert-content">
                 <span className="alert-title">
                   {t('admin.alerts.overduePending', { count: alerts.overduePending })}
@@ -403,7 +422,9 @@ const DashboardOverview: React.FC = () => {
           )}
           {alerts.todayUnconfirmed > 0 && (
             <div className="alert-card alert-danger">
-              <span className="alert-icon">🔴</span>
+              <span className="alert-icon" aria-hidden>
+                <Icon name="x-circle" size={22} />
+              </span>
               <div className="alert-content">
                 <span className="alert-title">
                   {t('admin.alerts.todayUnconfirmed', { count: alerts.todayUnconfirmed })}
@@ -416,7 +437,9 @@ const DashboardOverview: React.FC = () => {
           )}
           {alerts.tomorrowReminder > 0 && (
             <div className="alert-card alert-info">
-              <span className="alert-icon">ℹ️</span>
+              <span className="alert-icon" aria-hidden>
+                <Icon name="bell" size={22} />
+              </span>
               <div className="alert-content">
                 <span className="alert-title">
                   {t('admin.alerts.tomorrowReminder', { count: alerts.tomorrowReminder })}
@@ -441,20 +464,17 @@ const DashboardOverview: React.FC = () => {
         <div className="stats-grid">
           {statCards.map((stat) => (
             <div
-              className={`stat-card${stat.onClick ? ' clickable' : ''}`}
+              className={`stat-card ${stat.tone}${stat.onClick ? ' clickable' : ''}`}
               key={stat.label}
               onClick={stat.onClick}
               role={stat.onClick ? 'button' : undefined}
               tabIndex={stat.onClick ? 0 : undefined}
             >
-              <div
-                className="stat-icon"
-                style={{ background: `${stat.color}15`, color: stat.color }}
-              >
-                {stat.icon}
+              <div className="stat-icon">
+                <Icon name={stat.iconName} size={22} />
               </div>
               <div className="stat-info">
-                <AnimatedStatValue value={stat.value} color={stat.color} />
+                <AnimatedStatValue value={stat.value} />
                 <div className="stat-label">
                   {stat.label}
                   {stat.trend && trendArrow(stat.trend)}
@@ -469,7 +489,7 @@ const DashboardOverview: React.FC = () => {
       {!loading && (
         <div className="insight-cards">
           <InsightCard
-            icon="📈"
+            icon={<Icon name="trending-up" size={22} />}
             title={t('admin.insights.revenueChange')}
             value={`${insights.revenueChange > 0 ? '+' : ''}${insights.revenueChange}%`}
             subtitle={t('admin.insights.weekOverWeek')}
@@ -477,19 +497,19 @@ const DashboardOverview: React.FC = () => {
             sparklineData={insights.sparklineData}
           />
           <InsightCard
-            icon="📋"
+            icon={<Icon name="clipboard" size={22} />}
             title={t('admin.insights.tomorrowConfirmed')}
             value={insights.tomorrowConfirmed}
             subtitle={t('admin.insights.confirmedBookings')}
           />
           <InsightCard
-            icon="👥"
+            icon={<Icon name="users" size={22} />}
             title={t('admin.insights.avgPartySize')}
             value={insights.avgPartySize}
             subtitle={t('admin.insights.thisMonth')}
           />
           <InsightCard
-            icon="📍"
+            icon={<Icon name="map-pin" size={22} />}
             title={t('admin.insights.busiestRegion')}
             value={insights.busiestRegion}
             subtitle={t('admin.insights.mostBookings')}
@@ -504,17 +524,21 @@ const DashboardOverview: React.FC = () => {
         </div>
         <div className="quick-actions">
           <button
+            type="button"
             className="btn-action call"
             onClick={handleSendReminders}
             disabled={sendingReminders}
           >
-            {sendingReminders ? '⏳' : '📧'} {t('admin.dashboard.sendReminders')}
+            {sendingReminders ? <Icon name="clock" size={18} /> : <Icon name="email" size={18} />}
+            {t('admin.dashboard.sendReminders')}
           </button>
-          <button className="btn-action sms" onClick={handleExportCsv}>
-            📥 {t('admin.dashboard.exportCsv')}
+          <button type="button" className="btn-action sms" onClick={handleExportCsv}>
+            <Icon name="clipboard" size={18} />
+            {t('admin.dashboard.exportCsv')}
           </button>
-          <button className="btn-action email" onClick={handleViewCalendar}>
-            📅 {t('admin.dashboard.viewCalendar')}
+          <button type="button" className="btn-action email" onClick={handleViewCalendar}>
+            <Icon name="calendar" size={18} />
+            {t('admin.dashboard.viewCalendar')}
           </button>
         </div>
       </div>

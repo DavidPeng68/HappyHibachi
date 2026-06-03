@@ -28,7 +28,11 @@ const TopBar: React.FC = () => {
           )}
         </div>
         <div className="top-bar-right">
-          <a href={`tel:${contactInfo.phone}`} className="top-bar-link">
+          <a
+            href={`tel:${contactInfo.phone}`}
+            className="top-bar-link"
+            aria-label={t('topBar.ariaPhone', { phone: contactInfo.phone })}
+          >
             <Icon name="phone" size={16} />
             <span>{contactInfo.phone}</span>
           </a>
@@ -36,7 +40,11 @@ const TopBar: React.FC = () => {
             <Icon name="sms" size={16} />
             <span>{t('topBar.textUs')}</span>
           </a>
-          <a href={`mailto:${contactInfo.email}`} className="top-bar-link">
+          <a
+            href={`mailto:${contactInfo.email}`}
+            className="top-bar-link"
+            aria-label={t('topBar.ariaEmail', { email: contactInfo.email })}
+          >
             <Icon name="email" size={16} />
             <span>{t('topBar.email')}</span>
           </a>

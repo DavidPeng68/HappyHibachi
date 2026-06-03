@@ -10,7 +10,7 @@ import './Navigation.css';
 
 /**
  * Main navigation component
- * Fixed header with scroll-aware shrinking, progress bar, and active section highlighting
+ * Fixed header with scroll-aware shrinking and scroll progress bar
  */
 const Navigation: React.FC = () => {
   const { t } = useTranslation();
@@ -19,40 +19,23 @@ const Navigation: React.FC = () => {
   const { settings } = useSettings();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [, setActiveSection] = useState('');
+  const [scrollProgress, setScrollProgress] = useState(0);
 
-  // Scroll-aware shrinking header + active section detection
+  // Scroll-aware shrinking header + scroll progress
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
+      const doc = document.documentElement;
+      const maxScroll = doc.scrollHeight - window.innerHeight;
+      const ratio = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+      setScrollProgress(Math.min(1, Math.max(0, ratio)));
     };
-
-    // Section highlighting via IntersectionObserver
-    const sectionIds = ['menu-pricing', 'gallery', 'booking', 'faq', 'contact'];
-    const observers: IntersectionObserver[] = [];
-
-    sectionIds.forEach((id) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setActiveSection(id);
-          }
-        },
-        { threshold: 0.3, rootMargin: '-100px 0px -50% 0px' }
-      );
-      observer.observe(el);
-      observers.push(observer);
-    });
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      observers.forEach((obs) => obs.disconnect());
     };
   }, [location.pathname]);
 
@@ -117,7 +100,11 @@ const Navigation: React.FC = () => {
       aria-label="Main navigation"
     >
       {/* Scroll progress bar */}
-      <div className="scroll-progress-bar scroll-progress" aria-hidden="true" />
+      <div
+        className="scroll-progress-bar scroll-progress"
+        style={{ transform: `scaleX(${scrollProgress})` }}
+        aria-hidden="true"
+      />
       <div className="nav-container">
         <div className="nav-logo">
           <Link to={ROUTES.HOME} aria-label={`${settings.brandInfo.name} Home`}>

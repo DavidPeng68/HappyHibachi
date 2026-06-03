@@ -14,6 +14,7 @@ export type IconName =
   | 'clock'
   // Status
   | 'check'
+  | 'check-circle'
   | 'star'
   | 'star-filled'
   | 'trophy'
@@ -26,6 +27,7 @@ export type IconName =
   | 'party'
   | 'sparkle'
   | 'fire'
+  | 'shield'
   | 'gift'
   | 'camera'
   | 'clipboard'
@@ -45,6 +47,7 @@ export type IconName =
   | 'instagram'
   | 'facebook'
   | 'tiktok'
+  | 'external-link'
   // People
   | 'users'
   | 'user'
@@ -68,6 +71,7 @@ export type IconName =
   | 'trending-down'
   | 'bell'
   | 'menu'
+  | 'more-horizontal'
   | 'refresh'
   | 'filter'
   | 'x-circle';
@@ -179,6 +183,19 @@ const iconPaths: Record<IconName, React.ReactNode> = {
       fill="none"
     />
   ),
+  'check-circle': (
+    <>
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+      <polyline
+        points="8 12 11 15 16 9"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </>
+  ),
   star: (
     <path
       d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
@@ -284,6 +301,16 @@ const iconPaths: Record<IconName, React.ReactNode> = {
       d="M12 22c-4.97 0-9-2.69-9-6s2.03-5.69 3-7c.97 2.69 3.97 4 6 4s3-1.31 3-3c0-2-1.03-3-3-4 4 0 9 3.69 9 10s-4.03 6-9 6z"
       stroke="currentColor"
       strokeWidth="2"
+      fill="none"
+    />
+  ),
+  shield: (
+    <path
+      d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       fill="none"
     />
   ),
@@ -457,6 +484,36 @@ const iconPaths: Record<IconName, React.ReactNode> = {
         stroke="currentColor"
         strokeWidth="2"
         fill="none"
+      />
+    </>
+  ),
+  'external-link': (
+    <>
+      <path
+        d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+        stroke="currentColor"
+        strokeWidth="2"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <polyline
+        points="15 3 21 3 21 9"
+        stroke="currentColor"
+        strokeWidth="2"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <line
+        x1="10"
+        y1="14"
+        x2="21"
+        y2="3"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </>
   ),
@@ -770,6 +827,13 @@ const iconPaths: Record<IconName, React.ReactNode> = {
         strokeWidth="2"
         strokeLinecap="round"
       />
+    </>
+  ),
+  'more-horizontal': (
+    <>
+      <circle cx="5" cy="12" r="1.5" fill="currentColor" />
+      <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+      <circle cx="19" cy="12" r="1.5" fill="currentColor" />
     </>
   ),
   refresh: (

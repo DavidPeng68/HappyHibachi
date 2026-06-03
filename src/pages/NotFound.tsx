@@ -12,15 +12,17 @@ const NotFound: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="notfound-page">
+    <div className="not-found">
       <SEO title={t('notFound.title')} />
-      <div className="notfound-content">
-        <h1>404</h1>
-        <h2>{t('notFound.title')}</h2>
+      <div className="not-found-content">
+        <div className="not-found-number">404</div>
+        <h1>{t('notFound.title')}</h1>
         <p>{t('notFound.description')}</p>
-        <Link to={ROUTES.HOME} className="btn-primary">
-          {t('notFound.backHome')}
-        </Link>
+        <div className="not-found-actions">
+          <Link to={ROUTES.HOME} className="btn-primary">
+            {t('notFound.backHome')}
+          </Link>
+        </div>
       </div>
     </div>
   );

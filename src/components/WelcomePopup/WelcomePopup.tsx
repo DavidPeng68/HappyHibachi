@@ -10,7 +10,7 @@ const DISMISS_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
 const SESSION_KEY = 'welcomeShown';
 
 interface ValueProp {
-  icon: 'check' | 'gift' | 'map-pin' | 'chef';
+  icon: 'check' | 'gift' | 'map-pin' | 'chef' | 'star';
   textKey: string;
 }
 
@@ -18,7 +18,7 @@ const VALUE_PROPS: ValueProp[] = [
   { icon: 'check', textKey: 'welcome.prop1' },
   { icon: 'map-pin', textKey: 'welcome.prop2' },
   { icon: 'gift', textKey: 'welcome.prop3' },
-  { icon: 'gift', textKey: 'welcome.prop4' },
+  { icon: 'star', textKey: 'welcome.prop4' },
 ];
 
 const WelcomePopup: React.FC = () => {

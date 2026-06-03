@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Icon } from '../ui';
 import './Calendar.css';
 
 interface CalendarProps {
@@ -28,7 +29,7 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelect, region 
   const [loading, setLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-  // 获取日历数据
+  // Fetch calendar data
   const fetchCalendarData = async () => {
     try {
       setLoading(true);
@@ -60,12 +61,12 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelect, region 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [region, currentMonth, t]);
 
-  // 获取月份名称
+  // Get month name
   const getMonthName = (date: Date): string => {
     return date.toLocaleDateString(i18n.language, { month: 'long', year: 'numeric' });
   };
 
-  // 获取星期几名称
+  // Get weekday labels
   const getWeekDays = (): string[] => {
     const days = [];
     const baseDate = new Date(2024, 0, 7); // Sunday
@@ -77,7 +78,7 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelect, region 
     return days;
   };
 
-  // 生成月份天数
+  // Build day cells for the current month grid
   const getDaysInMonth = (): (number | null)[] => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
@@ -87,12 +88,12 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelect, region 
 
     const days: (number | null)[] = [];
 
-    // 填充月初空白
+    // Leading empty cells before day 1
     for (let i = 0; i < firstDay; i++) {
       days.push(null);
     }
 
-    // 填充日期
+    // Day numbers 1 … last day of month
     for (let i = 1; i <= daysInMonth; i++) {
       days.push(i);
     }
@@ -100,7 +101,7 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelect, region 
     return days;
   };
 
-  // 格式化日期为 YYYY-MM-DD
+  // Format as YYYY-MM-DD
   const formatDate = (day: number): string => {
     const year = currentMonth.getFullYear();
     const month = String(currentMonth.getMonth() + 1).padStart(2, '0');
@@ -108,7 +109,7 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelect, region 
     return `${year}-${month}-${d}`;
   };
 
-  // 检查日期是否已过
+  // Whether the day is before today
   const isPastDate = (day: number): boolean => {
     const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
     const today = new Date();
@@ -116,17 +117,16 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelect, region 
     return date < today;
   };
 
-  // 检查日期是否被关闭
+  // Whether the day is blocked in admin/config
   const isDateBlocked = (day: number): boolean => {
     const dateStr = formatDate(day);
     return blockedDates.some((b) => b.date === dateStr);
   };
 
-  // 检查日期预约情况
+  // Booking load for this day
   const getBookingStatus = (day: number): 'available' | 'limited' | 'busy' | 'blocked' => {
     const dateStr = formatDate(day);
 
-    // 先检查是否被关闭
     if (blockedDates.some((b) => b.date === dateStr)) {
       return 'blocked';
     }
@@ -152,12 +152,10 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelect, region 
     setCurrentMonth(new Date());
   };
 
-  // 切换月份
   const changeMonth = (delta: number) => {
     const newMonth = new Date(currentMonth);
     newMonth.setMonth(newMonth.getMonth() + delta);
 
-    // 不能选择过去的月份
     const today = new Date();
     if (
       newMonth.getFullYear() < today.getFullYear() ||
@@ -169,7 +167,6 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelect, region 
     setCurrentMonth(newMonth);
   };
 
-  // 处理日期点击
   const handleDateClick = (day: number) => {
     if (isPastDate(day)) return;
     if (isDateBlocked(day)) return;
@@ -249,9 +246,9 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelect, region 
           type="button"
           className="month-btn"
           onClick={() => changeMonth(-1)}
-          aria-label="Previous month"
+          aria-label={t('calendar.prevMonth')}
         >
-          ◀
+          <Icon name="chevron-left" size={16} aria-hidden />
         </button>
         <span className="month-name">{getMonthName(currentMonth)}</span>
         {!isCurrentMonth() && (
@@ -263,9 +260,9 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelect, region 
           type="button"
           className="month-btn"
           onClick={() => changeMonth(1)}
-          aria-label="Next month"
+          aria-label={t('calendar.nextMonth')}
         >
-          ▶
+          <Icon name="chevron-right" size={16} aria-hidden />
         </button>
       </div>
 

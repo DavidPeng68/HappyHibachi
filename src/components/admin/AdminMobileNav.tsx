@@ -91,7 +91,9 @@ const AdminMobileNav: React.FC<AdminMobileNavProps> = ({
             onClick={handleMoreToggle}
             aria-label={t('admin.nav.more')}
           >
-            <span className="mobile-nav-icon">{'\u22EF'}</span>
+            <span className="mobile-nav-icon">
+              <Icon name="more-horizontal" size={20} />
+            </span>
             <span className="mobile-nav-label">{t('admin.nav.more')}</span>
           </button>
         )}

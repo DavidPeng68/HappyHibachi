@@ -12,6 +12,7 @@ import SpotlightsTab from './MenuSpotlights';
 import PricingTab from './MenuPricing';
 import { TAB_KEYS, TAB_I18N, getToken } from './menuHelpers';
 import type { TabKey } from './menuHelpers';
+import { useAdmin } from '../AdminLayout';
 import './MenuManagement.css';
 
 // ---------------------------------------------------------------------------
@@ -20,6 +21,7 @@ import './MenuManagement.css';
 
 const MenuManagement: React.FC = () => {
   const { t } = useTranslation();
+  const { showToast } = useAdmin();
   const { dialogProps, confirm } = useConfirmDialog();
   // --- state -----------------------------------------------------------------
   const [data, setData] = useState<MenuData | null>(null);
@@ -79,7 +81,7 @@ const MenuManagement: React.FC = () => {
       setData(saved);
       setDirty(false);
     } catch (err) {
-      alert(err instanceof Error ? err.message : t('admin.menu.saveFailed'));
+      showToast(err instanceof Error ? err.message : t('admin.menu.saveFailed'), 'error');
     } finally {
       setSaving(false);
     }

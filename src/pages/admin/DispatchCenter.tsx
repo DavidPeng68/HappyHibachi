@@ -324,6 +324,11 @@ const DispatchCenter: React.FC = () => {
       key={booking.id}
       className={`dispatch-booking-item${selectedBookings.has(booking.id) ? ' selected' : ''}`}
       draggable={draggable}
+      aria-label={
+        draggable
+          ? t('admin.dispatch.dragBooking', { name: booking.name || booking.id })
+          : undefined
+      }
       onDragStart={() => handleDragStart(booking.id)}
       onDragEnd={handleDragEnd}
       onClick={() => toggleBooking(booking.id)}
@@ -352,7 +357,11 @@ const DispatchCenter: React.FC = () => {
       <div className="dispatch-load-bar">
         <div
           className={`dispatch-load-fill ${load > 6 ? 'high' : load > 3 ? 'medium' : 'low'}`}
-          style={{ width: `${Math.min((load / 8) * 100, 100)}%` }}
+          style={
+            {
+              '--load-pct': `${Math.min((load / 8) * 100, 100)}%`,
+            } as React.CSSProperties
+          }
         />
       </div>
     );
@@ -360,10 +369,11 @@ const DispatchCenter: React.FC = () => {
 
   // Kanban view
   const renderKanbanView = () => (
-    <div className="dispatch-kanban">
+    <div className="dispatch-kanban" role="application" aria-label={t('admin.dispatch.kanbanView')}>
       {/* Unassigned column */}
       <div
         className={`dispatch-kanban-column${dragOverTarget === 'unassigned' ? ' dispatch-drop-target' : ''}`}
+        aria-label={t('admin.dispatch.unassignedQueue')}
         onDragOver={(e) => handleDragOver(e, 'unassigned')}
         onDragLeave={handleDragLeave}
         onDrop={(e) => handleDrop(e, null)}
@@ -382,6 +392,7 @@ const DispatchCenter: React.FC = () => {
           <div
             key={mgr.id}
             className={`dispatch-kanban-column${dragOverTarget === mgr.id ? ' dispatch-drop-target' : ''}`}
+            aria-label={mgr.displayName}
             onDragOver={(e) => handleDragOver(e, mgr.id)}
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, mgr.id)}

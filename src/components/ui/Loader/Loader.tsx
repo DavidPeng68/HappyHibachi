@@ -27,7 +27,7 @@ export const Loader: React.FC<LoaderProps> = ({
   ].join(' ');
 
   const loader = (
-    <div className={classes}>
+    <div className={classes} role="status" aria-live="polite">
       {variant === 'spinner' && <div className="ui-loader__spinner" />}
       {variant === 'dots' && (
         <div className="ui-loader__dots">

@@ -174,7 +174,6 @@ const BookNow: React.FC = () => {
     return validatePhoneUtil(phone);
   };
 
-  // 验证优惠码
   const validateCoupon = async (code: string) => {
     if (!code.trim()) {
       setCouponStatus(null);
@@ -189,15 +188,13 @@ const BookNow: React.FC = () => {
         if (coupon.minGuests > 0 && formData.guestCount < coupon.minGuests) {
           setCouponStatus({
             valid: false,
-            message:
-              t('coupon.minGuests', { count: coupon.minGuests }) ||
-              `Minimum ${coupon.minGuests} guests required`,
+            message: t('coupon.minGuests', { count: coupon.minGuests }),
           });
         } else {
           const discount = coupon.type === 'percentage' ? `${coupon.value}%` : `$${coupon.value}`;
           setCouponStatus({
             valid: true,
-            message: t('coupon.applied', { discount }) || `Coupon applied! Discount: ${discount}`,
+            message: t('coupon.applied', { discount }),
             discount,
           });
         }
@@ -640,7 +637,6 @@ const BookNow: React.FC = () => {
                   placeholder={t('form.messagePlaceholder') as string}
                   rows={3}
                 />
-                {/* 推荐来源 */}
                 <Select
                   label={t('form.referralSource')}
                   name="referralSource"
@@ -649,16 +645,15 @@ const BookNow: React.FC = () => {
                   options={[
                     { value: '', label: t('form.selectOption') as string },
                     { value: 'google', label: t('form.referral.google') as string },
-                    { value: 'instagram', label: 'Instagram' },
-                    { value: 'facebook', label: 'Facebook' },
-                    { value: 'tiktok', label: 'TikTok' },
-                    { value: 'yelp', label: 'Yelp' },
+                    { value: 'instagram', label: t('form.referral.instagram') as string },
+                    { value: 'facebook', label: t('form.referral.facebook') as string },
+                    { value: 'tiktok', label: t('form.referral.tiktok') as string },
+                    { value: 'yelp', label: t('form.referral.yelp') as string },
                     { value: 'friend', label: t('form.referral.friend') as string },
                     { value: 'event', label: t('form.referral.event') as string },
                     { value: 'other', label: t('form.referral.other') as string },
                   ]}
                 />
-                {/* 优惠码 */}
                 {couponsEnabled && (
                   <>
                     <div className="coupon-field">
@@ -686,7 +681,13 @@ const BookNow: React.FC = () => {
                         className={`coupon-status ${couponStatus.valid ? 'valid' : 'invalid'}`}
                         role="status"
                       >
-                        <span aria-label={couponStatus.valid ? 'Valid' : 'Invalid'}>
+                        <span
+                          aria-label={
+                            couponStatus.valid
+                              ? (t('form.validationValid') as string)
+                              : (t('form.validationInvalid') as string)
+                          }
+                        >
                           <Icon name={couponStatus.valid ? 'check' : 'close'} size={14} />
                         </span>{' '}
                         {couponStatus.message}
@@ -721,7 +722,13 @@ const BookNow: React.FC = () => {
                         className={`coupon-status ${referralStatus.valid ? 'valid' : 'invalid'}`}
                         role="status"
                       >
-                        <span aria-label={referralStatus.valid ? 'Valid' : 'Invalid'}>
+                        <span
+                          aria-label={
+                            referralStatus.valid
+                              ? (t('form.validationValid') as string)
+                              : (t('form.validationInvalid') as string)
+                          }
+                        >
                           <Icon name={referralStatus.valid ? 'check' : 'close'} size={14} />
                         </span>{' '}
                         {referralStatus.message}

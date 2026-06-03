@@ -20,7 +20,7 @@ const FloatingContact: React.FC = () => {
   // Delay appearance to avoid CLS
   useEffect(() => {
     if (isAdmin) return;
-    const timer = setTimeout(() => setVisible(true), 2000);
+    const timer = setTimeout(() => setVisible(true), 1000);
     return () => clearTimeout(timer);
   }, [isAdmin]);
 

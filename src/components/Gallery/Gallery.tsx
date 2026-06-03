@@ -17,7 +17,7 @@ const Gallery: React.FC = () => {
   const { settings } = useSettings();
   const apiImages = settings.galleryImages;
 
-  // 默认图片
+  // Fallback images when the admin gallery API returns no items
   const defaultItems: GalleryImage[] = useMemo(
     () => [
       { src: chefCooking, alt: t('gallery.items.chef'), description: t('gallery.items.chefDesc') },

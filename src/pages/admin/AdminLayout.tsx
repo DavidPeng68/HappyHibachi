@@ -17,6 +17,7 @@ import AdminTopbar from '../../components/admin/AdminTopbar';
 import AdminMobileNav from '../../components/admin/AdminMobileNav';
 import CommandPalette from '../../components/admin/CommandPalette';
 import Breadcrumb from '../../components/admin/Breadcrumb';
+import Icon from '../../components/ui/Icon/Icon';
 import type { BreadcrumbItem } from '../../components/admin/Breadcrumb';
 import { useNotifications } from '../../hooks/useNotifications';
 import '../../styles/admin/index.css';
@@ -227,16 +228,17 @@ const AdminLayoutInner: React.FC<AdminLayoutProps> = ({ onLogout, children }) =>
             <div
               key={toast.id}
               className={`toast toast-${toast.type}`}
-              style={{ top: `${24 + index * 60}px` }}
+              style={{ '--toast-index': index } as React.CSSProperties}
               role={toast.type === 'error' ? 'alert' : 'status'}
             >
               {toast.message}
               <button
+                type="button"
                 className="toast-close"
                 onClick={() => dismissToast(toast.id)}
                 aria-label={t('common.close')}
               >
-                &times;
+                <Icon name="close" size={16} />
               </button>
             </div>
           ))}

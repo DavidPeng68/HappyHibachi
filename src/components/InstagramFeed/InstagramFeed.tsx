@@ -18,7 +18,7 @@ interface InstagramSettings {
 
 /**
  * InstagramFeed component
- * 从后台 API 获取配置，展示手动上传的 Instagram 图片
+ * Fetches configuration from the admin API and displays manually uploaded Instagram images.
  */
 const InstagramFeed: React.FC = () => {
   const { t } = useTranslation();
@@ -29,7 +29,6 @@ const InstagramFeed: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  // 从 API 获取 Instagram 设置
   const fetchSettings = useCallback(async () => {
     try {
       const response = await fetch('/api/instagram');
@@ -48,7 +47,6 @@ const InstagramFeed: React.FC = () => {
     fetchSettings();
   }, [fetchSettings]);
 
-  // 如果没有配置帖子，不显示此组件
   if (!loading && settings.posts.length === 0) {
     return null;
   }
@@ -82,10 +80,17 @@ const InstagramFeed: React.FC = () => {
                 rel="noopener noreferrer"
                 className="instagram-post"
                 style={{ animationDelay: `${index * 0.1}s` }}
+                aria-label={
+                  post.caption
+                    ? t('instagram.gridPostWithCaptionAria', { caption: post.caption })
+                    : t('instagram.gridPostAria', { n: index + 1 })
+                }
               >
-                <img src={post.image} alt={post.caption || `Instagram post ${index + 1}`} />
+                <img src={post.image} alt="" />
                 <div className="instagram-overlay">
-                  <span className="instagram-icon-view">↗</span>
+                  <span className="instagram-icon-view" aria-hidden>
+                    <Icon name="external-link" size={14} />
+                  </span>
                 </div>
               </a>
             ))}

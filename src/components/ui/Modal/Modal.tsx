@@ -98,6 +98,7 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   const titleId = title ? 'modal-title' : undefined;
+  const bodyId = 'modal-body';
 
   return (
     <div className="ui-modal-overlay" onClick={handleOverlayClick}>
@@ -107,6 +108,7 @@ export const Modal: React.FC<ModalProps> = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
+        aria-describedby={bodyId}
       >
         {(title || showCloseButton) && (
           <div className="ui-modal__header">
@@ -129,7 +131,9 @@ export const Modal: React.FC<ModalProps> = ({
             )}
           </div>
         )}
-        <div className="ui-modal__body">{children}</div>
+        <div id={bodyId} className="ui-modal__body">
+          {children}
+        </div>
         {footer && <div className="ui-modal__footer">{footer}</div>}
       </div>
     </div>

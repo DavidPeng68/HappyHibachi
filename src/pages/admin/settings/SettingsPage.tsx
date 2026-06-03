@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePersistedTab } from '../../../hooks/usePersistedTab';
 import SettingsTimeSlots from './SettingsTimeSlots';
@@ -34,6 +34,14 @@ const TAB_COMPONENTS: Record<SettingsTab, React.FC> = {
   export: SettingsExport,
 };
 
+function tabId(key: SettingsTab): string {
+  return `admin-settings-tab-${key}`;
+}
+
+function panelId(key: SettingsTab): string {
+  return `admin-settings-panel-${key}`;
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -43,16 +51,43 @@ const SettingsPage: React.FC = () => {
   const [activeTabIndex, setActiveTabIndex] = usePersistedTab('admin:settings-tab', 0);
   const activeTab = TAB_KEYS[activeTabIndex] ?? TAB_KEYS[0];
 
-  const ActiveComponent = TAB_COMPONENTS[activeTab];
+  const handleTabListKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      const target = e.target as HTMLElement;
+      if (target.getAttribute('role') !== 'tab') return;
+      e.preventDefault();
+      const currentKey = TAB_KEYS.find((k) => target.id === tabId(k));
+      if (!currentKey) return;
+      const currentIndex = TAB_KEYS.indexOf(currentKey);
+      const delta = e.key === 'ArrowRight' ? 1 : -1;
+      const nextIndex = (currentIndex + delta + TAB_KEYS.length) % TAB_KEYS.length;
+      setActiveTabIndex(nextIndex);
+      requestAnimationFrame(() => {
+        document.getElementById(tabId(TAB_KEYS[nextIndex]))?.focus();
+      });
+    },
+    [setActiveTabIndex]
+  );
 
   return (
     <div className="settings-page">
-      <div className="settings-tabs">
+      <div
+        className="admin-tabs"
+        role="tablist"
+        aria-orientation="horizontal"
+        onKeyDown={handleTabListKeyDown}
+      >
         {TAB_KEYS.map((key, index) => (
           <button
             key={key}
             type="button"
-            className={`settings-tab${activeTab === key ? ' active' : ''}`}
+            id={tabId(key)}
+            role="tab"
+            aria-selected={activeTab === key}
+            aria-controls={panelId(key)}
+            tabIndex={activeTabIndex === index ? 0 : -1}
+            className={`admin-tab${activeTab === key ? ' active' : ''}`}
             onClick={() => setActiveTabIndex(index)}
           >
             {t(TAB_I18N[key])}
@@ -60,7 +95,21 @@ const SettingsPage: React.FC = () => {
         ))}
       </div>
 
-      <ActiveComponent />
+      {TAB_KEYS.map((key) => {
+        const Panel = TAB_COMPONENTS[key];
+        const isActive = activeTab === key;
+        return (
+          <div
+            key={key}
+            role="tabpanel"
+            id={panelId(key)}
+            aria-labelledby={tabId(key)}
+            hidden={!isActive}
+          >
+            {isActive ? <Panel /> : null}
+          </div>
+        );
+      })}
     </div>
   );
 };

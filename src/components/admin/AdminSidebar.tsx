@@ -170,22 +170,28 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({
           )}
           {!isDrawer && (
             <button
+              type="button"
               className="sidebar-toggle"
               onClick={onToggleCollapse}
               aria-label={collapsed ? t('admin.sidebar.expand') : t('admin.sidebar.collapse')}
               aria-expanded={!collapsed}
               data-tooltip={collapsed ? t('admin.sidebar.expand') : undefined}
             >
-              {collapsed ? '\u2192' : '\u2190'}
+              {collapsed ? (
+                <Icon name="chevron-right" size={14} />
+              ) : (
+                <Icon name="chevron-left" size={14} />
+              )}
             </button>
           )}
           {isDrawer && (
             <button
+              type="button"
               className="sidebar-toggle"
               onClick={onMobileClose}
               aria-label={t('common.close')}
             >
-              &times;
+              <Icon name="close" size={18} />
             </button>
           )}
         </div>

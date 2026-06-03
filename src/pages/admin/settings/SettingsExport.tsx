@@ -101,40 +101,43 @@ const SettingsExport: React.FC = () => {
     }
 
     const statusMap: Record<string, string> = {
-      pending: 'Pending',
-      confirmed: 'Confirmed',
-      completed: 'Completed',
-      cancelled: 'Cancelled',
+      pending: t('admin.export.statusPending'),
+      confirmed: t('admin.export.statusConfirmed'),
+      completed: t('admin.export.statusCompleted'),
+      cancelled: t('admin.export.statusCancelled'),
     };
 
     const textContent = bookings
       .map(
         (b, i) =>
-          `[Booking ${i + 1}]\n` +
-          `Name: ${b.name}\n` +
-          `Phone: ${b.phone}\n` +
-          `Email: ${b.email}\n` +
-          `Date: ${b.date}\n` +
-          `Time: ${b.time}\n` +
-          `Guests: ${b.guestCount}\n` +
-          `Region: ${b.region}\n` +
-          `Status: ${statusMap[b.status] || b.status}\n` +
+          `[${t('admin.export.bookingLabel')} ${i + 1}]\n` +
+          `${t('admin.export.nameLabel')}: ${b.name}\n` +
+          `${t('admin.export.phoneLabel')}: ${b.phone}\n` +
+          `${t('admin.export.emailLabel')}: ${b.email}\n` +
+          `${t('admin.export.dateLabel')}: ${b.date}\n` +
+          `${t('admin.export.timeLabel')}: ${b.time}\n` +
+          `${t('admin.export.guestsLabel')}: ${b.guestCount}\n` +
+          `${t('admin.export.regionLabel')}: ${b.region}\n` +
+          `${t('admin.export.statusLabel')}: ${statusMap[b.status] || b.status}\n` +
           (b.orderData
-            ? `Package: ${b.orderData.packageName} (${b.orderData.priceModel})\n` +
-              `Adults: ${b.orderData.guestCount}, Kids: ${b.orderData.kidsCount}\n` +
-              `Proteins: ${b.orderData.proteins.length > 0 ? b.orderData.proteins.join(', ') : "Chef's Choice"}\n` +
+            ? `${t('admin.export.packageLabel')}: ${b.orderData.packageName} (${b.orderData.priceModel})\n` +
+              `${t('admin.export.adultsKidsLabel', { adults: b.orderData.guestCount, kids: b.orderData.kidsCount })}\n` +
+              `${t('admin.export.proteinsLabel')}: ${b.orderData.proteins.length > 0 ? b.orderData.proteins.join(', ') : t('admin.export.chefsChoice')}\n` +
               (b.orderData.addons.length > 0
-                ? `Add-ons: ${b.orderData.addons.map((a) => `${a.name} x${a.quantity}`).join(', ')}\n`
+                ? `${t('admin.export.addonsLabel')}: ${b.orderData.addons.map((a) => `${a.name} x${a.quantity}`).join(', ')}\n`
                 : '') +
-              `Est. Total: $${b.orderData.estimatedTotal}\n`
+              `${t('admin.export.estTotalLabel')}: $${b.orderData.estimatedTotal}\n`
             : '') +
-          (b.couponCode ? `Coupon: ${b.couponCode} (${b.couponDiscount})\n` : '') +
-          (b.message ? `Message: ${b.message}\n` : '') +
-          `Created: ${new Date(b.createdAt).toLocaleString()}`
+          (b.couponCode
+            ? `${t('admin.export.couponLabel')}: ${b.couponCode} (${b.couponDiscount})\n`
+            : '') +
+          (b.message ? `${t('admin.export.messageLabel')}: ${b.message}\n` : '') +
+          `${t('admin.export.createdLabel')}: ${new Date(b.createdAt).toLocaleString()}`
       )
       .join('\n\n' + '\u2500'.repeat(30) + '\n\n');
 
-    const header = `${settings.brandInfo?.name || 'Family Friends Hibachi'} Booking Export\nExport time: ${new Date().toLocaleString()}\nTotal: ${bookings.length} records\n\n${'='.repeat(30)}\n\n`;
+    const brand = settings.brandInfo?.name || t('admin.export.defaultBrand');
+    const header = `${t('admin.export.exportHeader', { brand })}\n${t('admin.export.exportTime', { time: new Date().toLocaleString() })}\n${t('admin.export.totalRecords', { count: bookings.length })}\n\n${'='.repeat(30)}\n\n`;
 
     try {
       await navigator.clipboard.writeText(header + textContent);
@@ -155,10 +158,10 @@ const SettingsExport: React.FC = () => {
     }
 
     const statusMap: Record<string, string> = {
-      pending: '\u23F3 Pending',
-      confirmed: '\u2705 Confirmed',
-      completed: '\uD83C\uDF89 Completed',
-      cancelled: '\u274C Cancelled',
+      pending: `\u23F3 ${t('admin.export.statusPending')}`,
+      confirmed: `\u2705 ${t('admin.export.statusConfirmed')}`,
+      completed: `\uD83C\uDF89 ${t('admin.export.statusCompleted')}`,
+      cancelled: `\u274C ${t('admin.export.statusCancelled')}`,
     };
 
     const canvas = document.createElement('canvas');
@@ -184,7 +187,7 @@ const SettingsExport: React.FC = () => {
     ctx.fillStyle = '#FF6B35';
     ctx.font = 'bold 24px system-ui, -apple-system, sans-serif';
     ctx.fillText(
-      `\uD83C\uDF71 ${settings.brandInfo?.name || 'Family Friends Hibachi'} Booking Data`,
+      `\uD83C\uDF71 ${t('admin.export.bookingData', { brand: settings.brandInfo?.name || t('admin.export.defaultBrand') })}`,
       padding,
       padding + 30
     );
@@ -192,7 +195,7 @@ const SettingsExport: React.FC = () => {
     ctx.fillStyle = '#888';
     ctx.font = '14px system-ui, -apple-system, sans-serif';
     ctx.fillText(
-      `Export time: ${new Date().toLocaleString()} | Total ${bookings.length} records`,
+      `${t('admin.export.exportTime', { time: new Date().toLocaleString() })} | ${t('admin.export.totalRecords', { count: bookings.length })}`,
       padding,
       padding + 55
     );
@@ -226,7 +229,7 @@ const SettingsExport: React.FC = () => {
         `\uD83D\uDCDE ${b.phone}`,
         `\uD83D\uDCE7 ${b.email}`,
         `\uD83D\uDCC5 ${b.date} ${b.time}`,
-        `\uD83D\uDC65 ${b.guestCount} guests | \uD83D\uDCCD ${b.region}`,
+        `\uD83D\uDC65 ${t('admin.export.guests', { count: b.guestCount })} | \uD83D\uDCCD ${b.region}`,
         b.couponCode ? `\uD83C\uDFAB ${b.couponCode}` : '',
       ].filter(Boolean);
 

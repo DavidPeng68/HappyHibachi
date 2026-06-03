@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigation } from '../../hooks';
 import { Button, Icon } from '../ui';
@@ -14,31 +14,45 @@ const SpecialOffer: React.FC = () => {
   const { t } = useTranslation();
   const { goToFreeEstimate } = useAppNavigation();
   const [isVisible, setIsVisible] = useState(true);
+  const [pinnedOpen, setPinnedOpen] = useState(false);
+  const [autoHideToken, setAutoHideToken] = useState(0);
 
   const handleClose = () => {
     setIsVisible(false);
   };
 
-  // Auto-hide after delay
+  const bumpAutoHide = useCallback(() => {
+    if (!pinnedOpen) {
+      setAutoHideToken((n) => n + 1);
+    }
+  }, [pinnedOpen]);
+
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (pinnedOpen || !isVisible) return;
+    const timer = window.setTimeout(() => {
       setIsVisible(false);
     }, AUTO_HIDE_DELAY);
-
-    return () => clearTimeout(timer);
-  }, []);
+    return () => window.clearTimeout(timer);
+  }, [autoHideToken, pinnedOpen, isVisible]);
 
   if (!isVisible) {
     return null;
   }
 
   return (
-    <aside className="special-offer" role="complementary" aria-label="Special offer">
+    <aside
+      className="special-offer"
+      role="complementary"
+      aria-label={t('common.specialOffer')}
+      onMouseEnter={bumpAutoHide}
+      onFocusCapture={bumpAutoHide}
+      onTouchStart={bumpAutoHide}
+    >
       <div className="offer-card">
         <button
           className="offer-close"
           onClick={handleClose}
-          aria-label="Close offer"
+          aria-label={t('common.close')}
           type="button"
         >
           <Icon name="close" size={20} />
@@ -64,6 +78,11 @@ const SpecialOffer: React.FC = () => {
           <Button variant="primary" size="md" onClick={goToFreeEstimate} className="offer-cta">
             {t('nav.freeEstimate')}
           </Button>
+          {!pinnedOpen && (
+            <button type="button" className="offer-keep-open" onClick={() => setPinnedOpen(true)}>
+              {t('offer.keepOpen')}
+            </button>
+          )}
         </div>
       </div>
     </aside>

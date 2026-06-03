@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAdmin } from './AdminLayout';
 import { StatusBadge } from '../../components/admin';
@@ -71,9 +71,19 @@ const ManagerDashboard: React.FC = () => {
   const upcomingDates = useMemo(() => Object.keys(upcoming7Days).sort(), [upcoming7Days]);
 
   // --- Handlers ---
-  const handleNavigateToBookings = () => {
+  const handleNavigateToBookings = useCallback(() => {
     setActiveMenu('bookings');
-  };
+  }, [setActiveMenu]);
+
+  const handleTimelineKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleNavigateToBookings();
+      }
+    },
+    [handleNavigateToBookings]
+  );
 
   const handleCall = (phone: string) => {
     window.open(`tel:${phone}`);
@@ -117,7 +127,15 @@ const ManagerDashboard: React.FC = () => {
         ) : (
           <div className="manager-timeline">
             {todayTasks.map((b) => (
-              <div key={b.id} className="manager-timeline-item" onClick={handleNavigateToBookings}>
+              <div
+                key={b.id}
+                className="manager-timeline-item"
+                role="button"
+                tabIndex={0}
+                onClick={handleNavigateToBookings}
+                onKeyDown={handleTimelineKeyDown}
+                aria-label={t('admin.manager.aria.openBookings')}
+              >
                 <div className="manager-timeline-marker">
                   <div className={`manager-timeline-dot ${b.status}`} />
                 </div>
@@ -130,7 +148,9 @@ const ManagerDashboard: React.FC = () => {
                   <StatusBadge status={b.status} />
                   <div className="manager-task-actions">
                     <button
+                      type="button"
                       className="admin-btn admin-btn-sm"
+                      aria-label={t('admin.manager.aria.callCustomer')}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleCall(b.phone);
@@ -139,7 +159,9 @@ const ManagerDashboard: React.FC = () => {
                       {t('admin.manager.call')}
                     </button>
                     <button
+                      type="button"
                       className="admin-btn admin-btn-sm"
+                      aria-label={t('admin.manager.aria.smsCustomer')}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSms(b.phone);
@@ -165,7 +187,15 @@ const ManagerDashboard: React.FC = () => {
             <div key={date}>
               <div className="manager-timeline-date">{formatDate(date)}</div>
               {upcoming7Days[date].map((b) => (
-                <div key={b.id} className="manager-task-item" onClick={handleNavigateToBookings}>
+                <div
+                  key={b.id}
+                  className="manager-task-item"
+                  role="button"
+                  tabIndex={0}
+                  onClick={handleNavigateToBookings}
+                  onKeyDown={handleTimelineKeyDown}
+                  aria-label={t('admin.manager.aria.openBookings')}
+                >
                   <span className="manager-task-time">{b.time}</span>
                   <div className="manager-task-info">
                     <div className="manager-task-name">{b.name}</div>
@@ -176,7 +206,9 @@ const ManagerDashboard: React.FC = () => {
                   <StatusBadge status={b.status} />
                   <div className="manager-task-actions">
                     <button
+                      type="button"
                       className="admin-btn admin-btn-sm"
+                      aria-label={t('admin.manager.aria.callCustomer')}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleCall(b.phone);
@@ -185,7 +217,9 @@ const ManagerDashboard: React.FC = () => {
                       {t('admin.manager.call')}
                     </button>
                     <button
+                      type="button"
                       className="admin-btn admin-btn-sm"
+                      aria-label={t('admin.manager.aria.smsCustomer')}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSms(b.phone);
@@ -194,7 +228,9 @@ const ManagerDashboard: React.FC = () => {
                       {t('admin.manager.sms')}
                     </button>
                     <button
+                      type="button"
                       className="admin-btn admin-btn-sm"
+                      aria-label={t('admin.manager.aria.emailCustomer')}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleEmail(b.email);

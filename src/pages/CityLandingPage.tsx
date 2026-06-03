@@ -1,15 +1,19 @@
-import React, { lazy, Suspense, useMemo } from 'react';
+import React, { Suspense, useMemo } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SEO } from '../components/common';
+import { Icon } from '../components/ui';
 import { HowItWorks, MenuPricing } from '../components';
-import { REGIONS, findBySlug, FAQ_ITEMS, PRICING } from '../constants';
+import { findBySlug, FAQ_ITEMS, PRICING } from '../constants';
 import { useSettings } from '../hooks';
+import lazyWithRetry from '../utils/lazyWithRetry';
 import './CityLandingPage.css';
 
-const CustomerReviews = lazy(() => import('../components/CustomerReviews/CustomerReviews'));
-const FAQ = lazy(() => import('../components/FAQ/FAQ'));
-const Contact = lazy(() => import('../components/Contact/Contact'));
+const CustomerReviews = lazyWithRetry(
+  () => import('../components/CustomerReviews/CustomerReviews')
+);
+const FAQ = lazyWithRetry(() => import('../components/FAQ/FAQ'));
+const Contact = lazyWithRetry(() => import('../components/Contact/Contact'));
 
 const LazySection: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <Suspense
@@ -101,9 +105,15 @@ const CityLandingPage: React.FC = () => {
             </Link>
           </div>
           <div className="city-hero-trust">
-            <span>&#11088; {t('cityLanding.trustRated')}</span>
-            <span>&#128737; {t('cityLanding.trustInsured')}</span>
-            <span>&#127881; {t('cityLanding.trustEvents')}</span>
+            <span>
+              <Icon name="star-filled" size={18} /> {t('cityLanding.trustRated')}
+            </span>
+            <span>
+              <Icon name="shield" size={18} /> {t('cityLanding.trustInsured')}
+            </span>
+            <span>
+              <Icon name="gift" size={18} /> {t('cityLanding.trustEvents')}
+            </span>
           </div>
         </div>
       </section>

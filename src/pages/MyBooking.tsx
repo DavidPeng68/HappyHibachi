@@ -92,16 +92,26 @@ const MyBooking: React.FC = () => {
           <p>{t('myBooking.subtitle')}</p>
         </div>
 
-        {/* 搜索表单 */}
+        {/* Search form */}
         <div className="search-card">
-          <div className="search-tabs">
+          <div className="search-tabs" role="tablist" aria-label={t('myBooking.title')}>
             <button
+              type="button"
+              role="tab"
+              id="my-booking-tab-email"
+              aria-selected={searchType === 'email'}
+              aria-controls="my-booking-search-panel"
               className={`tab ${searchType === 'email' ? 'active' : ''}`}
               onClick={() => setSearchType('email')}
             >
               <Icon name="email" size={14} /> {t('form.email')}
             </button>
             <button
+              type="button"
+              role="tab"
+              id="my-booking-tab-phone"
+              aria-selected={searchType === 'phone'}
+              aria-controls="my-booking-search-panel"
               className={`tab ${searchType === 'phone' ? 'active' : ''}`}
               onClick={() => setSearchType('phone')}
             >
@@ -109,7 +119,15 @@ const MyBooking: React.FC = () => {
             </button>
           </div>
 
-          <form onSubmit={handleSearch} className="search-form">
+          <form
+            id="my-booking-search-panel"
+            role="tabpanel"
+            aria-labelledby={
+              searchType === 'email' ? 'my-booking-tab-email' : 'my-booking-tab-phone'
+            }
+            onSubmit={handleSearch}
+            className="search-form"
+          >
             <Input
               type={searchType === 'email' ? 'email' : 'tel'}
               value={searchValue}
@@ -129,7 +147,7 @@ const MyBooking: React.FC = () => {
           {error && <div className="search-error">{error}</div>}
         </div>
 
-        {/* 搜索结果 */}
+        {/* Search results */}
         {bookings && bookings.length > 0 && (
           <div className="results-section">
             <h2>
@@ -154,7 +172,9 @@ const MyBooking: React.FC = () => {
 
                       <div className="booking-info">
                         <div className="info-item">
-                          <span className="label">⏰ {t('form.time')}</span>
+                          <span className="label">
+                            <Icon name="clock" size={14} /> {t('form.time')}
+                          </span>
                           <span className="value">{booking.time || t('common.toBeConfirmed')}</span>
                         </div>
                         <div className="info-item">
@@ -198,7 +218,7 @@ const MyBooking: React.FC = () => {
           </div>
         )}
 
-        {/* 联系信息 */}
+        {/* Contact information */}
         <div className="contact-card">
           <h3>{t('myBooking.needHelp')}</h3>
           <p>{t('myBooking.contactUs')}</p>

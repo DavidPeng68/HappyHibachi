@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { SEO } from '../components/common';
-import { Button, Input, Select, Textarea, Card, DatePicker } from '../components/ui';
+import { Button, Input, Select, Textarea, Card, DatePicker, Icon } from '../components/ui';
 import { REGIONS } from '../constants';
 import { useSettings } from '../hooks';
 import { submitEstimate } from '../services/api';
@@ -190,7 +190,9 @@ const FreeEstimate: React.FC = () => {
         <div className="estimate-container">
           <Card variant="elevated" padding="lg" className="success-card">
             <div className="success-content">
-              <span className="success-icon">✅</span>
+              <span className="success-icon" aria-hidden>
+                <Icon name="check-circle" size={24} />
+              </span>
               <h2>{t('form.success')}</h2>
               <p>{t('form.successMessage')}</p>
               <p className="contact-highlight">{contactInfo.phone}</p>

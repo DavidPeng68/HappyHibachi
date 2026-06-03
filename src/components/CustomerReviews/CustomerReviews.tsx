@@ -68,7 +68,7 @@ const CustomerReviews: React.FC = () => {
           <div className="review-stars">
             {[...Array(5)].map((_, i) => (
               <span key={i} className={`star ${i < review.rating ? 'filled' : ''}`}>
-                ★
+                <Icon name="star" size={16} />
               </span>
             ))}
           </div>

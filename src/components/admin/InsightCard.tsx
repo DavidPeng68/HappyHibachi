@@ -1,8 +1,9 @@
 import React from 'react';
+import Icon from '../ui/Icon/Icon';
 import Sparkline from './Sparkline';
 
 interface InsightCardProps {
-  icon: string;
+  icon: React.ReactNode;
   title: string;
   value: string | number;
   subtitle?: string;
@@ -12,12 +13,6 @@ interface InsightCardProps {
   onClick?: () => void;
   className?: string;
 }
-
-const trendArrows: Record<string, string> = {
-  up: '\u2191',
-  down: '\u2193',
-  flat: '\u2192',
-};
 
 const InsightCard: React.FC<InsightCardProps> = ({
   icon,
@@ -41,9 +36,7 @@ const InsightCard: React.FC<InsightCardProps> = ({
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
     >
-      <div className="insight-card-icon">
-        <span>{icon}</span>
-      </div>
+      <div className="insight-card-icon">{icon}</div>
       <div className="insight-card-body">
         <div className="insight-card-title">{title}</div>
         <div className="insight-card-value">{value}</div>
@@ -56,7 +49,9 @@ const InsightCard: React.FC<InsightCardProps> = ({
           className={`insight-card-trend ${trend}`}
           style={trendColor ? { color: trendColor } : undefined}
         >
-          {trendArrows[trend]}
+          {trend === 'up' && <Icon name="trending-up" size={16} />}
+          {trend === 'down' && <Icon name="trending-down" size={16} />}
+          {trend === 'flat' && <Icon name="chevron-right" size={16} />}
         </div>
       ) : null}
     </div>
